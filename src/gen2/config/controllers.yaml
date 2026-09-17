@@ -1,0 +1,71 @@
+# =========================================================
+# CONTROLLER MANAGER
+# =========================================================
+
+controller_manager:
+  ros__parameters:
+
+    update_rate: 200
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    left_arm_mit_controller:
+      type: posveleff_controllers/PosVelEffController
+
+    right_arm_mit_controller:
+      type: posveleff_controllers/PosVelEffController
+
+    left_gripper_mit_controller:
+      type: posveleff_controllers/PosVelEffController
+
+    right_gripper_mit_controller:
+      type: posveleff_controllers/PosVelEffController
+
+
+# =========================================================
+# LEFT ARM MIT
+# =========================================================
+
+left_arm_mit_controller:
+  ros__parameters:
+
+    joints:
+      - left_joint_1
+      - left_joint_2
+      - left_joint_3
+      - left_joint_4
+      - left_joint_5
+      - left_joint_6
+      - left_joint_7
+
+left_gripper_mit_controller:
+  ros__parameters:
+
+    joints:
+      - left_gripper_left_joint
+
+# =========================================================
+
+# =========================================================
+# RIGHT ARM MIT
+# =========================================================
+
+right_arm_mit_controller:
+  ros__parameters:
+
+    joints:
+      - right_joint_1
+      - right_joint_2
+      - right_joint_3
+      - right_joint_4
+      - right_joint_5
+      - right_joint_6
+      - right_joint_7
+
+right_gripper_mit_controller:
+  ros__parameters:
+
+    joints:
+      - right_gripper_right_joint
+

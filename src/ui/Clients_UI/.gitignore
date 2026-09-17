@@ -1,0 +1,39 @@
+# ============================================================
+# iHub Giga Factory — Clients UI Git Ignore
+# ============================================================
+
+# Python bytecode and virtual environments
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# Build & Installation Artifacts (ROS 2 / Colcon)
+build/
+install/
+log/
+*.egg-info/
+.ament_index/
+
+# Runtime Logs & Telemetry Data
+*.log
+app.log
+telemetry_history.jsonl
+system_telemetry.json
+
+# Datasets & Scratch Work
+daksha_data_collection/datasets/
+scratch/
+Untitled*
+ui.zip
+
+# IDE & System files
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Archived / replaced packages (heavy STL meshes — do not commit)
+bin/

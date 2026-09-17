@@ -1,0 +1,2 @@
+#pragma once
+inline constexpr char kCameraPage[] = R"VIVEKA_PAGE(@VIVEKA_PAGE@)VIVEKA_PAGE";
