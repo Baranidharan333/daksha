@@ -1,3 +1,0 @@
-int32[] motor_ids
-float32[] kp
-float32[] kd

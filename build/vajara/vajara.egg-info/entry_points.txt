@@ -1,3 +1,0 @@
-[console_scripts]
-power_monitor_node = vajara.power_monitor_node:main
-

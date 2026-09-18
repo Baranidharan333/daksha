@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/vcan_bridge_node.dir/src/vcan_bridge_node.cpp.o -o vcan_bridge_node  /usr/lib/x86_64-linux-gnu/libusb-1.0.so 

@@ -1,7 +1,0 @@
-{
-  "package_name": "daksha_msgs",
-  "non_idl_tuples": [
-    "/home/phy_ai/.ihub/daksha/src/ui/Clients_UI/daksha_msgs:srv/StartRecord.srv",
-    "/home/phy_ai/.ihub/daksha/src/ui/Clients_UI/daksha_msgs:srv/StartReplay.srv"
-  ]
-}

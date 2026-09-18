@@ -1,4 +1,0 @@
-source;share/automation/local_setup.bash
-source;share/automation/local_setup.dsv
-source;share/automation/local_setup.sh
-source;share/automation/local_setup.zsh

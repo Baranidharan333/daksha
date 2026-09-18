@@ -1,5 +1,0 @@
-string name
-string[] recording_names
----
-bool success
-string message

@@ -1,6 +1,0 @@
-source;share/daksha_description_full_body/hook/pythonpath.ps1
-source;share/daksha_description_full_body/hook/pythonpath.dsv
-source;share/daksha_description_full_body/hook/pythonpath.sh
-source;share/daksha_description_full_body/hook/ament_prefix_path.ps1
-source;share/daksha_description_full_body/hook/ament_prefix_path.dsv
-source;share/daksha_description_full_body/hook/ament_prefix_path.sh

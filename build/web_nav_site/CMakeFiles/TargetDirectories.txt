@@ -1,9 +1,0 @@
-/home/phy_ai/.ihub/daksha/build/web_nav_site/CMakeFiles/uninstall.dir
-/home/phy_ai/.ihub/daksha/build/web_nav_site/CMakeFiles/web_nav_site_uninstall.dir
-/home/phy_ai/.ihub/daksha/build/web_nav_site/CMakeFiles/test.dir
-/home/phy_ai/.ihub/daksha/build/web_nav_site/CMakeFiles/edit_cache.dir
-/home/phy_ai/.ihub/daksha/build/web_nav_site/CMakeFiles/rebuild_cache.dir
-/home/phy_ai/.ihub/daksha/build/web_nav_site/CMakeFiles/list_install_components.dir
-/home/phy_ai/.ihub/daksha/build/web_nav_site/CMakeFiles/install.dir
-/home/phy_ai/.ihub/daksha/build/web_nav_site/CMakeFiles/install/local.dir
-/home/phy_ai/.ihub/daksha/build/web_nav_site/CMakeFiles/install/strip.dir

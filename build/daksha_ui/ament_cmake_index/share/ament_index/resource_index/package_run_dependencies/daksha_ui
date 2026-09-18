@@ -1,1 +1,0 @@
-boost;nlohmann-json-dev;libgstreamer1.0-dev;libgstreamer-plugins-base1.0-dev;libgstreamer-plugins-bad1.0-dev;rclpy;std_msgs;gstreamer1.0-plugins-good;gstreamer1.0-plugins-bad;gstreamer1.0-plugins-ugly;gstreamer1.0-nice;python3-flask;python3-flask-cors;python3-yaml;python3-psutil;python3-opencv;python3-numpy;ament_lint_auto;ament_lint_common

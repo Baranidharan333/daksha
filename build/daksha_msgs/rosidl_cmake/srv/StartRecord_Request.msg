@@ -1,4 +1,0 @@
-string dataset_name
-int32 episode_length
-float32 record_hz
-int32 max_episodes

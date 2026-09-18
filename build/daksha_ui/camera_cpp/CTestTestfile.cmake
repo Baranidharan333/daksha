@@ -1,6 +1,0 @@
-# CMake generated Testfile for 
-# Source directory: /home/phy_ai/.ihub/daksha/src/ui/Clients_UI/daksha_ui/camera_cpp
-# Build directory: /home/phy_ai/.ihub/daksha/build/daksha_ui/camera_cpp
-# 
-# This file includes the relevant testing commands required for 
-# testing this directory and lists subdirectories to be tested as well.

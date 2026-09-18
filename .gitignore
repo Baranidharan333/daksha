@@ -1,0 +1,35 @@
+# ROS 2 build artifacts
+build/
+install/
+log/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Colcon
+.colcon/
+
+# ROS 2 generated files
+*.db3
+*.bag
+*.bag.active
+
+# IDE/editor
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Python virtual environments
+venv/
+.venv/
+env/
+
+# Temporary files
+*.tmp
+*.swp
+*~

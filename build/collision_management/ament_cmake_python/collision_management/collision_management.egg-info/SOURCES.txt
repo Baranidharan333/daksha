@@ -1,8 +1,0 @@
-setup.py
-collision_management/__init__.py
-collision_management.egg-info/PKG-INFO
-collision_management.egg-info/SOURCES.txt
-collision_management.egg-info/dependency_links.txt
-collision_management.egg-info/top_level.txt
-collision_management/srv/__init__.py
-collision_management/srv/_get_collision_status.py

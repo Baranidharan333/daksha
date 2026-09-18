@@ -1,4 +1,0 @@
-source;share/gesture_management/environment/ament_prefix_path.sh
-source;share/gesture_management/environment/library_path.sh
-source;share/gesture_management/environment/path.sh
-source;share/gesture_management/environment/pythonpath.sh

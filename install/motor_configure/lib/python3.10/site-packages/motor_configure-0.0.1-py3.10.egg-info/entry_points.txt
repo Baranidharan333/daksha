@@ -1,3 +1,0 @@
-[console_scripts]
-motor_configure = motor_configure.main:main
-

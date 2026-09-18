@@ -1,8 +1,0 @@
-{
-    "topics": {
-        "goal_pose": "/goal_pose",
-        "web_command": "/web_command",
-        "map": "/map",
-        "tf": "/tf"
-    }
-}

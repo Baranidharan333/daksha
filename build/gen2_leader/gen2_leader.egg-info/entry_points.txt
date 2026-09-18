@@ -1,7 +1,0 @@
-[console_scripts]
-leader_mirror = gen2_leader.main_with_service_mirror_wifi:main
-leader_raw = gen2_leader.Gen2Leader_raw:main
-leader_serial = gen2_leader.Gen2Leader_raw_serial:main
-leader_torque_toggle = gen2_leader.LeaderTorqueToggle:main
-leader_wifi = gen2_leader.main_with_service_wifi:main
-

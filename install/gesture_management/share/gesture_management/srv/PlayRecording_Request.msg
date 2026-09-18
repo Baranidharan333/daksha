@@ -1,6 +1,0 @@
-string recording_name
-string output_topic
-float32 replay_speed
-string repeat_mode
-int32 repeat_count
-float32 interval_s
