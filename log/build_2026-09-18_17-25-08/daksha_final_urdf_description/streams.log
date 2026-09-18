@@ -1,0 +1,20 @@
+[4.634s] Invoking command in '/home/phy_ai/.ihub/daksha/src/ui/Clients_UI/daksha_final_urdf_description': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/daksha_final_urdf_description/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../../build/daksha_final_urdf_description build --build-base /home/phy_ai/.ihub/daksha/build/daksha_final_urdf_description/build install --record /home/phy_ai/.ihub/daksha/build/daksha_final_urdf_description/install.log --install-scripts $base/lib/fusion2urdf_ros2 --single-version-externally-managed install_data
+[5.233s] running egg_info
+[5.234s] writing ../../../../build/daksha_final_urdf_description/daksha_final_urdf_description.egg-info/PKG-INFO
+[5.234s] writing dependency_links to ../../../../build/daksha_final_urdf_description/daksha_final_urdf_description.egg-info/dependency_links.txt
+[5.234s] writing entry points to ../../../../build/daksha_final_urdf_description/daksha_final_urdf_description.egg-info/entry_points.txt
+[5.235s] writing requirements to ../../../../build/daksha_final_urdf_description/daksha_final_urdf_description.egg-info/requires.txt
+[5.235s] writing top-level names to ../../../../build/daksha_final_urdf_description/daksha_final_urdf_description.egg-info/top_level.txt
+[5.239s] reading manifest file '../../../../build/daksha_final_urdf_description/daksha_final_urdf_description.egg-info/SOURCES.txt'
+[5.242s] writing manifest file '../../../../build/daksha_final_urdf_description/daksha_final_urdf_description.egg-info/SOURCES.txt'
+[5.243s] running build
+[5.243s] running build_py
+[5.243s] running install
+[5.244s] running install_lib
+[5.246s] running install_data
+[5.249s] running install_egg_info
+[5.253s] removing '/home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/lib/python3.10/site-packages/daksha_final_urdf_description-0.0.0-py3.10.egg-info' (and everything under it)
+[5.254s] Copying ../../../../build/daksha_final_urdf_description/daksha_final_urdf_description.egg-info to /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/lib/python3.10/site-packages/daksha_final_urdf_description-0.0.0-py3.10.egg-info
+[5.256s] running install_scripts
+[5.300s] writing list of installed files to '/home/phy_ai/.ihub/daksha/build/daksha_final_urdf_description/install.log'
+[5.663s] Invoked command in '/home/phy_ai/.ihub/daksha/src/ui/Clients_UI/daksha_final_urdf_description' returned '0': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/daksha_final_urdf_description/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../../build/daksha_final_urdf_description build --build-base /home/phy_ai/.ihub/daksha/build/daksha_final_urdf_description/build install --record /home/phy_ai/.ihub/daksha/build/daksha_final_urdf_description/install.log --install-scripts $base/lib/fusion2urdf_ros2 --single-version-externally-managed install_data

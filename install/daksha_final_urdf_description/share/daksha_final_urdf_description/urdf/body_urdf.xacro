@@ -1,0 +1,35 @@
+<?xml version="1.0" ?>
+<robot name="daksha_final_urdf" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ==================== BODY LINKS ==================== -->
+
+  <link name="body">
+    <inertial>
+      <origin xyz="-0.13010011612658967 0.12247207959360365 0.5139103949350433" rpy="0 0 0"/>
+      <mass value="73.13458236862405"/>
+      <inertia ixx="11.452756" iyy="11.009286" izz="1.866559" ixy="-0.000265" iyz="-0.002054" ixz="-0.22961"/>
+    </inertial>
+    <visual>
+      <origin xyz="-0.139282 0.1229 -0.231" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/body_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.139282 0.1229 -0.231" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/body_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- ==================== BODY JOINTS ==================== -->
+
+  <joint name="body_joint" type="fixed">
+    <origin xyz="0.139282 -0.1229 0.231" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="body"/>
+  </joint>
+
+</robot>

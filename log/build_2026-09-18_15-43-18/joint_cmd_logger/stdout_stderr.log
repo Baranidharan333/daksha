@@ -1,0 +1,37 @@
+running egg_info
+creating ../../build/joint_cmd_logger/joint_cmd_logger.egg-info
+writing ../../build/joint_cmd_logger/joint_cmd_logger.egg-info/PKG-INFO
+writing dependency_links to ../../build/joint_cmd_logger/joint_cmd_logger.egg-info/dependency_links.txt
+writing entry points to ../../build/joint_cmd_logger/joint_cmd_logger.egg-info/entry_points.txt
+writing requirements to ../../build/joint_cmd_logger/joint_cmd_logger.egg-info/requires.txt
+writing top-level names to ../../build/joint_cmd_logger/joint_cmd_logger.egg-info/top_level.txt
+writing manifest file '../../build/joint_cmd_logger/joint_cmd_logger.egg-info/SOURCES.txt'
+reading manifest file '../../build/joint_cmd_logger/joint_cmd_logger.egg-info/SOURCES.txt'
+writing manifest file '../../build/joint_cmd_logger/joint_cmd_logger.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/phy_ai/.ihub/daksha/build/joint_cmd_logger/build
+creating /home/phy_ai/.ihub/daksha/build/joint_cmd_logger/build/lib
+creating /home/phy_ai/.ihub/daksha/build/joint_cmd_logger/build/lib/joint_cmd_logger
+copying joint_cmd_logger/__init__.py -> /home/phy_ai/.ihub/daksha/build/joint_cmd_logger/build/lib/joint_cmd_logger
+copying joint_cmd_logger/joint_cmd_logger_node.py -> /home/phy_ai/.ihub/daksha/build/joint_cmd_logger/build/lib/joint_cmd_logger
+running install
+running install_lib
+creating /home/phy_ai/.ihub/daksha/install/joint_cmd_logger/lib/python3.10/site-packages/joint_cmd_logger
+copying /home/phy_ai/.ihub/daksha/build/joint_cmd_logger/build/lib/joint_cmd_logger/__init__.py -> /home/phy_ai/.ihub/daksha/install/joint_cmd_logger/lib/python3.10/site-packages/joint_cmd_logger
+copying /home/phy_ai/.ihub/daksha/build/joint_cmd_logger/build/lib/joint_cmd_logger/joint_cmd_logger_node.py -> /home/phy_ai/.ihub/daksha/install/joint_cmd_logger/lib/python3.10/site-packages/joint_cmd_logger
+byte-compiling /home/phy_ai/.ihub/daksha/install/joint_cmd_logger/lib/python3.10/site-packages/joint_cmd_logger/__init__.py to __init__.cpython-310.pyc
+byte-compiling /home/phy_ai/.ihub/daksha/install/joint_cmd_logger/lib/python3.10/site-packages/joint_cmd_logger/joint_cmd_logger_node.py to joint_cmd_logger_node.cpython-310.pyc
+running install_data
+creating /home/phy_ai/.ihub/daksha/install/joint_cmd_logger/share/ament_index
+creating /home/phy_ai/.ihub/daksha/install/joint_cmd_logger/share/ament_index/resource_index
+creating /home/phy_ai/.ihub/daksha/install/joint_cmd_logger/share/ament_index/resource_index/packages
+copying resource/joint_cmd_logger -> /home/phy_ai/.ihub/daksha/install/joint_cmd_logger/share/ament_index/resource_index/packages
+copying package.xml -> /home/phy_ai/.ihub/daksha/install/joint_cmd_logger/share/joint_cmd_logger
+creating /home/phy_ai/.ihub/daksha/install/joint_cmd_logger/share/joint_cmd_logger/launch
+copying launch/joint_cmd_logger.launch.py -> /home/phy_ai/.ihub/daksha/install/joint_cmd_logger/share/joint_cmd_logger/launch
+running install_egg_info
+Copying ../../build/joint_cmd_logger/joint_cmd_logger.egg-info to /home/phy_ai/.ihub/daksha/install/joint_cmd_logger/lib/python3.10/site-packages/joint_cmd_logger-0.0.1-py3.10.egg-info
+running install_scripts
+Installing joint_cmd_logger script to /home/phy_ai/.ihub/daksha/install/joint_cmd_logger/lib/joint_cmd_logger
+writing list of installed files to '/home/phy_ai/.ihub/daksha/build/joint_cmd_logger/install.log'

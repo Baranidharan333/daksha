@@ -1,0 +1,1 @@
+/home/phy_ai/.ihub/daksha/src/motor_configure/launch/motor_configure.launch.py

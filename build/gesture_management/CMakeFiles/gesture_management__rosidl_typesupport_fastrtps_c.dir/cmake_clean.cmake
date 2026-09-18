@@ -1,0 +1,41 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/gesture_management__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/delete_sequence__type_support_c.cpp.o"
+  "CMakeFiles/gesture_management__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/delete_sequence__type_support_c.cpp.o.d"
+  "CMakeFiles/gesture_management__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/get_replay_status__type_support_c.cpp.o"
+  "CMakeFiles/gesture_management__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/get_replay_status__type_support_c.cpp.o.d"
+  "CMakeFiles/gesture_management__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/list_sequences__type_support_c.cpp.o"
+  "CMakeFiles/gesture_management__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/list_sequences__type_support_c.cpp.o.d"
+  "CMakeFiles/gesture_management__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/play_recording__type_support_c.cpp.o"
+  "CMakeFiles/gesture_management__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/play_recording__type_support_c.cpp.o.d"
+  "CMakeFiles/gesture_management__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/play_sequence__type_support_c.cpp.o"
+  "CMakeFiles/gesture_management__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/play_sequence__type_support_c.cpp.o.d"
+  "CMakeFiles/gesture_management__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/replay_recording__type_support_c.cpp.o"
+  "CMakeFiles/gesture_management__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/replay_recording__type_support_c.cpp.o.d"
+  "CMakeFiles/gesture_management__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/save_sequence__type_support_c.cpp.o"
+  "CMakeFiles/gesture_management__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/save_sequence__type_support_c.cpp.o.d"
+  "CMakeFiles/gesture_management__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/start_recording__type_support_c.cpp.o"
+  "CMakeFiles/gesture_management__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/start_recording__type_support_c.cpp.o.d"
+  "libgesture_management__rosidl_typesupport_fastrtps_c.pdb"
+  "libgesture_management__rosidl_typesupport_fastrtps_c.so"
+  "rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/delete_sequence__rosidl_typesupport_fastrtps_c.h"
+  "rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/delete_sequence__type_support_c.cpp"
+  "rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/get_replay_status__rosidl_typesupport_fastrtps_c.h"
+  "rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/get_replay_status__type_support_c.cpp"
+  "rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/list_sequences__rosidl_typesupport_fastrtps_c.h"
+  "rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/list_sequences__type_support_c.cpp"
+  "rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/play_recording__rosidl_typesupport_fastrtps_c.h"
+  "rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/play_recording__type_support_c.cpp"
+  "rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/play_sequence__rosidl_typesupport_fastrtps_c.h"
+  "rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/play_sequence__type_support_c.cpp"
+  "rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/replay_recording__rosidl_typesupport_fastrtps_c.h"
+  "rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/replay_recording__type_support_c.cpp"
+  "rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/save_sequence__rosidl_typesupport_fastrtps_c.h"
+  "rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/save_sequence__type_support_c.cpp"
+  "rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/start_recording__rosidl_typesupport_fastrtps_c.h"
+  "rosidl_typesupport_fastrtps_c/gesture_management/srv/detail/start_recording__type_support_c.cpp"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang CXX)
+  include(CMakeFiles/gesture_management__rosidl_typesupport_fastrtps_c.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

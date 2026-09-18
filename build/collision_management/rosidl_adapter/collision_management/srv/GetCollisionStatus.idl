@@ -1,0 +1,18 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from collision_management/srv/GetCollisionStatus.srv
+// generated code does not contain a copyright notice
+
+#include "sensor_msgs/msg/JointState.idl"
+
+module collision_management {
+  module srv {
+    struct GetCollisionStatus_Request {
+      uint8 structure_needs_at_least_one_member;
+    };
+    struct GetCollisionStatus_Response {
+      boolean in_collision;
+
+      sensor_msgs::msg::JointState status;
+    };
+  };
+};

@@ -1,0 +1,15 @@
+[console_scripts]
+GravityToJointCmd = gen2.GravityToJointCmd:main
+HomeMoveService = gen2.HomeMoveService:main
+arm_recovery_watchdog = gen2.arm_recovery_watchdog:main
+battery_info = gen2.battery_info:main
+gravity_ff_tuner = gen2.gravity_ff_tuner:main
+gravity_scale_setter = gen2.gravity_scale_setter:main
+joint_cmd = gen2.joint_cmd:main
+joint_cmd_publisher_from_joint_sates = gen2.joint_cmd_publisher_from_joint_sates:main
+joint_cmd_web_ui = gen2.joint_cmd_web_ui:main
+leader_controller_ui = gen2.leader_controller_ui:main
+mode_toggler = gen2.mode_toggler:main
+teach_mode_node = gen2.teach_mode_node:main
+vcan_bridge = gen2.vcan_bridge:main
+

@@ -1,0 +1,1 @@
+boost:gstreamer1.0-nice:gstreamer1.0-plugins-bad:gstreamer1.0-plugins-good:gstreamer1.0-plugins-ugly:libgstreamer-plugins-bad1.0-dev:libgstreamer-plugins-base1.0-dev:libgstreamer1.0-dev:nlohmann-json-dev:python3-flask:python3-flask-cors:python3-numpy:python3-opencv:python3-psutil:python3-yaml:rclpy:std_msgs

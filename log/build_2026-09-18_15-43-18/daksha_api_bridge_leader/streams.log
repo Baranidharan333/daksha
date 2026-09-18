@@ -1,0 +1,52 @@
+[4.182s] Invoking command in '/home/phy_ai/.ihub/daksha/src/global/daksha_api_bridge_leader': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../build/daksha_api_bridge_leader build --build-base /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/build install --record /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/install.log --install-scripts $base/lib/daksha_api_bridge_leader --single-version-externally-managed install_data
+[4.821s] running egg_info
+[4.821s] creating ../../../build/daksha_api_bridge_leader/daksha_api_bridge_leader.egg-info
+[4.822s] writing ../../../build/daksha_api_bridge_leader/daksha_api_bridge_leader.egg-info/PKG-INFO
+[4.822s] writing dependency_links to ../../../build/daksha_api_bridge_leader/daksha_api_bridge_leader.egg-info/dependency_links.txt
+[4.822s] writing entry points to ../../../build/daksha_api_bridge_leader/daksha_api_bridge_leader.egg-info/entry_points.txt
+[4.823s] writing requirements to ../../../build/daksha_api_bridge_leader/daksha_api_bridge_leader.egg-info/requires.txt
+[4.823s] writing top-level names to ../../../build/daksha_api_bridge_leader/daksha_api_bridge_leader.egg-info/top_level.txt
+[4.827s] writing manifest file '../../../build/daksha_api_bridge_leader/daksha_api_bridge_leader.egg-info/SOURCES.txt'
+[4.832s] reading manifest file '../../../build/daksha_api_bridge_leader/daksha_api_bridge_leader.egg-info/SOURCES.txt'
+[4.836s] writing manifest file '../../../build/daksha_api_bridge_leader/daksha_api_bridge_leader.egg-info/SOURCES.txt'
+[4.836s] running build
+[4.836s] running build_py
+[4.836s] creating /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/build
+[4.836s] creating /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/build/lib
+[4.840s] creating /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/build/lib/daksha_api_bridge_leader
+[4.840s] copying daksha_api_bridge_leader/joint_states_api_publisher.py -> /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/build/lib/daksha_api_bridge_leader
+[4.840s] copying daksha_api_bridge_leader/joint_cmd_api_suscriber.py -> /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/build/lib/daksha_api_bridge_leader
+[4.841s] copying daksha_api_bridge_leader/__init__.py -> /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/build/lib/daksha_api_bridge_leader
+[4.841s] copying daksha_api_bridge_leader/camera_streamer.py -> /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/build/lib/daksha_api_bridge_leader
+[4.841s] copying daksha_api_bridge_leader/camera_publisher.py -> /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/build/lib/daksha_api_bridge_leader
+[4.842s] running install
+[4.842s] running install_lib
+[4.846s] creating /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/python3.10/site-packages/daksha_api_bridge_leader
+[4.846s] copying /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/build/lib/daksha_api_bridge_leader/joint_states_api_publisher.py -> /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/python3.10/site-packages/daksha_api_bridge_leader
+[4.846s] copying /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/build/lib/daksha_api_bridge_leader/joint_cmd_api_suscriber.py -> /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/python3.10/site-packages/daksha_api_bridge_leader
+[4.846s] copying /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/build/lib/daksha_api_bridge_leader/__init__.py -> /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/python3.10/site-packages/daksha_api_bridge_leader
+[4.846s] copying /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/build/lib/daksha_api_bridge_leader/camera_streamer.py -> /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/python3.10/site-packages/daksha_api_bridge_leader
+[4.846s] copying /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/build/lib/daksha_api_bridge_leader/camera_publisher.py -> /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/python3.10/site-packages/daksha_api_bridge_leader
+[4.849s] byte-compiling /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/python3.10/site-packages/daksha_api_bridge_leader/joint_states_api_publisher.py to joint_states_api_publisher.cpython-310.pyc
+[4.851s] byte-compiling /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/python3.10/site-packages/daksha_api_bridge_leader/joint_cmd_api_suscriber.py to joint_cmd_api_suscriber.cpython-310.pyc
+[4.857s] byte-compiling /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/python3.10/site-packages/daksha_api_bridge_leader/__init__.py to __init__.cpython-310.pyc
+[4.857s] byte-compiling /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/python3.10/site-packages/daksha_api_bridge_leader/camera_streamer.py to camera_streamer.cpython-310.pyc
+[4.865s] byte-compiling /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/python3.10/site-packages/daksha_api_bridge_leader/camera_publisher.py to camera_publisher.cpython-310.pyc
+[4.869s] running install_data
+[4.869s] creating /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/share/ament_index
+[4.870s] creating /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/share/ament_index/resource_index
+[4.870s] creating /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/share/ament_index/resource_index/packages
+[4.870s] copying resource/daksha_api_bridge_leader -> /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/share/ament_index/resource_index/packages
+[4.870s] copying package.xml -> /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/share/daksha_api_bridge_leader
+[4.870s] creating /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/share/daksha_api_bridge_leader/config
+[4.870s] copying config/receive_cameras.yaml -> /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/share/daksha_api_bridge_leader/config
+[4.870s] creating /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/share/daksha_api_bridge_leader/launch
+[4.870s] copying launch/leader_bridge.launch.py -> /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/share/daksha_api_bridge_leader/launch
+[4.871s] running install_egg_info
+[4.874s] Copying ../../../build/daksha_api_bridge_leader/daksha_api_bridge_leader.egg-info to /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/python3.10/site-packages/daksha_api_bridge_leader-0.0.0-py3.10.egg-info
+[4.877s] running install_scripts
+[4.929s] Installing camera_subscriber script to /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/daksha_api_bridge_leader
+[4.929s] Installing joint_cmd_api_publisher script to /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/daksha_api_bridge_leader
+[4.930s] Installing joint_states_api_subscriber script to /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/daksha_api_bridge_leader
+[4.930s] writing list of installed files to '/home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/install.log'
+[5.135s] Invoked command in '/home/phy_ai/.ihub/daksha/src/global/daksha_api_bridge_leader' returned '0': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../build/daksha_api_bridge_leader build --build-base /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/build install --record /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/install.log --install-scripts $base/lib/daksha_api_bridge_leader --single-version-externally-managed install_data

@@ -1,0 +1,89 @@
+// generated from rosidl_typesupport_fastrtps_c/resource/idl__rosidl_typesupport_fastrtps_c.h.em
+// with input from gesture_management:srv/StartRecording.idl
+// generated code does not contain a copyright notice
+#ifndef GESTURE_MANAGEMENT__SRV__DETAIL__START_RECORDING__ROSIDL_TYPESUPPORT_FASTRTPS_C_H_
+#define GESTURE_MANAGEMENT__SRV__DETAIL__START_RECORDING__ROSIDL_TYPESUPPORT_FASTRTPS_C_H_
+
+
+#include <stddef.h>
+#include "rosidl_runtime_c/message_type_support_struct.h"
+#include "rosidl_typesupport_interface/macros.h"
+#include "gesture_management/msg/rosidl_typesupport_fastrtps_c__visibility_control.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+ROSIDL_TYPESUPPORT_FASTRTPS_C_PUBLIC_gesture_management
+size_t get_serialized_size_gesture_management__srv__StartRecording_Request(
+  const void * untyped_ros_message,
+  size_t current_alignment);
+
+ROSIDL_TYPESUPPORT_FASTRTPS_C_PUBLIC_gesture_management
+size_t max_serialized_size_gesture_management__srv__StartRecording_Request(
+  bool & full_bounded,
+  bool & is_plain,
+  size_t current_alignment);
+
+ROSIDL_TYPESUPPORT_FASTRTPS_C_PUBLIC_gesture_management
+const rosidl_message_type_support_t *
+ROSIDL_TYPESUPPORT_INTERFACE__MESSAGE_SYMBOL_NAME(rosidl_typesupport_fastrtps_c, gesture_management, srv, StartRecording_Request)();
+
+#ifdef __cplusplus
+}
+#endif
+
+// already included above
+// #include <stddef.h>
+// already included above
+// #include "rosidl_runtime_c/message_type_support_struct.h"
+// already included above
+// #include "rosidl_typesupport_interface/macros.h"
+// already included above
+// #include "gesture_management/msg/rosidl_typesupport_fastrtps_c__visibility_control.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+ROSIDL_TYPESUPPORT_FASTRTPS_C_PUBLIC_gesture_management
+size_t get_serialized_size_gesture_management__srv__StartRecording_Response(
+  const void * untyped_ros_message,
+  size_t current_alignment);
+
+ROSIDL_TYPESUPPORT_FASTRTPS_C_PUBLIC_gesture_management
+size_t max_serialized_size_gesture_management__srv__StartRecording_Response(
+  bool & full_bounded,
+  bool & is_plain,
+  size_t current_alignment);
+
+ROSIDL_TYPESUPPORT_FASTRTPS_C_PUBLIC_gesture_management
+const rosidl_message_type_support_t *
+ROSIDL_TYPESUPPORT_INTERFACE__MESSAGE_SYMBOL_NAME(rosidl_typesupport_fastrtps_c, gesture_management, srv, StartRecording_Response)();
+
+#ifdef __cplusplus
+}
+#endif
+
+#include "rosidl_runtime_c/service_type_support_struct.h"
+// already included above
+// #include "rosidl_typesupport_interface/macros.h"
+// already included above
+// #include "gesture_management/msg/rosidl_typesupport_fastrtps_c__visibility_control.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+ROSIDL_TYPESUPPORT_FASTRTPS_C_PUBLIC_gesture_management
+const rosidl_service_type_support_t *
+ROSIDL_TYPESUPPORT_INTERFACE__SERVICE_SYMBOL_NAME(rosidl_typesupport_fastrtps_c, gesture_management, srv, StartRecording)();
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif  // GESTURE_MANAGEMENT__SRV__DETAIL__START_RECORDING__ROSIDL_TYPESUPPORT_FASTRTPS_C_H_

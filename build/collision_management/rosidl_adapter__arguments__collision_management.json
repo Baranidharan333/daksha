@@ -1,0 +1,6 @@
+{
+  "package_name": "collision_management",
+  "non_idl_tuples": [
+    "/home/phy_ai/.ihub/daksha/src/controllers/collision_management:srv/GetCollisionStatus.srv"
+  ]
+}

@@ -1,0 +1,854 @@
+<robot name="daksha">
+  <material name="silver">
+    <color rgba="0.700 0.700 0.700 1.000" />
+  </material>
+  <link name="world" />
+  <link name="base_link">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.0015901950206305587 -0.001839815699437876 0.5709596244282963" />
+      <mass value="1" />
+      <inertia ixx="0.1843732035" ixy="-0.0000044011" ixz="-0.002878667" iyy="0.1787927366" iyz="-0.0003074026" izz="0.0240179534" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0 0 0" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/base_link.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="-0.012273 -0.000421 1.651536" xyz="-0.007823 -0.002038 0.086266" />
+      <geometry>
+        <box size="0.504822 0.506659 0.192236" /></geometry>
+    </collision>
+  <collision><geometry><box size="0.424200 0.390175 0.201329" /></geometry><origin xyz="-0.001659 0.000918 0.257074" rpy="0.033138 0.014120 1.555060" /></collision><collision><geometry><box size="0.394651 0.264008 0.199467" /></geometry><origin xyz="-0.006195 -0.000165 0.438973" rpy="-3.141402 0.021591 1.578969" /></collision><collision><geometry><cylinder radius="0.132588" length="0.374007" /></geometry><origin xyz="-0.001253 -0.000355 0.630001" rpy="1.560382 0.006090 0.006027" /></collision><collision><geometry><box size="0.301658 0.217919 0.199268" /></geometry><origin xyz="0.011258 -0.002566 0.796109" rpy="3.138362 -0.013345 -1.554959" /></collision><collision><geometry><box size="0.384755 0.245248 0.198321" /></geometry><origin xyz="0.014775 -0.002363 0.974734" rpy="-3.137670 -0.000089 1.561877" /></collision><collision><geometry><box size="0.382458 0.229599 0.215221" /></geometry><origin xyz="0.002940 -0.000996 1.151416" rpy="-0.142520 0.008696 1.576266" /></collision><collision><geometry><box size="0.196488 0.234866 0.154918" /></geometry><origin xyz="0.012292 0.003518 1.316756" rpy="1.591932 -0.591193 0.064227" /></collision></link>
+  <link name="wheel_base">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.1353399816829342 0.12353261170349808 -0.14465125224769124" />
+      <mass value="10" />
+      <inertia ixx="0.2061649924" ixy="-0.0004876559" ixz="-0.0005170906" iyy="0.2127681792" iyz="0.0000744218" izz="0.3693258727" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.131791 0.124714 -0.002244" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/wheel_base.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="-3.140276 0.001528 0.002163" xyz="-0.139516 0.122837 -0.116206" />
+      <geometry>
+        <box size="0.538910 0.528055 0.233307" /></geometry>
+    </collision>
+  </link>
+  <link name="right_link_1">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.0011167754835409993 -0.030104610424300376 -0.00011397080567743245" />
+      <mass value="1.05" />
+      <inertia ixx="0.0010834418" ixy="-0.0000383519" ixz="0.0000014527" iyy="0.0013463849" iyz="-0.0000037771" izz="0.0009529871" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.021703 0.13065 -1.057919" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/right_link_1.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="0.066433 -0.102768 -0.003418" xyz="-0.001049 -0.043582 -0.002494" />
+      <geometry>
+        <cylinder radius="0.056093" length="0.127020" /></geometry>
+    </collision>
+  </link>
+  
+  <link name="right_link_2">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.000860926113780431 -0.05637294419788913 3.630072094029657e-07" />
+      <mass value="1.091" />
+      <inertia ixx="0.0013347358" ixy="0.0000103339" ixz="-0" iyy="0.0008510441" iyz="0" izz="0.0010210529" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.023328 0.19235 -1.057919" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/right_link_2.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="1.574858 -0.004193 1.893166" xyz="-0.003618 -0.050043 0.000040" />
+      <geometry>
+        <box size="0.127021 0.098184 0.081878" /></geometry>
+    </collision>
+  </link>
+  <link name="right_link_3">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.02479483483041098 0.00012782220015222778 -0.02010072905526994" />
+      <mass value="0.25" />
+      <inertia ixx="0.0004494252" ixy="0.0000020014" ixz="0.0000053371" iyy="0.0006239917" iyz="0.0000008895" izz="0.0004943455" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.006772 0.25235 -1.057919" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/right_link_3.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="-1.498291 0.871426 3.058714" xyz="-0.030588 -0.000233 -0.006617" />
+      <geometry>
+        <box size="0.141032 0.138978 0.108895" /></geometry>
+    </collision>
+  </link>
+  <link name="right_link_4">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.000786448311698669 -0.0005018198472045987 -0.08948513354177978" />
+      <mass value="1.103" />
+      <inertia ixx="0.0046378434" ixy="-0.0000015459" ixz="-0.0000030919" iyy="0.0045503427" iyz="-0.0000262811" izz="0.0010320747" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.023328 0.25235 -0.991669" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/right_link_4.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="0.015999 0.020220 0.000162" xyz="-0.002459 0.001051 -0.092953" />
+      <geometry>
+        <cylinder radius="0.052388" length="0.192691" /></geometry>
+    </collision>
+  </link>
+  <link name="right_link_5">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.000211537531 0.042133240751 -0.073029" />
+      <mass value="0.577" />
+      <inertia ixx="0.0006397707" ixy="0" ixz="0.0000007634" iyy="0.0005760226" iyz="0.0000095431" izz="0.0005122746" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.023951582 0.294969208 -0.837904" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/right_link_5.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="-2.976659 -0.006267 0.075791" xyz="-0.000057 0.036352 -0.040118" />
+      <geometry>
+        <cylinder radius="0.047678" length="0.145418" /></geometry>
+    </collision>
+  </link>
+  <link name="right_link_6">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.00020081269241522398 -2.7657632870325966e-05 -0.038375362966905135" />
+      <mass value="0.402" />
+      <inertia ixx="0.0002729182" ixy="0.0000008646" ixz="0.0000046111" iyy="0.0003057721" iyz="-0.0000002882" izz="0.0002766647" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.02447 0.25247 -0.731926" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/right_link_6.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="-0.015363 -0.844417 0.006902" xyz="0.001766 0.000169 -0.031947" />
+      <geometry>
+        <cylinder radius="0.048365" length="0.104730" /></geometry>
+    </collision>
+  </link>
+  <link name="right_link_7">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.02916532972319782 0.0006072962087184108 -0.069880148026774" />
+      <mass value="0.542" />
+      <inertia ixx="0.0005271935" ixy="-0.0000004058" ixz="-0.0000032468" iyy="0.0005385572" iyz="0.0000024351" izz="0.0003758131" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.003345 0.253148 -0.685373" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/right_link_7.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="-0.012015 0.164681 -0.000992" xyz="-0.024597 -0.001173 -0.039763" />
+      <geometry>
+        <cylinder radius="0.042705" length="0.142972" /></geometry>
+    </collision>
+  </link>
+  <link name="right_link_8">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.020328527249535044 0.015462554183521715 -0.061011437424959736" />
+      <mass value="0.524" />
+      <inertia ixx="0.0005432418" ixy="-0.0000176726" ixz="0.0001221718" iyy="0.0012173636" iyz="0.0001050114" izz="0.0010391003" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.026596 0.277207 -0.606069" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/right_link_8.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="1.984924 0.473185 0.152680" xyz="0.032903 0.013818 -0.056190" />
+      <geometry>
+        <box size="0.177173 0.134388 0.090435" /></geometry>
+    </collision>
+  </link>
+  
+  <link name="left_link_1">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.001116777033312092 0.03010533652472197 -0.00011397332653428904" />
+      <mass value="1.05" />
+      <inertia ixx="0.0010834434" ixy="0.000038352" ixz="0.0000014527" iyy="0.0013463868" iyz="0.0000037771" izz="0.0009529885" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.021703 -0.127519 -1.057919" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/left_link_1.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="-0.067273 -0.102593 0.003455" xyz="-0.001049 0.043571 -0.002525" />
+      <geometry>
+        <cylinder radius="0.056090" length="0.127016" /></geometry>
+    </collision>
+  </link>
+  <link name="left_link_2">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.0008608518021782502 0.05637371466950711 1.1673499973774426e-05" />
+      <mass value="1.091" />
+      <inertia ixx="0.0013344025" ixy="-0.0000103339" ixz="-0.0000040002" iyy="0.0008510441" iyz="0" izz="0.0010210529" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.023328 -0.189219 -1.057919" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/left_link_2.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="-1.587325 -0.008357 -1.892978" xyz="-0.003617 0.050045 0.000088" />
+      <geometry>
+        <box size="0.127019 0.098184 0.081871" /></geometry>
+    </collision>
+  </link>
+  <link name="left_link_3">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.02505660926990346 0.00032762722624662954 -0.019771646512682706" />
+      <mass value="0.25" />
+      <inertia ixx="0.0004496448" ixy="-0.0000020014" ixz="0.0000057818" iyy="0.0006239878" iyz="0.0000020014" izz="0.0004943424" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="-0.006769 -0.249219 -1.057524" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/left_link_3.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="1.461584 0.864263 -3.086547" xyz="-0.030699 0.000378 -0.006189" />
+      <geometry>
+        <box size="0.141057 0.138910 0.108936" /></geometry>
+    </collision>
+  </link>
+  <link name="left_link_4">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.0019244166105944378 0.0025794559775161874 -0.08943292468351893" />
+      <mass value="1.103" />
+      <inertia ixx="0.0046369215" ixy="-0.0000030919" ixz="-0.0000485428" iyy="0.0045475656" iyz="0.0001060521" izz="0.0010357863" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.024543 -0.250718 -0.991697" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/left_link_4.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="0.002986 0.025731 0.000038" xyz="-0.003524 0.001396 -0.093174" />
+      <geometry>
+        <cylinder radius="0.052048" length="0.192943" /></geometry>
+    </collision>
+  </link>
+  <link name="left_link_5">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.004856 -0.032146 -0.073767" />
+      <mass value="0.577" />
+      <inertia ixx="0.0006393889" ixy="-0.000004199" ixz="-0.0000003817" iyy="0.0005760226" iyz="0.00001107" izz="0.000513038" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.023462 -0.288575 -0.838769" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/left_link_5.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="-2.887341 -0.008526 0.066679" xyz="-0.004481 -0.039937 -0.041875" />
+      <geometry>
+        <cylinder radius="0.050625" length="0.148805" /></geometry>
+    </collision>
+  </link>
+  <link name="left_link_6">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.00030227915777798764 0.0009059562307997537 -0.03836392631140062" />
+      <mass value="0.402" />
+      <inertia ixx="0.0002729182" ixy="0" ixz="0.0000046111" iyy="0.0003057722" iyz="0.0000008646" izz="0.0002766647" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.029031 -0.25756 -0.732078" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/left_link_6.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="-0.025683 -0.854949 0.011701" xyz="0.001352 0.000660 -0.031594" />
+      <geometry>
+        <cylinder radius="0.048624" length="0.104474" /></geometry>
+    </collision>
+  </link>
+  <link name="left_link_7">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.030083930120018715 0.001891724542191886 -0.06946685111919637" />
+      <mass value="0.542" />
+      <inertia ixx="0.0005267882" ixy="0.0000008117" ixz="-0.0000056818" iyy="0.0005385578" iyz="0.0000016234" izz="0.0003758135" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.001822 -0.258463 -0.685173" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/left_link_7.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="0.108095 0.180218 0.009776" xyz="-0.024301 0.003429 -0.040058" />
+      <geometry>
+        <cylinder radius="0.043433" length="0.144580" /></geometry>
+    </collision>
+  </link>
+  <link name="left_link_8">
+    <inertial>
+      <origin rpy="0 0 0" xyz="0.01904143283766683 -0.014664964958314708 -0.06162025944635441" />
+      <mass value="0.524" />
+      <inertia ixx="0.0005481084" ixy="0.0000340647" ixz="0.0001260137" iyy="0.0012204376" iyz="-0.0001050114" izz="0.0010309048" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.032046 -0.285244 -0.606854" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/left_link_8.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="2.853058 1.039451 2.644315" xyz="0.029483 -0.012427 -0.060522" />
+      <geometry>
+        <cylinder radius="0.060215" length="0.177500" /></geometry>
+    </collision>
+  </link>
+  
+  <link name="left_gripper_mount">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.0002670890600449047 0.0004363620672285795 -0.011186648987791481" />
+      <mass value="0.25" />
+      <inertia ixx="0.0005097374" ixy="-0.0000043382" ixz="0" iyy="0.0000347055" iyz="-0.0000195219" izz="0.0005184137" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.034822 -0.268384 -0.511104" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/left_gripper_mount.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="-3.117386 -0.038823 1.562292" xyz="-0.000310 0.000507 -0.012987" />
+      <geometry>
+        <box size="0.168116 0.057000 0.026000" /></geometry>
+    </collision>
+  </link>
+  <link name="right_gripper_mount">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.00012601346922447298 -0.00017507247425130323 -0.011196025217670602" />
+      <mass value="0.25" />
+      <inertia ixx="0.0005097374" ixy="-0.0000108455" ixz="0" iyy="0.0000347055" iyz="0.0000086764" izz="0.0005184137" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.027534 0.258107 -0.510704" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/right_gripper_mount.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="3.130698 -0.015889 -1.593282" xyz="-0.000146 -0.000203 -0.012997" />
+      <geometry>
+        <box size="0.168116 0.057000 0.026000" /></geometry>
+    </collision>
+  </link>
+  <link name="left_left_finger">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.001563 -0.000392 0.013651" />
+      <mass value="0.03" />
+      <inertia ixx="0.0000159972" ixy="0" ixz="0.0000001221" iyy="0.0000199049" iyz="-0.0000026865" izz="0.0000075712" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.034932 -0.331499 -0.457707" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/left_left_finger_.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="0.341998 1.325691 -1.300368" xyz="0.001734 -0.005670 0.002077" />
+      <geometry>
+        <box size="0.094790 0.062381 0.035974" /></geometry>
+    </collision>
+  </link>
+  <link name="left_right_finger">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.001525 -0.000206 0.013188" />
+      <mass value="0.03" />
+      <inertia ixx="0.0000158751" ixy="0" ixz="0.0000002442" iyy="0.0000196606" iyz="0.000003175" izz="0.0000076933" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.036012 -0.208223 -0.453287" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/left_right_finger.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="0.299233 -1.290360 -1.816556" xyz="0.001820 0.005447 0.001800" />
+      <geometry>
+        <box size="0.094773 0.062372 0.035929" /></geometry>
+    </collision>
+  </link>
+  <link name="right_right_finger">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.001303 0.000827 0.013729" />
+      <mass value="0.03" />
+      <inertia ixx="0.0000158751" ixy="0" ixz="0.0000003663" iyy="0.000020027" iyz="0.0000024423" izz="0.0000074491" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.029281 0.32162 -0.45569" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/right_right_finger.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="0.417396 -1.337973 -1.944237" xyz="0.002297 0.005806 0.002113" />
+      <geometry>
+        <box size="0.094788 0.062385 0.035978" /></geometry>
+    </collision>
+  </link>
+  <link name="right_left_finger">
+    <inertial>
+      <origin rpy="0 0 0" xyz="-0.000213 -0.000882 0.013848" />
+      <mass value="0.03" />
+      <inertia ixx="0.0000159974" ixy="0.0000001221" ixz="-0.0000006106" iyy="0.0000201494" iyz="-0.0000024424" izz="0.0000075713" />
+    </inertial>
+    <visual>
+      <origin rpy="0 0 0" xyz="0.026398 0.195317 -0.453511" />
+      <geometry>
+        <mesh filename="package://daksha_description_full_body/meshes/right_left_finger.stl" scale="0.001 0.001 0.001" />
+      </geometry>
+      <material name="silver" />
+    </visual>
+    <collision>
+      <origin rpy="2.794645 -1.345785 1.824953" xyz="0.001619 -0.005437 0.001029" />
+      <geometry>
+        <box size="0.092991 0.062503 0.034204" /></geometry>
+    </collision>
+  </link>
+  <link name="right_tcp" />
+  <link name="left_tcp" />
+
+  <joint name="world_joint" type="fixed">
+    <parent link="world" />
+    <child link="base_link" />
+    <origin rpy="0 0 0" xyz="0.0 0.0 0.220" />
+  </joint>
+  
+  <joint name="right_joint_1" type="revolute">
+    <origin rpy="0 0 0" xyz="-0.001625 -0.0617 0.0" />
+    <parent link="right_link_1" />
+    <child link="right_link_2" />
+    <axis xyz="0.0 -1.0 -0.0" />
+    <limit effort="100" lower="-0.349066" upper="4.537856" velocity="100" />
+  </joint>
+  <joint name="right_joint_2" type="revolute">
+    <origin rpy="0 0 0" xyz="0.0301 -0.06 0.0" />
+    <parent link="right_link_2" />
+    <child link="right_link_3" />
+    <axis xyz="1.0 0.0 0.0" />
+    <limit effort="100" lower="-3.141593" upper="0.174533" velocity="100" />
+  </joint>
+  <joint name="right_joint_3" type="revolute">
+    <origin rpy="0 0 0" xyz="-0.0301 0.0 -0.06625" />
+    <parent link="right_link_3" />
+    <child link="right_link_4" />
+    <axis xyz="0.0 -0.0 1.0" />
+    <limit effort="100" lower="-1.570796" upper="1.570796" velocity="100" />
+  </joint>
+  <joint name="right_joint_4" type="revolute">
+    <origin rpy="0 0 0" xyz="0.0 -0.042 -0.157992" />
+    <parent link="right_link_4" />
+    <child link="right_link_5" />
+    <axis xyz="-0.0 -1.0 -0.0" />
+    <limit effort="100" lower="0.0" upper="2.094395" velocity="100" />
+  </joint>
+  <joint name="right_joint_5" type="revolute">
+    <origin rpy="0 0 -1.5" xyz="0.0 0.042 -0.105826" />
+    <parent link="right_link_5" />
+    <child link="right_link_6" />
+    <axis xyz="0.010772 -0.0 0.999942" />
+    
+    <limit effort="100" lower="0" upper="3.14159265" velocity="100" />
+
+  </joint>
+  <joint name="right_joint_6" type="revolute">
+    <origin rpy="0 0 0" xyz="0.027815 -0.000678 -0.046553" />
+    <parent link="right_link_6" />
+    <child link="right_link_7" />
+    <axis xyz="0.999655 -0.023953 -0.010768" />
+    <limit effort="100" lower="-0.785398" upper="0.785398" velocity="100" />
+  </joint>
+  <joint name="right_joint_7" type="revolute">
+    <origin rpy="0 0 0" xyz="-0.029941 -0.024059 -0.079304" />
+    <parent link="right_link_7" />
+    <child link="right_link_8" />
+    <axis xyz="-0.02378 -0.999591 0.015902" />
+    <limit effort="100" lower="-1.570796" upper="1.570796" velocity="100" />
+  </joint>
+  
+  <joint name="left_joint_1" type="revolute">
+    <origin rpy="0 0 0" xyz="-0.001625 0.0617 0.0" />
+    <parent link="left_link_1" />
+    <child link="left_link_2" />
+    <axis xyz="-0.0 1.0 -0.0" />
+    <limit effort="100" lower="-4.537856" upper="0.349066" velocity="100" />
+  </joint>
+  <joint name="left_joint_2" type="revolute">
+    <origin rpy="0 0 0" xyz="0.030097 0.06 -0.000395" />
+    <parent link="left_link_2" />
+    <child link="left_link_3" />
+    <axis xyz="-0.999914 0.0 0.01314" />
+    <limit effort="100" lower="-3.141593" upper="0.174533" velocity="100" />
+  </joint>
+  <joint name="left_joint_3" type="revolute">
+    <origin rpy="0 0 0" xyz="-0.031312 0.001499 -0.065827" />
+    <parent link="left_link_3" />
+    <child link="left_link_4" />
+    <axis xyz="-0.013136 0.022618 -0.999658" />
+    <limit effort="100" lower="-1.570796" upper="1.570796" velocity="100" />
+  </joint>
+  <joint name="left_joint_4" type="revolute">
+    <origin rpy="0 0 0" xyz="0.001081 0.037857 -0.152928" />
+    <parent link="left_link_4" />
+    <child link="left_link_5" />
+    <axis xyz="-0.0 1.0 -0.0" />
+    <limit effort="100" lower="-2.094395" upper="0.0" velocity="100" />
+  </joint>
+  <joint name="left_joint_5" type="revolute">
+    <origin rpy="0 0 1.5" xyz="-0.005569 -0.031015 -0.106691" />
+    <parent link="left_link_5" />
+    <child link="left_link_6" />
+    <axis xyz="0.010772 0.0 0.999942" />
+    
+    <limit effort="100" lower="-3.14159265" upper="0" velocity="100" />
+
+  </joint>
+  <joint name="left_joint_6" type="revolute">
+    <origin rpy="0 0 0" xyz="0.027209 0.000903 -0.046905" />
+    <parent link="left_link_6" />
+    <child link="left_link_7" />
+    <axis xyz="-0.999692 0.006268 0.024032" />
+    <limit effort="100" lower="-0.785398" upper="0.785398" velocity="100" />
+  </joint>
+  <joint name="left_joint_7" type="revolute">
+    <origin rpy="0 0 0" xyz="-0.030224 0.026781 -0.078319" />
+    <parent link="left_link_7" />
+    <child link="left_link_8" />
+    <axis xyz="0.007199 0.999219 0.038845" />
+    <limit effort="100" lower="-1.570796" upper="1.570796" velocity="100" />
+  </joint>
+  
+  <joint name="left_gripper_base_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.002776 -0.01686 -0.09575" />
+    <parent link="left_link_8" />
+    <child link="left_gripper_mount" />
+  </joint>
+  <joint name="right_gripper_base_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.000938 0.0191 -0.095365" />
+    <parent link="right_link_8" />
+    <child link="right_gripper_mount" />
+  </joint>
+  
+  
+  <joint name="left_gripper_left_joint" type="prismatic">
+    <origin rpy="0 0 0" xyz="-0.00011 0.063115 -0.053397" />
+    <parent link="left_gripper_mount" />
+    <child link="left_left_finger" />
+    <axis xyz="0.008498 0.99921 0.038813" />
+    <limit effort="100" lower="-0.044" upper="0.0" velocity="100" />
+  </joint>
+  <joint name="left_gripper_right_joint" type="prismatic">
+    <origin rpy="0 0 0" xyz="-0.00119 -0.060161 -0.057817" />
+    <parent link="left_gripper_mount" />
+    <child link="left_right_finger" />
+    <axis xyz="-0.008498 -0.99921 -0.038813" />
+    <limit effort="100" lower="-0.044" upper="0.0" velocity="100" />
+    <mimic joint="left_gripper_left_joint" multiplier="1.0" offset="0.0" />
+  </joint>
+  <joint name="right_gripper_right_joint" type="prismatic">
+    <origin rpy="0 0 0" xyz="-0.001747 -0.063513 -0.055014" />
+    <parent link="right_gripper_mount" />
+    <child link="right_right_finger" />
+    <axis xyz="0.022481 0.999621 -0.015888" />
+    <limit effort="100" lower="0.0" upper="0.044" velocity="100" />
+  </joint>
+  <joint name="right_gripper_left_joint" type="prismatic">
+    <origin rpy="0 0 0" xyz="0.001136 0.06279 -0.057193" />
+    <parent link="right_gripper_mount" />
+    <child link="right_left_finger" />
+    <axis xyz="-0.022481 -0.999621 0.015888" />
+    <mimic joint="right_gripper_right_joint" multiplier="1.0" offset="0.0" />
+    <limit effort="100" lower="0.0" upper="0.044" velocity="100" />
+  </joint>
+  <joint name="Right_arm_base_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.021703 -0.13065 1.057919" />
+    <parent link="base_link" />
+    <child link="right_link_1" />
+  </joint>
+  <joint name="left_arm_base_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="-0.021703 0.127519 1.057919" />
+    <parent link="base_link" />
+    <child link="left_link_1" />
+  </joint>
+  <joint name="wheel_base_joint" type="fixed">
+    <origin rpy="0 0 0" xyz="0.131791 -0.124714 0.002244" />
+    <parent link="base_link" />
+    <child link="wheel_base" />
+  </joint>
+  
+  <joint name="right_tcp_joint" type="fixed">
+    <origin rpy="0 1.57 0" xyz="-0.000922 -0.000161 -0.099999" />
+    <parent link="right_gripper_mount" />
+    <child link="right_tcp" />
+  </joint>
+  <joint name="left_tcp_joint" type="fixed">
+    <origin rpy="0 1.57 0" xyz="-0.002643 0.002152 -0.099372" />
+    <parent link="left_gripper_mount" />
+    <child link="left_tcp" />
+  </joint>
+
+    
+  <ros2_control name="RightArmSystem" type="system">
+    <hardware>
+      <plugin>arm_hardware/ArmHardwareInterface</plugin>
+
+      
+      <param name="can_interface">vcan0</param>
+      <param name="motor_ids">1,2,3,4,5,6,7,8</param>
+      <param name="kp">0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05</param>
+      <param name="kd">0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01</param>
+      <param name="direction">1,1,-1,-1,-1,1,1,-1</param>
+      <param name="control_modes">mit,mit,mit,mit,mit,mit,mit,mit</param>
+
+    </hardware>
+    
+    <joint name="right_joint_1">
+      <param name="type">revolute</param>
+      <command_interface name="position" />
+      <command_interface name="velocity" />
+      <command_interface name="effort" />
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+
+    
+    <joint name="right_joint_2">
+      <param name="type">revolute</param>
+      <command_interface name="position" />
+      <command_interface name="velocity" />
+      <command_interface name="effort" />
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+    
+    <joint name="right_joint_3">
+      <param name="type">revolute</param>
+      <command_interface name="position" />
+      <command_interface name="velocity" />
+      <command_interface name="effort" />
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+
+
+    
+    <joint name="right_joint_4">
+      <param name="type">revolute</param>
+      <command_interface name="position" />
+      <command_interface name="velocity" />
+      <command_interface name="effort" />
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+    
+    <joint name="right_joint_5">
+      <param name="type">revolute</param>
+      <command_interface name="position" />
+      <command_interface name="velocity" />
+      <command_interface name="effort" />
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+
+    
+    <joint name="right_joint_6">
+      <param name="type">revolute</param>
+      <command_interface name="position" />
+      <command_interface name="velocity" />
+      <command_interface name="effort" />
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+    
+    <joint name="right_joint_7">
+      <param name="type">revolute</param>
+      <command_interface name="position" />
+      <command_interface name="velocity" />
+      <command_interface name="effort" />
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+
+    
+    <joint name="right_gripper_right_joint">
+      <param name="type">prismatic</param>
+      <command_interface name="position" />
+      <command_interface name="velocity" />
+      <command_interface name="effort" />
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+
+
+
+</ros2_control>
+
+
+    
+  <ros2_control name="LeftArmSystem" type="system">
+    <hardware>
+      <plugin>arm_hardware/ArmHardwareInterface</plugin>
+
+      
+      <param name="can_interface">vcan1</param>
+      <param name="motor_ids">1,2,3,4,5,6,7,8</param>
+      <param name="kp">0.05,0.05,0.05,0.05,0.05,0.05,0.05,0.05</param>
+      <param name="kd">0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01</param>
+      <param name="direction">1,-1,1,1,-1,1,1,1</param>
+      <param name="control_modes">mit,mit,mit,mit,mit,mit,mit,mit</param>
+
+    </hardware>
+    
+    <joint name="left_joint_1">
+      <param name="type">revolute</param>
+      <command_interface name="position" />
+      <command_interface name="velocity" />
+      <command_interface name="effort" />
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+
+    
+    <joint name="left_joint_2">
+      <param name="type">revolute</param>
+      <command_interface name="position" />
+      <command_interface name="velocity" />
+      <command_interface name="effort" />
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+    
+    <joint name="left_joint_3">
+      <param name="type">revolute</param>
+      <command_interface name="position" />
+      <command_interface name="velocity" />
+      <command_interface name="effort" />
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+
+    
+    <joint name="left_joint_4">
+      <param name="type">revolute</param>
+      <command_interface name="position" />
+      <command_interface name="velocity" />
+      <command_interface name="effort" />
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+    
+    <joint name="left_joint_5">
+      <param name="type">revolute</param>
+      <command_interface name="position" />
+      <command_interface name="velocity" />
+      <command_interface name="effort" />
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+
+    
+    <joint name="left_joint_6">
+      <param name="type">revolute</param>
+      <command_interface name="position" />
+      <command_interface name="velocity" />
+      <command_interface name="effort" />
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+    
+    <joint name="left_joint_7">
+      <param name="type">revolute</param>
+      <command_interface name="position" />
+      <command_interface name="velocity" />
+      <command_interface name="effort" />
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+
+    
+    <joint name="left_gripper_left_joint">
+      <param name="type">prismatic</param>
+      <command_interface name="position" />
+      <command_interface name="velocity" />
+      <command_interface name="effort" />
+      <state_interface name="position" />
+      <state_interface name="velocity" />
+      <state_interface name="effort" />
+    </joint>
+
+
+</ros2_control>
+
+</robot>

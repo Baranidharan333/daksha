@@ -1,0 +1,23 @@
+[4.624s] Invoking command in '/home/phy_ai/.ihub/daksha/src/global/daksha_api_bridge_leader': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../build/daksha_api_bridge_leader build --build-base /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/build install --record /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/install.log --install-scripts $base/lib/daksha_api_bridge_leader --single-version-externally-managed install_data
+[5.221s] running egg_info
+[5.223s] writing ../../../build/daksha_api_bridge_leader/daksha_api_bridge_leader.egg-info/PKG-INFO
+[5.223s] writing dependency_links to ../../../build/daksha_api_bridge_leader/daksha_api_bridge_leader.egg-info/dependency_links.txt
+[5.224s] writing entry points to ../../../build/daksha_api_bridge_leader/daksha_api_bridge_leader.egg-info/entry_points.txt
+[5.224s] writing requirements to ../../../build/daksha_api_bridge_leader/daksha_api_bridge_leader.egg-info/requires.txt
+[5.224s] writing top-level names to ../../../build/daksha_api_bridge_leader/daksha_api_bridge_leader.egg-info/top_level.txt
+[5.229s] reading manifest file '../../../build/daksha_api_bridge_leader/daksha_api_bridge_leader.egg-info/SOURCES.txt'
+[5.229s] writing manifest file '../../../build/daksha_api_bridge_leader/daksha_api_bridge_leader.egg-info/SOURCES.txt'
+[5.230s] running build
+[5.230s] running build_py
+[5.231s] running install
+[5.232s] running install_lib
+[5.236s] running install_data
+[5.236s] running install_egg_info
+[5.239s] removing '/home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/python3.10/site-packages/daksha_api_bridge_leader-0.0.0-py3.10.egg-info' (and everything under it)
+[5.239s] Copying ../../../build/daksha_api_bridge_leader/daksha_api_bridge_leader.egg-info to /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/python3.10/site-packages/daksha_api_bridge_leader-0.0.0-py3.10.egg-info
+[5.241s] running install_scripts
+[5.286s] Installing camera_subscriber script to /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/daksha_api_bridge_leader
+[5.286s] Installing joint_cmd_api_publisher script to /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/daksha_api_bridge_leader
+[5.286s] Installing joint_states_api_subscriber script to /home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/daksha_api_bridge_leader
+[5.287s] writing list of installed files to '/home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/install.log'
+[5.633s] Invoked command in '/home/phy_ai/.ihub/daksha/src/global/daksha_api_bridge_leader' returned '0': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/daksha_api_bridge_leader/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../build/daksha_api_bridge_leader build --build-base /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/build install --record /home/phy_ai/.ihub/daksha/build/daksha_api_bridge_leader/install.log --install-scripts $base/lib/daksha_api_bridge_leader --single-version-externally-managed install_data

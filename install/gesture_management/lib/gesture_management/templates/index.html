@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gesture Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<script>
+async function ihubEmergencyStop(){
+  if(!confirm('EMERGENCY STOP\n\nKill the ROS 2 bringup now?')) return;
+  var btn=document.getElementById('ihubEstop');
+  var prev=btn.textContent; btn.disabled=true; btn.textContent='STOPPING…';
+  try{
+    var res=await fetch('http://'+location.hostname+':8100/api/kill',{method:'POST'});
+    var data={}; try{ data=await res.json(); }catch(e){}
+    alert(data.message || (res.ok?'Bringup stopped.':'E-STOP request failed.'));
+  }catch(e){
+    alert('E-STOP request failed: '+e);
+  }finally{
+    btn.disabled=false; btn.textContent=prev;
+  }
+}
+</script>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <span class="lamp" id="lamp"></span>
+      <h1>Gesture Management<small>Teach &amp; Replay Console</small></h1>
+      <div class="mode-inline" id="modeBadge">
+        <span class="lamp" id="modeLamp"></span>
+        MODE · <b id="modeText">UNKNOWN</b>
+        <button class="b-primary" id="btnModeToggle" onclick="toggleMode()">Switch mode</button>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:12px">
+      <div class="state-badge" id="stateBadge">STATUS · <b id="stateText">IDLE</b></div>
+      <button id="ihubEstop" onclick="ihubEmergencyStop()" title="Kill ROS 2 bringup" style="background:#d81f2f;color:#fff;border:2px solid rgba(255,255,255,.5);border-radius:8px;padding:8px 14px;font:700 12px/1.2 system-ui,-apple-system,sans-serif;letter-spacing:.04em;cursor:pointer;box-shadow:0 2px 10px rgba(216,31,47,.45);white-space:nowrap;">&#9211; E-STOP</button>
+    </div>
+  </header>
+
+  {% if not ros_available %}
+  <div class="banner">ROS 2 not detected. Source your workspace and restart to enable capture &amp; playback.</div>
+  {% endif %}
+
+    <div class="field">
+        <label>Recording Folder</label>
+
+        <div style="display:flex;gap:8px">
+
+            <input
+                id="recordingsDir"
+                readonly
+                value="{{ recordings_dir }}"
+            >
+
+            <button onclick="toggleFolderBrowser()">
+                Browse
+            </button>
+
+        </div>
+
+        <div id="folderBrowser" class="folder-browser" style="display:none">
+          <div class="folder-path mono" id="folderPath"></div>
+          <select id="folderSelect" size="6" ondblclick="folderEnter()"></select>
+          <div class="btns" style="margin-top:8px">
+            <button onclick="folderUp()">Up</button>
+            <button onclick="folderEnter()">Open</button>
+            <button class="b-primary" onclick="folderChoose()">Use this folder</button>
+            <button onclick="toggleFolderBrowser()">Cancel</button>
+          </div>
+        </div>
+
+    </div>
+  <div class="grid">
+    <!-- CAPTURE -->
+    <section class="card">
+      <div class="eyebrow">Capture · teach</div>
+      <input type="hidden" id="srcTopic" value="{{ source_topic }}">
+      <div class="field">
+        <label>Gesture name</label>
+        <input id="recName" placeholder="e.g. wave_hello">
+      </div>
+      <div class="btns">
+        <button class="b-rec" id="btnRec" onclick="startRec()"><span class="dot"></span>Record</button>
+        <button id="btnStop" onclick="stopRec()" disabled><span class="sq"></span>Stop &amp; save</button>
+      </div>
+      <div class="readout">
+        <div><div class="k">Frames</div><div class="v" id="recFrames">0</div></div>
+        <div><div class="k">Joints</div><div class="v" id="recJoints">0</div></div>
+        <div><div class="k">Elapsed</div><div class="v" id="recElapsed">0.0s</div></div>
+      </div>
+    </section>
+
+    <!-- PLAYBACK -->
+    <section class="card">
+      <div class="eyebrow">Playback · replay</div>
+      <input type="hidden" id="outTopic" value="{{ output_topic }}">
+      <div class="row field">
+        <div style="min-width:80px;max-width:100px">
+          <label>Speed</label>
+          <input id="speed" value="1.0">
+        </div>
+        <div>
+          <label>Max Velocity (rad/s)</label>
+          <div style="display:flex;gap:8px">
+            <input id="maxVel" type="number" step="0.1" min="0" placeholder="—">
+            <button onclick="setMaxVelocity()">Set</button>
+          </div>
+        </div>
+        <div>
+          <label>Max Acceleration (rad/s²)</label>
+          <div style="display:flex;gap:8px">
+            <input id="maxAcc" type="number" step="0.5" min="0" placeholder="—">
+            <button onclick="setMaxAcceleration()">Set</button>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Move-to-start ramp velocity (rad/s per joint)</label>
+        <div style="display:flex;gap:8px">
+          <input id="rampVel" type="number" step="0.05" min="0.01" max="1.0" value="{{ ramp_velocity }}">
+          <button onclick="setRampVelocity()">Set</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Move-to-start arrival tolerance (degrees)</label>
+        <div style="display:flex;gap:8px">
+          <input id="rampTol" type="number" step="0.1" min="0.5" max="30.0" value="{{ ramp_tolerance_deg }}">
+          <button onclick="setRampTolerance()">Set</button>
+        </div>
+      </div>
+      <div class="row field">
+        <div>
+          <label>Repeat</label>
+          <select id="repeatMode" onchange="toggleRepeatCount()">
+            <option value="once">Once</option>
+            <option value="count">Repeat N times</option>
+            <option value="infinite">Loop until stopped</option>
+          </select>
+        </div>
+        <div id="repeatCountWrap" style="max-width:110px">
+          <label>Times</label>
+          <input id="repeatCount" type="number" min="1" step="1" value="3">
+        </div>
+        <div style="max-width:110px">
+          <label>Interval (s)</label>
+          <input id="intervalS" type="number" min="0" step="0.5" value="0">
+        </div>
+      </div>
+      <div class="btns">
+        <button class="b-home" id="btnGoHome" onclick="goHome()"><span class="dot"></span>Go Home</button>
+        <button class="b-play" id="btnStopPlay" onclick="stopPlay()" disabled><span class="sq"></span>Stop playback</button>
+      </div>
+      <div style="margin-top:18px">
+        <div class="pmeta"><span id="playName">No gesture playing</span><b id="playPct">0%</b></div>
+        <div class="pbar"><div class="pfill" id="pfill"></div></div>
+        <div class="pmeta"><span id="playMsg" class="mono">idle</span><span id="playFrame" class="mono">0 / 0</span></div>
+        <div class="pmeta"><span id="playLoop" class="mono"></span></div>
+      </div>
+    </section>
+
+    <!-- MOTOR STATUS -->
+    <section class="card">
+      <div class="eyebrow">Motor status</div>
+      <div id="motorGrid" class="motor-grid"></div>
+    </section>
+  </div>
+
+  <div class="lib-grid">
+    <div class="lib-col">
+      <!-- LIBRARY -->
+      <div class="lib-head">
+        <h2>Gesture Library</h2>
+        <div class="counter"><b id="libCount">0</b> saved</div>
+      </div>
+      <div id="libBody"></div>
+    </div>
+
+    <div class="lib-col">
+      <!-- SEQUENCE -->
+      <div class="lib-head">
+        <h2>Play Sequence</h2>
+        <div class="btns" style="margin:0">
+          <button class="icon-btn" onclick="saveSequence()">Save as&hellip;</button>
+          <button class="b-play icon-btn" id="btnPlaySeq" onclick="playSequence()" disabled>Play sequence</button>
+        </div>
+      </div>
+      <div class="card">
+        <div id="seqQueue" class="seq-queue"></div>
+      </div>
+
+      <!-- SEQUENCE LIBRARY -->
+      <div class="lib-head">
+        <h2>Sequence Library</h2>
+        <div class="counter"><b id="seqLibCount">0</b> saved</div>
+      </div>
+      <div id="seqLibBody"></div>
+    </div>
+  </div>
+
+  <!-- SYSTEM LOG -->
+  <div class="lib-head">
+    <h2>System Log</h2>
+    <button class="icon-btn" onclick="clearLog()">Clear</button>
+  </div>
+  <div class="card logcard">
+    <div id="logBody" class="logbox mono"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

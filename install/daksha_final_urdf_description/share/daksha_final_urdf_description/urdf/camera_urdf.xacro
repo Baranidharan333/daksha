@@ -1,0 +1,164 @@
+<?xml version="1.0" ?>
+<robot name="daksha_final_urdf" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ==================== CAMERA LINKS ==================== -->
+
+  <link name="Zed_cam">
+    <inertial>
+      <origin xyz="-0.024622356216316695 -0.003144238118118684 -0.009250406971482073" rpy="0 -0.8587 0"/>
+      <mass value="1.3163534835195791"/>
+      <inertia ixx="0.003049" iyy="0.000257" izz="0.003057" ixy="-0.0" iyz="0.0" ixz="3.1e-05"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.8622508505706531 -0.003269 -0.9278435495913012" rpy="0 -0.8587 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/Zed_cam_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0.8622508505706531 -0.003269 -0.9278435495913012" rpy="0 -0.8587 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/Zed_cam_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+  
+  
+  
+  <link name="right_zed_cam">
+    <inertial>
+      <origin xyz="-0.0058915047759032085 -1.912944631796143e-07 -0.0008702682269778432" rpy="0 -0.8587 0"/>
+      <mass value="0.012599546451247211"/>
+      <inertia ixx="1e-06" iyy="1e-06" izz="1e-06" ixy="-0.0" iyz="0.0" ixz="0.0"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.8671959491135783 0.059791 -0.9221146208606608" rpy="0 -0.8587 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_zed_cam_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0.8671959491135783 0.059791 -0.9221146208606608" rpy="0 -0.8587 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_zed_cam_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="left_zed_cam">
+    <inertial>
+      <origin xyz="-0.005891278294558728 4.5562848637048514e-07 -0.0008703003196068497" rpy="0 -0.8587 0"/>
+      <mass value="0.012599546451247204"/>
+      <inertia ixx="1e-06" iyy="1e-06" izz="1e-06" ixy="-0.0" iyz="-0.0" ixz="0.0"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.8671915031278313 -0.06026 -0.92208304186114" rpy="0 -0.8587 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_zed_cam_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0.8671915031278313 -0.06026 -0.92208304186114" rpy="0 -0.8587 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_zed_cam_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  
+  
+  
+  <!-- GRIPPER CAMS -->
+  <link name="left_gripper_cam">
+    <inertial>
+      <origin xyz="-0.011315365793638031 -4.213539136621591e-05 -0.0007778016794142157" rpy="0 -2.35619 0"/>
+      <mass value="0.3041318832628335"/>
+      <inertia ixx="6.8e-05" iyy="5.6e-05" izz="7.3e-05" ixy="0.0" iyz="0.0" ixz="1.4e-05"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.5789083824653614 -0.259177 0.48595300043146017" rpy="0 -2.35619 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_gripper_cam_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0.5789083824653614 -0.259177 0.48595300043146017" rpy="0 -2.35619 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_gripper_cam_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="right_gripper_cam">
+    <inertial>
+      <origin xyz="-0.011315365794078415 4.154615223728175e-05 -0.0007778016794415627" rpy="0 -2.35619 0"/>
+      <mass value="0.3041318832630881"/>
+      <inertia ixx="6.8e-05" iyy="5.6e-05" izz="7.3e-05" ixy="-0.0" iyz="-0.0" ixz="1.4e-05"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.5789083824653614 0.258679 0.48595300043146017" rpy="0 -2.35619 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_gripper_cam_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0.5789083824653614 0.258679 0.48595300043146017" rpy="0 -2.35619 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_gripper_cam_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  
+  
+
+
+  <!-- ==================== ZED CAMERA JOINTS ==================== -->
+
+  <joint name="zed_mian_joint" type="fixed">
+    <origin xyz="-0.000324 0.126169 1.027992" rpy="0 0.8587 0"/>
+    <parent link="body"/>
+    <child link="Zed_cam"/>
+  </joint>
+  
+  
+  <joint name="zed_right_cam_joint" type="fixed">
+    <origin xyz="-0.007892 0.063109 1.027992" rpy="0 0.8587 0"/>
+    <parent link="body"/>
+    <child link="right_zed_cam"/>
+  </joint>
+
+  <joint name="zed_left_cam_joint" type="fixed">
+    <origin xyz="-0.007913 0.18316 1.027968" rpy="0 0.8587 0"/>
+    <parent link="body"/>
+    <child link="left_zed_cam"/>
+  </joint>
+
+  
+  
+  
+  <!-- ==================== GRIPPER CAMERA JOINTS ==================== -->
+  
+  <joint name="left_gripper_cam_joint" type="fixed">
+    <origin xyz="0.085176 0.007354 -0.081857" rpy="0 2.35619 0"/>
+    <parent link="left_link_8"/>
+    <child link="left_gripper_cam"/>
+  </joint>
+
+  <joint name="right_gripper_cam_joint" type="fixed">
+    <origin xyz="0.085176 -0.007353 -0.081857" rpy="0 2.35619 0"/>
+    <parent link="right_link_8"/>
+    <child link="right_gripper_cam"/>
+  </joint>
+
+  
+  
+  
+  
+
+</robot>

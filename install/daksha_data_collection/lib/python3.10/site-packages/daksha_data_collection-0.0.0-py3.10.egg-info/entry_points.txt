@@ -1,0 +1,6 @@
+[console_scripts]
+delete_episode = daksha_data_collection.delete_episode:main
+ros2_topic_recorder = daksha_data_collection.ros2_topic_recorder:main
+ros2_topic_replay = daksha_data_collection.ros2_topic_replay:main
+web_data_management_ui = daksha_data_collection.web_data_management_ui:main
+

@@ -1,0 +1,86 @@
+[4.170s] Invoking command in '/home/phy_ai/.ihub/daksha/src/ui/Clients_UI/daksha_final_urdf_description': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/daksha_final_urdf_description/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../../build/daksha_final_urdf_description build --build-base /home/phy_ai/.ihub/daksha/build/daksha_final_urdf_description/build install --record /home/phy_ai/.ihub/daksha/build/daksha_final_urdf_description/install.log --install-scripts $base/lib/fusion2urdf_ros2 --single-version-externally-managed install_data
+[4.909s] running egg_info
+[4.911s] creating ../../../../build/daksha_final_urdf_description/daksha_final_urdf_description.egg-info
+[4.911s] writing ../../../../build/daksha_final_urdf_description/daksha_final_urdf_description.egg-info/PKG-INFO
+[4.913s] writing dependency_links to ../../../../build/daksha_final_urdf_description/daksha_final_urdf_description.egg-info/dependency_links.txt
+[4.914s] writing entry points to ../../../../build/daksha_final_urdf_description/daksha_final_urdf_description.egg-info/entry_points.txt
+[4.914s] writing requirements to ../../../../build/daksha_final_urdf_description/daksha_final_urdf_description.egg-info/requires.txt
+[4.914s] writing top-level names to ../../../../build/daksha_final_urdf_description/daksha_final_urdf_description.egg-info/top_level.txt
+[4.916s] writing manifest file '../../../../build/daksha_final_urdf_description/daksha_final_urdf_description.egg-info/SOURCES.txt'
+[4.925s] reading manifest file '../../../../build/daksha_final_urdf_description/daksha_final_urdf_description.egg-info/SOURCES.txt'
+[4.931s] writing manifest file '../../../../build/daksha_final_urdf_description/daksha_final_urdf_description.egg-info/SOURCES.txt'
+[4.932s] running build
+[4.932s] running build_py
+[4.932s] creating /home/phy_ai/.ihub/daksha/build/daksha_final_urdf_description/build
+[4.932s] creating /home/phy_ai/.ihub/daksha/build/daksha_final_urdf_description/build/lib
+[4.932s] creating /home/phy_ai/.ihub/daksha/build/daksha_final_urdf_description/build/lib/daksha_final_urdf_description
+[4.932s] copying daksha_final_urdf_description/__init__.py -> /home/phy_ai/.ihub/daksha/build/daksha_final_urdf_description/build/lib/daksha_final_urdf_description
+[4.932s] running install
+[4.932s] running install_lib
+[4.935s] creating /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/lib/python3.10/site-packages/daksha_final_urdf_description
+[4.935s] copying /home/phy_ai/.ihub/daksha/build/daksha_final_urdf_description/build/lib/daksha_final_urdf_description/__init__.py -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/lib/python3.10/site-packages/daksha_final_urdf_description
+[4.940s] byte-compiling /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/lib/python3.10/site-packages/daksha_final_urdf_description/__init__.py to __init__.cpython-310.pyc
+[4.941s] running install_data
+[4.942s] creating /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/ament_index
+[4.942s] creating /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/ament_index/resource_index
+[4.942s] creating /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/ament_index/resource_index/packages
+[4.942s] copying resource/daksha_final_urdf_description -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/ament_index/resource_index/packages
+[4.942s] copying package.xml -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description
+[4.942s] creating /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/launch
+[4.942s] copying launch/display.launch.py -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/launch
+[4.942s] copying launch/gazebo.launch.py -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/launch
+[4.943s] copying launch/daksha.launch.py -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/launch
+[4.943s] creating /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/urdf
+[4.943s] copying urdf/daksha_final_urdf.trans -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/urdf
+[4.943s] copying urdf/daksha_final_urdf.gazebo -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/urdf
+[4.943s] copying urdf/head_urdf.xacro -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/urdf
+[4.943s] copying urdf/d405.urdf.xacro -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/urdf
+[4.943s] copying urdf/camera_urdf.xacro -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/urdf
+[4.943s] copying urdf/wheel_base_urdf.xacro -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/urdf
+[4.943s] copying urdf/gripper_urdf.xacro -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/urdf
+[4.943s] copying urdf/materials.xacro -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/urdf
+[4.952s] copying urdf/zed_macro.urdf.xacro -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/urdf
+[4.952s] copying urdf/arm_urdf.xacro -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/urdf
+[4.952s] copying urdf/body_urdf.xacro -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/urdf
+[4.952s] copying urdf/daksha_core.xacro -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/urdf
+[4.952s] creating /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[4.952s] copying meshes/left_link_7_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[4.952s] copying meshes/right_gripper_mount_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[4.953s] copying meshes/right_gripper_cam_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[4.954s] copying meshes/right_link_6_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[4.960s] copying meshes/left_gripper_cam_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[4.960s] copying meshes/right_left_finger_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[4.967s] copying meshes/right_link_3_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[4.967s] copying meshes/right_link_5_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[4.968s] copying meshes/base_link.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.021s] copying meshes/left_link_8_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.035s] copying meshes/left_link_6_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.035s] copying meshes/left_link_5_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.039s] copying meshes/left_link_3_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.039s] copying meshes/head_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.049s] copying meshes/left_link_2_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.049s] copying meshes/head_vyser_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.049s] copying meshes/left_right_finger_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.049s] copying meshes/right_zed_cam_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.085s] copying meshes/left_link_1_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.085s] copying meshes/left_left_finger_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.085s] copying meshes/body_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.091s] copying meshes/right_right_finger_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.091s] copying meshes/left_zed_cam_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.092s] copying meshes/left_link_4_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.093s] copying meshes/right_link_1_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.093s] copying meshes/Zed_cam_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.093s] copying meshes/right_link_8_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.093s] copying meshes/right_link_2_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.093s] copying meshes/right_link_4_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.093s] copying meshes/left_gripper_mount_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.094s] copying meshes/right_link_7_1.stl -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/meshes
+[5.094s] creating /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/config
+[5.094s] copying config/gazebo.rviz -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/config
+[5.094s] copying config/display.rviz -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/config
+[5.094s] copying config/ros_gz_bridge_gazebo.yaml -> /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/share/daksha_final_urdf_description/config
+[5.094s] running install_egg_info
+[5.097s] Copying ../../../../build/daksha_final_urdf_description/daksha_final_urdf_description.egg-info to /home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/lib/python3.10/site-packages/daksha_final_urdf_description-0.0.0-py3.10.egg-info
+[5.097s] running install_scripts
+[5.148s] writing list of installed files to '/home/phy_ai/.ihub/daksha/build/daksha_final_urdf_description/install.log'
+[5.819s] Invoked command in '/home/phy_ai/.ihub/daksha/src/ui/Clients_UI/daksha_final_urdf_description' returned '0': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/daksha_final_urdf_description/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/daksha_final_urdf_description/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../../build/daksha_final_urdf_description build --build-base /home/phy_ai/.ihub/daksha/build/daksha_final_urdf_description/build install --record /home/phy_ai/.ihub/daksha/build/daksha_final_urdf_description/install.log --install-scripts $base/lib/fusion2urdf_ros2 --single-version-externally-managed install_data

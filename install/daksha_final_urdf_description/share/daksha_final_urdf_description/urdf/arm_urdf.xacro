@@ -1,0 +1,475 @@
+<?xml version="1.0" ?>
+<robot name="daksha_final_urdf"
+  xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ==================== ARM LINKS (LEFT & RIGHT) ==================== -->
+
+  <!-- RIGHT ARM LINKS -->
+  <link name="right_link_1">
+    <inertial>
+      <origin xyz="-0.00111688531636445 -0.030104790279696203 -0.00011387140612462154" rpy="0 0 0"/>
+      <mass value="3.6138998098189203"/>
+      <inertia ixx="0.003729" iyy="0.004634" izz="0.00328" ixy="-0.000132" iyz="-1.3e-05" ixz="5e-06"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.014212 0.128836 -1.286675" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_link_1_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0.014212 0.128836 -1.286675" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_link_1_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="right_link_2">
+    <inertial>
+      <origin xyz="-0.0008610359466038955 -0.05637312405328471 4.6240675954933863e-07" rpy="0 0 0"/>
+      <mass value="3.2728304018221643"/>
+      <inertia ixx="0.004004" iyy="0.002553" izz="0.003063" ixy="3.1e-05" iyz="0.0" ixz="-0.0"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.015837 0.190536 -1.286675" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_link_2_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0.015837 0.190536 -1.286675" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_link_2_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="right_link_3">
+    <inertial>
+      <origin xyz="-0.02479494466323476 0.0001276423447569841 -0.020100629655719793" rpy="0 0 0"/>
+      <mass value="1.1242137126463747"/>
+      <inertia ixx="0.002021" iyy="0.002806" izz="0.002223" ixy="9e-06" iyz="4e-06" ixz="2.4e-05"/>
+    </inertial>
+    <visual>
+      <origin xyz="-0.014263 0.250536 -1.286675" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_link_3_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.014263 0.250536 -1.286675" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_link_3_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="right_link_4">
+    <inertial>
+      <origin xyz="-0.0007865579153549102 -0.0005024104499454229 -0.08948503570677513" rpy="0 0 0"/>
+      <mass value="3.567390947782961"/>
+      <inertia ixx="0.015" iyy="0.014717" izz="0.003338" ixy="-5e-06" iyz="-8.5e-05" ixz="-1e-05"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.015837 0.251033 -1.220425" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_link_4_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0.015837 0.251033 -1.220425" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_link_4_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="right_link_5">
+    <inertial>
+      <origin xyz="-0.000211537531 0.000133240751 -0.073029" rpy="0 0 0"/>
+      <mass value="1.5115603998859786"/>
+      <inertia ixx="0.001676" iyy="0.001509" izz="0.001342" ixy="0.0" iyz="2.5e-05" ixz="2e-06"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.016460582 0.251652208 -1.066660" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_link_5_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0.016460582 0.251652208 -1.066660" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_link_5_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="right_link_6">
+    <inertial>
+      <origin xyz="-0.0010273838837522864 2.7635528196290338e-05 -0.038362034432406156" rpy="0 0 0"/>
+      <mass value="1.3949015085257155"/>
+      <inertia ixx="0.000946" iyy="0.001061" izz="0.000961" ixy="3e-06" iyz="1e-06" ixz="-1.6e-05"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.016979 0.250656 -0.960682" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_link_6_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0.016979 0.250656 -0.960682" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_link_6_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="right_link_7">
+    <inertial>
+      <origin xyz="-0.02916463489061206 0.0006073873411698849 -0.06988033013057282" rpy="0 0 0"/>
+      <mass value="1.335483087995546"/>
+      <inertia ixx="0.001299" iyy="0.001327" izz="0.000926" ixy="-1e-06" iyz="6e-06" ixz="-8e-06"/>
+    </inertial>
+    <visual>
+      <origin xyz="-0.01049 0.251326 -0.914133" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_link_7_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.01049 0.251326 -0.914133" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_link_7_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="right_link_8">
+    <inertial>
+      <origin xyz="0.02032822208218771 0.015462645316118628 -0.061010619528759524" rpy="0 0 0"/>
+      <mass value="2.0458736308516916"/>
+      <inertia ixx="0.002121" iyy="0.004753" izz="0.004057" ixy="-6.9e-05" iyz="0.00041" ixz="0.000477"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.01945 0.251326 -0.834828" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_link_8_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0.01945 0.251326 -0.834828" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/right_link_8_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <!-- LEFT ARM LINKS -->
+  <link name="left_link_1">
+    <inertial>
+      <origin xyz="-0.0011168847673924398 0.030105201641573404 -0.00011387232292614513" rpy="0 0 0"/>
+      <mass value="3.6138998850070556"/>
+      <inertia ixx="0.003729" iyy="0.004634" izz="0.00328" ixy="0.000132" iyz="1.3e-05" ixz="5e-06"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.014212 -0.129333 -1.286675" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_link_1_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0.014212 -0.129333 -1.286675" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_link_1_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="left_link_2">
+    <inertial>
+      <origin xyz="-0.0008610359465935705 0.056373534814111975 4.624067808656207e-07" rpy="0 0 0"/>
+      <mass value="3.272830401822163"/>
+      <inertia ixx="0.004004" iyy="0.002553" izz="0.003063" ixy="-3.1e-05" iyz="-0.0" ixz="-0.0"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.015837 -0.191033 -1.286675" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_link_2_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0.015837 -0.191033 -1.286675" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_link_2_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="left_link_3">
+    <inertial>
+      <origin xyz="-0.024794946916878814 -0.00012723156077221187 -0.020100629346032406" rpy="0 0 0"/>
+      <mass value="1.1242138549910325"/>
+      <inertia ixx="0.002021" iyy="0.002806" izz="0.002223" ixy="-9e-06" iyz="-4e-06" ixz="2.4e-05"/>
+    </inertial>
+    <visual>
+      <origin xyz="-0.014263 -0.251033 -1.286675" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_link_3_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.014263 -0.251033 -1.286675" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_link_3_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="left_link_4">
+    <inertial>
+      <origin xyz="-0.0007865579153549102 0.0005024104499454229 -0.08948503570677513" rpy="0 0 0"/>
+      <mass value="3.567390947782961"/>
+      <inertia ixx="0.015" iyy="0.014717" izz="0.003338" ixy="5e-06" iyz="8.5e-05" ixz="-1e-05"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.015837 -0.251033 -1.220425" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_link_4_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0.015837 -0.251033 -1.220425" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_link_4_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="left_link_5">
+    <inertial>
+      <origin xyz="-0.004856 0.009854 -0.073767" rpy="0 0 0"/>
+      <mass value="1.51156039988588"/>
+      <inertia ixx="0.001675" iyy="0.001509" izz="0.001344" ixy="-1.1e-05" iyz="2.9e-05" ixz="-1e-06"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.016461 -0.251652 -1.066660" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_link_5_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0.016461 -0.251652 -1.066660" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_link_5_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="left_link_6">
+    <inertial>
+      <origin xyz="-0.0010273838837522864 -2.7635528196290338e-05 -0.038362034432406156" rpy="0 0 0"/>
+      <mass value="1.3949015085257155"/>
+      <inertia ixx="0.000946" iyy="0.001061" izz="0.000961" ixy="-3e-06" iyz="-1e-06" ixz="-1.6e-05"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.016979 -0.250656 -0.960682" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_link_6_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0.016979 -0.250656 -0.960682" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_link_6_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="left_link_7">
+    <inertial>
+      <origin xyz="-0.029164634879916104 -0.0006069765896163926 -0.0698803301268115" rpy="0 0 0"/>
+      <mass value="1.33548308794509"/>
+      <inertia ixx="0.001299" iyy="0.001327" izz="0.000926" ixy="1e-06" iyz="-6e-06" ixz="-8e-06"/>
+    </inertial>
+    <visual>
+      <origin xyz="-0.01049 -0.251823 -0.914133" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_link_7_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.01049 -0.251823 -0.914133" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_link_7_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="left_link_8">
+    <inertial>
+      <origin xyz="0.020328255688005892 -0.015462244026818006 -0.061010629942984895" rpy="0 0 0"/>
+      <mass value="2.0458727059208077"/>
+      <inertia ixx="0.002121" iyy="0.004753" izz="0.004057" ixy="6.9e-05" iyz="-0.00041" ixz="0.000477"/>
+    </inertial>
+    <visual>
+      <origin xyz="0.01945 -0.251823 -0.834828" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_link_8_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="white"/>
+    </visual>
+    <collision>
+      <origin xyz="0.01945 -0.251823 -0.834828" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://daksha_final_urdf_description/meshes/left_link_8_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+
+  <!-- ==================== ARM JOINTS ==================== -->
+
+  <!-- RIGHT ARM JOINTS -->
+  <joint name="right_arm_base_joint" type="fixed">
+    <origin xyz="-0.153494 -0.005936 1.055675" rpy="0 0 0"/>
+    <parent link="body"/>
+    <child link="right_link_1"/>
+  </joint>
+
+  <joint name="right_joint" type="revolute">
+    <origin xyz="-0.001625 -0.0617 0.0" rpy="0 0 0"/>
+    <parent link="right_link_1"/>
+    <child link="right_link_2"/>
+    <axis xyz="-0.0 -1.0 -0.0"/>
+    <limit upper="3.4907" lower="-1.3963" effort="100" velocity="100"/>
+  </joint>
+
+  <joint name="right_joint_2" type="revolute">
+    <origin xyz="0.0301 -0.06 0.0" rpy="0 0 0"/>
+    <parent link="right_link_2"/>
+    <child link="right_link_3"/>
+    <axis xyz="1.0 -0.0 0.0"/>
+    <limit upper="0.174533" lower="-3.141593" effort="100" velocity="100"/>
+  </joint>
+
+  <joint name="right_joint_3" type="revolute">
+    <origin xyz="-0.0301 0.0 -0.06625" rpy="0 0 0"/>
+    <parent link="right_link_3"/>
+    <child link="right_link_4"/>
+    <axis xyz="0.0 -0.0 1.0"/>
+    <limit upper="1.570796" lower="-1.570796" effort="100" velocity="100"/>
+  </joint>
+
+  <joint name="right_joint_4" type="revolute">
+    <origin xyz="0.0 0.0 -0.157992" rpy="0 0 0"/>
+    <parent link="right_link_4"/>
+    <child link="right_link_5"/>
+    <axis xyz="-0.0 -1.0 -0.0"/>
+    <limit upper="2.094395" lower="0.0" effort="100" velocity="100"/>
+  </joint>
+
+  <joint name="right_joint_5" type="revolute">
+    <origin xyz="0.0 0.0 -0.105826" rpy="0 0 0"/>
+    <parent link="right_link_5"/>
+    <child link="right_link_6"/>
+    <axis xyz="0.010772 -0.0 0.999942"/>
+    <limit upper="1.570796" lower="-1.570796" effort="100" velocity="100"/>
+  </joint>
+
+  <joint name="right_joint_6" type="revolute">
+    <origin xyz="0.027469 -0.00067 -0.046549" rpy="0 0 0"/>
+    <parent link="right_link_6"/>
+    <child link="right_link_7"/>
+    <axis xyz="-0.999655 0.023953 0.010768"/>
+    <limit upper="0.785398" lower="-0.785398" effort="100" velocity="100"/>
+  </joint>
+
+  <joint name="right_joint_7" type="revolute">
+    <origin xyz="-0.02994 0 -0.079305" rpy="0 0 0"/>
+    <parent link="right_link_7"/>
+    <child link="right_link_8"/>
+    <axis xyz="0.02378 0.999591 -0.015902"/>
+    <limit upper="1.570796" lower="-1.570796" effort="100" velocity="100"/>
+  </joint>
+
+  <!-- LEFT ARM JOINTS -->
+  <joint name="left_arm_base_joint" type="fixed">
+    <origin xyz="-0.153494 0.252233 1.055675" rpy="0 0 0"/>
+    <parent link="body"/>
+    <child link="left_link_1"/>
+  </joint>
+
+  <joint name="left_joint" type="revolute">
+    <origin xyz="-0.001625 0.0617 0.0" rpy="0 0 0"/>
+    <parent link="left_link_1"/>
+    <child link="left_link_2"/>
+    <axis xyz="0.0 -1.0 0.0"/>
+    <limit upper="3.4907" lower="-1.3963" effort="100" velocity="100"/>
+  </joint>
+
+  <joint name="left_joint_2" type="revolute">
+    <origin xyz="0.0301 0.06 0.0" rpy="0 0 0"/>
+    <parent link="left_link_2"/>
+    <child link="left_link_3"/>
+    <axis xyz="-1.0 0.0 -0.0"/>
+    <limit upper="0.174533" lower="-3.141593" effort="100" velocity="100"/>
+  </joint>
+
+  <joint name="left_joint_3" type="revolute">
+    <origin xyz="-0.0301 0.0 -0.06625" rpy="0 0 0"/>
+    <parent link="left_link_3"/>
+    <child link="left_link_4"/>
+    <axis xyz="0.0 0.0 -1.0"/>
+    <limit upper="1.570796" lower="-1.570796" effort="100" velocity="100"/>
+  </joint>
+
+  <joint name="left_joint_4" type="revolute">
+    <origin xyz="0.0 0.0 -0.157992" rpy="0 0 0"/>
+    <parent link="left_link_4"/>
+    <child link="left_link_5"/>
+    <axis xyz="-0.0 1.0 0.0"/>
+    <limit upper="0.0" lower="-2.094395" effort="100" velocity="100"/>
+  </joint>
+
+  <joint name="left_joint_5" type="revolute">
+    <origin xyz="0.0 0.0 -0.105826" rpy="0 0 0"/>
+    <parent link="left_link_5"/>
+    <child link="left_link_6"/>
+    <axis xyz="0.010772 0.0 0.999942"/>
+    <limit upper="1.570796" lower="-1.570796" effort="100" velocity="100"/>
+  </joint>
+
+  <joint name="left_joint_6" type="revolute">
+    <origin xyz="0.027469 0.00067 -0.046549" rpy="0 0 0"/>
+    <parent link="left_link_6"/>
+    <child link="left_link_7"/>
+    <axis xyz="0.999655 0.023953 -0.010768"/>
+    <limit upper="0.785398" lower="-0.785398" effort="100" velocity="100"/>
+  </joint>
+
+  <joint name="left_joint_7" type="revolute">
+    <origin xyz="-0.02994 0 -0.079305" rpy="0 0 0"/>
+    <parent link="left_link_7"/>
+    <child link="left_link_8"/>
+    <axis xyz="-0.02378 0.999591 0.015902"/>
+    <limit upper="1.570796" lower="-1.570796" effort="100" velocity="100"/>
+  </joint>
+
+
+</robot>

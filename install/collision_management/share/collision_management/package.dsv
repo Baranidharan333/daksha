@@ -1,0 +1,11 @@
+source;share/collision_management/hook/cmake_prefix_path.ps1
+source;share/collision_management/hook/cmake_prefix_path.dsv
+source;share/collision_management/hook/cmake_prefix_path.sh
+source;share/collision_management/hook/ld_library_path_lib.ps1
+source;share/collision_management/hook/ld_library_path_lib.dsv
+source;share/collision_management/hook/ld_library_path_lib.sh
+source;share/collision_management/local_setup.bash
+source;share/collision_management/local_setup.dsv
+source;share/collision_management/local_setup.ps1
+source;share/collision_management/local_setup.sh
+source;share/collision_management/local_setup.zsh

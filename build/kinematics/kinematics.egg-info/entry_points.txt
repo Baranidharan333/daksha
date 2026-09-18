@@ -1,0 +1,3 @@
+[console_scripts]
+ik_node = kinematics.ik_node:main
+

@@ -1,0 +1,82 @@
+[0.000000] (-) TimerEvent: {}
+[0.000510] (-) JobUnselected: {'identifier': 'automation'}
+[0.000772] (-) JobUnselected: {'identifier': 'collision_management'}
+[0.000802] (-) JobUnselected: {'identifier': 'daksha_api_bridge_follower'}
+[0.000820] (-) JobUnselected: {'identifier': 'daksha_api_bridge_leader'}
+[0.000838] (-) JobUnselected: {'identifier': 'daksha_data_collection'}
+[0.001147] (-) JobUnselected: {'identifier': 'daksha_description_full_body'}
+[0.001265] (-) JobUnselected: {'identifier': 'daksha_final_urdf_description'}
+[0.001304] (-) JobUnselected: {'identifier': 'daksha_msgs'}
+[0.001359] (-) JobUnselected: {'identifier': 'daksha_ui'}
+[0.001408] (-) JobUnselected: {'identifier': 'dynamics'}
+[0.001455] (-) JobUnselected: {'identifier': 'gen2'}
+[0.001499] (-) JobUnselected: {'identifier': 'gen2_leader'}
+[0.001546] (-) JobUnselected: {'identifier': 'gesture_management'}
+[0.001570] (-) JobUnselected: {'identifier': 'hw_interface'}
+[0.001593] (-) JobUnselected: {'identifier': 'joint_analyzer'}
+[0.001615] (-) JobUnselected: {'identifier': 'joint_cmd_logger'}
+[0.001670] (-) JobUnselected: {'identifier': 'kinematics'}
+[0.001715] (-) JobUnselected: {'identifier': 'moveit_collision_management'}
+[0.001762] (-) JobUnselected: {'identifier': 'posveleff_controllers'}
+[0.001809] (-) JobUnselected: {'identifier': 'ros_tcp_endpoint'}
+[0.001855] (-) JobUnselected: {'identifier': 'vajara'}
+[0.001901] (-) JobUnselected: {'identifier': 'vr_teleop'}
+[0.001948] (-) JobUnselected: {'identifier': 'web_nav_site'}
+[0.001994] (-) JobUnselected: {'identifier': 'world_camera_launch'}
+[0.002047] (motortest) JobQueued: {'identifier': 'motortest', 'dependencies': OrderedDict()}
+[0.002102] (motortest) JobStarted: {'identifier': 'motortest'}
+[0.099123] (-) TimerEvent: {}
+[0.199460] (-) TimerEvent: {}
+[0.299758] (-) TimerEvent: {}
+[0.400247] (-) TimerEvent: {}
+[0.500481] (-) TimerEvent: {}
+[0.600755] (-) TimerEvent: {}
+[0.701025] (-) TimerEvent: {}
+[0.801275] (-) TimerEvent: {}
+[0.901511] (-) TimerEvent: {}
+[1.001697] (-) TimerEvent: {}
+[1.101912] (-) TimerEvent: {}
+[1.202128] (-) TimerEvent: {}
+[1.302309] (-) TimerEvent: {}
+[1.402489] (-) TimerEvent: {}
+[1.502937] (-) TimerEvent: {}
+[1.603184] (-) TimerEvent: {}
+[1.687361] (motortest) Command: {'cmd': ['/usr/bin/python3', '-W', 'ignore:setup.py install is deprecated', '-W', 'ignore:easy_install command is deprecated', 'setup.py', 'develop', '--editable', '--build-directory', '/home/phy_ai/.ihub/daksha/build/motortest/build', '--no-deps', 'symlink_data'], 'cwd': '/home/phy_ai/.ihub/daksha/build/motortest', 'env': {'LESSOPEN': '| /usr/bin/lesspipe %s', 'VSCODE_CWD': '/home/phy_ai', 'VSCODE_ESM_ENTRYPOINT': 'vs/workbench/api/node/extensionHostProcess', 'AI_AGENT': 'claude-code_2-1-276_agent', 'LANGUAGE': 'en_IN:en', 'CODEX_HOME': '/home/phy_ai/.codex', 'USER': 'phy_ai', 'SSH_CLIENT': '192.168.200.239 41284 22', 'CLAUDE_CODE_ENTRYPOINT': 'claude-vscode', 'LC_TIME': 'C.UTF-8', 'VSCODE_NLS_CONFIG': '{"userLocale":"en","osLocale":"en","resolvedLanguage":"en","defaultMessagesFile":"/home/phy_ai/.vscode-server/cli/servers/Stable-645f29cc3176500b4b5762ba887cf2a7f0ffdf2c/server/out/nls.messages.json","locale":"en","availableLanguages":{}}', 'GIT_EDITOR': 'true', 'VSCODE_HANDLES_UNCAUGHT_ERRORS': 'true', 'XDG_SESSION_TYPE': 'tty', 'CLAUDE_AGENT_SDK_VERSION': '0.3.276', 'CLAUDE_CODE_SESSION_ATTENDED': '1', 'SHLVL': '1', 'LD_LIBRARY_PATH': '/home/phy_ai/.barani/gen2_full/install/trajectory_planning/lib:/home/phy_ai/.barani/gen2_full/install/posveleff_controllers/lib:/home/phy_ai/.barani/gen2_full/install/collision_management/lib:/home/phy_ai/.barani/gen2_full/install/hw_interface/lib:/home/phy_ai/.barani/gen2_full/install/gesture_management/lib:/home/phy_ai/.barani/gen2_full/install/drax_hardware/lib:/home/phy_ai/.barani/gen2_full/install/daksha_msgs/lib:/opt/ros/humble/opt/rviz_ogre_vendor/lib:/opt/ros/humble/lib/x86_64-linux-gnu:/opt/ros/humble/lib', 'BROWSER': '/home/phy_ai/.vscode-server/cli/servers/Stable-645f29cc3176500b4b5762ba887cf2a7f0ffdf2c/server/bin/helpers/browser.sh', 'CLAUDE_CODE_MESSAGING_TOKEN': '0e55692cad64810cfa7dbd44b67e431d', 'MOTD_SHOWN': 'pam', 'HOME': '/home/phy_ai', 'OLDPWD': '/home/phy_ai/.ihub/daksha', 'VSCODE_RECONNECTION_GRACE_TIME': '10800000', 'VSCODE_IPC_HOOK_CLI': '/run/user/1000/vscode-ipc-78cfb234-809e-4605-85e8-afae24f092e9.sock', 'ROS_PYTHON_VERSION': '3', 'CLAUDE_CODE_CHILD_SESSION': '1', 'LC_MONETARY': 'C.UTF-8', 'COPILOT_OTEL_FILE_EXPORTER_PATH': '/dev/null', 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=/run/user/1000/bus', 'COLCON_PREFIX_PATH': '/home/phy_ai/.barani/gen2_full/install', 'APPLICATION_INSIGHTS_NO_STATSBEAT': 'true', 'ROS_DISTRO': 'humble', 'LOGNAME': 'phy_ai', 'VSCODE_HANDLES_SIGPIPE': 'true', '_': '/usr/bin/colcon', 'ROS_VERSION': '2', 'XDG_SESSION_CLASS': 'user', 'XDG_SESSION_ID': '18', 'VSCODE_CLI_REQUIRE_TOKEN': 'ef26685b-3ae8-4240-83ce-89e3e6195c96', 'ROS_LOCALHOST_ONLY': '0', 'MCP_CONNECTION_NONBLOCKING': 'true', 'PATH': '/home/phy_ai/.local/bin:/home/phy_ai/.vscode-server/cli/servers/Stable-645f29cc3176500b4b5762ba887cf2a7f0ffdf2c/server/bin/remote-cli:/home/phy_ai/.local/bin:/opt/ros/humble/bin:/home/phy_ai/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin', 'VSCODE_AGENT_FOLDER': '/home/phy_ai/.vscode-server', 'COREPACK_ENABLE_AUTO_PIN': '0', 'LC_ADDRESS': 'C.UTF-8', 'XDG_RUNTIME_DIR': '/run/user/1000', 'CLAUDE_EFFORT': 'high', 'DISPLAY': 'localhost:20.0', 'CLAUDE_PID': '18343', 'NoDefaultCurrentDirectoryInExePath': '1', 'LANG': 'en_US.UTF-8', 'LC_TELEPHONE': 'C.UTF-8', 'LS_COLORS': '', 'ROS_DOMAIN_ID': '55', 'AMENT_PREFIX_PATH': '/home/phy_ai/.barani/gen2_full/install/world_camera_launch:/home/phy_ai/.barani/gen2_full/install/web_nav_site:/home/phy_ai/.barani/gen2_full/install/gen2:/home/phy_ai/.barani/gen2_full/install/vr_teleop:/home/phy_ai/.barani/gen2_full/install/trajectory_planning:/home/phy_ai/.barani/gen2_full/install/sllidar_ros2:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint:/home/phy_ai/.barani/gen2_full/install/posveleff_controllers:/home/phy_ai/.barani/gen2_full/install/nav_bringup:/home/phy_ai/.barani/gen2_full/install/nav2_config:/home/phy_ai/.barani/gen2_full/install/moveit_collision_management:/home/phy_ai/.barani/gen2_full/install/collision_management:/home/phy_ai/.barani/gen2_full/install/kinematics:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger:/home/phy_ai/.barani/gen2_full/install/joint_analyzer:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection:/home/phy_ai/.barani/gen2_full/install/hw_interface:/home/phy_ai/.barani/gen2_full/install/gesture_management:/home/phy_ai/.barani/gen2_full/install/gen2_leader:/home/phy_ai/.barani/gen2_full/install/dynamics:/home/phy_ai/.barani/gen2_full/install/amr_bringup:/home/phy_ai/.barani/gen2_full/install/drax_hardware:/home/phy_ai/.barani/gen2_full/install/daksha_ui:/home/phy_ai/.barani/gen2_full/install/daksha_msgs:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower:/home/phy_ai/.barani/gen2_full/install/automation:/opt/ros/humble', 'SHELL': '/bin/bash', 'MXC_BIN_DIR': '/home/phy_ai/.vscode-server/cli/servers/Stable-645f29cc3176500b4b5762ba887cf2a7f0ffdf2c/server/node_modules/@microsoft/mxc-sdk/bin', 'ELECTRON_RUN_AS_NODE': '1', 'CLAUDE_CODE_ENABLE_SDK_FILE_CHECKPOINTING': 'true', 'CLAUDE_CODE_SESSION_ID': '38b01aee-82c9-45f0-ac37-76a407defdf3', 'LESSCLOSE': '/usr/bin/lesspipe %s %s', 'CLAUDECODE': '1', 'LC_MEASUREMENT': 'C.UTF-8', 'PWD': '/home/phy_ai/.ihub/daksha/build/motortest', 'LC_ALL': 'en_US.UTF-8', 'SSH_CONNECTION': '192.168.200.239 41284 192.168.200.148 22', 'XDG_DATA_DIRS': '/usr/share/gnome:/usr/local/share:/usr/share:/var/lib/snapd/desktop', 'CLAUDE_CODE_EXECPATH': '/home/phy_ai/.vscode-server/extensions/anthropic.claude-code-2.1.276-linux-x64/resources/native-binary/claude', 'PYTHONPATH': '/home/phy_ai/.ihub/daksha/build/motortest/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages:/home/phy_ai/.barani/gen2_full/install/world_camera_launch/lib/python3.10/site-packages:/home/phy_ai/.barani/gen2_full/install/gen2/lib/python3.10/site-packages:/home/phy_ai/.barani/gen2_full/install/vr_teleop/lib/python3.10/site-packages:/home/phy_ai/.barani/gen2_full/install/trajectory_planning/local/lib/python3.10/dist-packages:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint/lib/python3.10/site-packages:/home/phy_ai/.barani/gen2_full/install/nav_bringup/lib/python3.10/site-packages:/home/phy_ai/.barani/gen2_full/install/nav2_config/lib/python3.10/site-packages:/home/phy_ai/.barani/gen2_full/install/collision_management/local/lib/python3.10/dist-packages:/home/phy_ai/.barani/gen2_full/install/kinematics/lib/python3.10/site-packages:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger/lib/python3.10/site-packages:/home/phy_ai/.barani/gen2_full/install/joint_analyzer/lib/python3.10/site-packages:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection/lib/python3.10/site-packages:/home/phy_ai/.barani/gen2_full/install/hw_interface/local/lib/python3.10/dist-packages:/home/phy_ai/.barani/gen2_full/install/gesture_management/local/lib/python3.10/dist-packages:/home/phy_ai/.barani/gen2_full/install/gen2_leader/lib/python3.10/site-packages:/home/phy_ai/.barani/gen2_full/install/amr_bringup/lib/python3.10/site-packages:/home/phy_ai/.barani/gen2_full/install/daksha_msgs/local/lib/python3.10/dist-packages:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description/lib/python3.10/site-packages:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body/lib/python3.10/site-packages:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf/lib/python3.10/site-packages:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader/lib/python3.10/site-packages:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages', 'LC_NUMERIC': 'C.UTF-8', 'VCAN_SUDO_PASSWORD': '1234', 'CLAUDE_CODE_ENABLE_TASKS': '0', 'LC_PAPER': 'C.UTF-8', 'COLCON': '1', 'COPILOT_CLI_ENABLED_FEATURE_FLAGS': 'SHELL_SPAWN_BACKEND', 'CLAUDE_CODE_MESSAGING_SOCKET': '/run/user/1000/cc-socks/18343.sock', 'CMAKE_PREFIX_PATH': '/home/phy_ai/.barani/gen2_full/install/web_nav_site:/home/phy_ai/.barani/gen2_full/install/trajectory_planning:/home/phy_ai/.barani/gen2_full/install/sllidar_ros2:/home/phy_ai/.barani/gen2_full/install/posveleff_controllers:/home/phy_ai/.barani/gen2_full/install/moveit_collision_management:/home/phy_ai/.barani/gen2_full/install/collision_management:/home/phy_ai/.barani/gen2_full/install/hw_interface:/home/phy_ai/.barani/gen2_full/install/gesture_management:/home/phy_ai/.barani/gen2_full/install/dynamics:/home/phy_ai/.barani/gen2_full/install/drax_hardware:/home/phy_ai/.barani/gen2_full/install/daksha_ui:/home/phy_ai/.barani/gen2_full/install/daksha_msgs:/home/phy_ai/.barani/gen2_full/install/automation'}, 'shell': False}
+[1.703299] (-) TimerEvent: {}
+[1.803520] (-) TimerEvent: {}
+[1.903727] (-) TimerEvent: {}
+[2.003936] (-) TimerEvent: {}
+[2.104168] (-) TimerEvent: {}
+[2.204703] (-) TimerEvent: {}
+[2.229967] (motortest) StdoutLine: {'line': b'running develop\n'}
+[2.304834] (-) TimerEvent: {}
+[2.405054] (-) TimerEvent: {}
+[2.505326] (-) TimerEvent: {}
+[2.605870] (-) TimerEvent: {}
+[2.659332] (motortest) StdoutLine: {'line': b'running egg_info\n'}
+[2.660791] (motortest) StdoutLine: {'line': b'creating motortest.egg-info\n'}
+[2.662103] (motortest) StdoutLine: {'line': b'writing motortest.egg-info/PKG-INFO\n'}
+[2.662315] (motortest) StdoutLine: {'line': b'writing dependency_links to motortest.egg-info/dependency_links.txt\n'}
+[2.662449] (motortest) StdoutLine: {'line': b'writing entry points to motortest.egg-info/entry_points.txt\n'}
+[2.662560] (motortest) StdoutLine: {'line': b'writing requirements to motortest.egg-info/requires.txt\n'}
+[2.662863] (motortest) StdoutLine: {'line': b'writing top-level names to motortest.egg-info/top_level.txt\n'}
+[2.663157] (motortest) StdoutLine: {'line': b"writing manifest file 'motortest.egg-info/SOURCES.txt'\n"}
+[2.666995] (motortest) StdoutLine: {'line': b"reading manifest file 'motortest.egg-info/SOURCES.txt'\n"}
+[2.668138] (motortest) StdoutLine: {'line': b"writing manifest file 'motortest.egg-info/SOURCES.txt'\n"}
+[2.671219] (motortest) StdoutLine: {'line': b'running build_ext\n'}
+[2.671776] (motortest) StdoutLine: {'line': b'Creating /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest.egg-link (link to .)\n'}
+[2.672569] (motortest) StdoutLine: {'line': b'Installing motortest script to /home/phy_ai/.ihub/daksha/install/motortest/lib/motortest\n'}
+[2.673031] (motortest) StdoutLine: {'line': b'\n'}
+[2.673414] (motortest) StdoutLine: {'line': b'Installed /home/phy_ai/.ihub/daksha/build/motortest\n'}
+[2.673753] (motortest) StdoutLine: {'line': b'running symlink_data\n'}
+[2.673826] (motortest) StdoutLine: {'line': b'creating /home/phy_ai/.ihub/daksha/install/motortest/share/ament_index\n'}
+[2.673896] (motortest) StdoutLine: {'line': b'creating /home/phy_ai/.ihub/daksha/install/motortest/share/ament_index/resource_index\n'}
+[2.674030] (motortest) StdoutLine: {'line': b'creating /home/phy_ai/.ihub/daksha/install/motortest/share/ament_index/resource_index/packages\n'}
+[2.674092] (motortest) StdoutLine: {'line': b'symbolically linking /home/phy_ai/.ihub/daksha/build/motortest/resource/motortest -> /home/phy_ai/.ihub/daksha/install/motortest/share/ament_index/resource_index/packages\n'}
+[2.674156] (motortest) StdoutLine: {'line': b'symbolically linking /home/phy_ai/.ihub/daksha/build/motortest/package.xml -> /home/phy_ai/.ihub/daksha/install/motortest/share/motortest\n'}
+[2.674224] (motortest) StdoutLine: {'line': b'creating /home/phy_ai/.ihub/daksha/install/motortest/share/motortest/launch\n'}
+[2.674340] (motortest) StdoutLine: {'line': b'symbolically linking /home/phy_ai/.ihub/daksha/build/motortest/launch/motortest.launch.py -> /home/phy_ai/.ihub/daksha/install/motortest/share/motortest/launch\n'}
+[2.705920] (-) TimerEvent: {}
+[2.748499] (motortest) CommandEnded: {'returncode': 0}
+[2.768505] (motortest) JobEnded: {'identifier': 'motortest', 'rc': 0}
+[2.769502] (-) EventReactorShutdown: {}

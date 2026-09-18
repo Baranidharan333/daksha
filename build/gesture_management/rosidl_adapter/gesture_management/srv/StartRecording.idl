@@ -1,0 +1,21 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from gesture_management/srv/StartRecording.srv
+// generated code does not contain a copyright notice
+
+
+module gesture_management {
+  module srv {
+    struct StartRecording_Request {
+      string topic_name;
+
+      string recording_name;
+
+      string action;
+    };
+    struct StartRecording_Response {
+      boolean success;
+
+      string message;
+    };
+  };
+};

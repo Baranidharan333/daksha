@@ -1,0 +1,10 @@
+/home/phy_ai/.ihub/daksha/build/posveleff_controllers/CMakeFiles/uninstall.dir
+/home/phy_ai/.ihub/daksha/build/posveleff_controllers/CMakeFiles/posveleff_controllers_uninstall.dir
+/home/phy_ai/.ihub/daksha/build/posveleff_controllers/CMakeFiles/posveleff_controller.dir
+/home/phy_ai/.ihub/daksha/build/posveleff_controllers/CMakeFiles/test.dir
+/home/phy_ai/.ihub/daksha/build/posveleff_controllers/CMakeFiles/edit_cache.dir
+/home/phy_ai/.ihub/daksha/build/posveleff_controllers/CMakeFiles/rebuild_cache.dir
+/home/phy_ai/.ihub/daksha/build/posveleff_controllers/CMakeFiles/list_install_components.dir
+/home/phy_ai/.ihub/daksha/build/posveleff_controllers/CMakeFiles/install.dir
+/home/phy_ai/.ihub/daksha/build/posveleff_controllers/CMakeFiles/install/local.dir
+/home/phy_ai/.ihub/daksha/build/posveleff_controllers/CMakeFiles/install/strip.dir

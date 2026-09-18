@@ -1,0 +1,20 @@
+[7.850s] Invoking command in '/home/phy_ai/.ihub/daksha/src/daksha_description_full_body': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/daksha_description_full_body/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/daksha_description_full_body/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/daksha_description_full_body build --build-base /home/phy_ai/.ihub/daksha/build/daksha_description_full_body/build install --record /home/phy_ai/.ihub/daksha/build/daksha_description_full_body/install.log --install-scripts $base/lib/daksha_description_full_body --single-version-externally-managed install_data
+[8.708s] running egg_info
+[8.710s] writing ../../build/daksha_description_full_body/daksha_description_full_body.egg-info/PKG-INFO
+[8.711s] writing dependency_links to ../../build/daksha_description_full_body/daksha_description_full_body.egg-info/dependency_links.txt
+[8.711s] writing entry points to ../../build/daksha_description_full_body/daksha_description_full_body.egg-info/entry_points.txt
+[8.712s] writing requirements to ../../build/daksha_description_full_body/daksha_description_full_body.egg-info/requires.txt
+[8.712s] writing top-level names to ../../build/daksha_description_full_body/daksha_description_full_body.egg-info/top_level.txt
+[8.726s] reading manifest file '../../build/daksha_description_full_body/daksha_description_full_body.egg-info/SOURCES.txt'
+[8.726s] writing manifest file '../../build/daksha_description_full_body/daksha_description_full_body.egg-info/SOURCES.txt'
+[8.726s] running build
+[8.726s] running build_py
+[8.726s] running install
+[8.726s] running install_lib
+[8.727s] running install_data
+[8.728s] running install_egg_info
+[8.731s] removing '/home/phy_ai/.ihub/daksha/install/daksha_description_full_body/lib/python3.10/site-packages/daksha_description_full_body-0.0.0-py3.10.egg-info' (and everything under it)
+[8.738s] Copying ../../build/daksha_description_full_body/daksha_description_full_body.egg-info to /home/phy_ai/.ihub/daksha/install/daksha_description_full_body/lib/python3.10/site-packages/daksha_description_full_body-0.0.0-py3.10.egg-info
+[8.738s] running install_scripts
+[8.793s] writing list of installed files to '/home/phy_ai/.ihub/daksha/build/daksha_description_full_body/install.log'
+[8.926s] Invoked command in '/home/phy_ai/.ihub/daksha/src/daksha_description_full_body' returned '0': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/daksha_description_full_body/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/daksha_description_full_body/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/daksha_description_full_body build --build-base /home/phy_ai/.ihub/daksha/build/daksha_description_full_body/build install --record /home/phy_ai/.ihub/daksha/build/daksha_description_full_body/install.log --install-scripts $base/lib/daksha_description_full_body --single-version-externally-managed install_data

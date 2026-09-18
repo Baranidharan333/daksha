@@ -1,0 +1,29 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from gesture_management/srv/PlaySequence.srv
+// generated code does not contain a copyright notice
+
+
+module gesture_management {
+  module srv {
+    struct PlaySequence_Request {
+      string sequence_name;
+
+      sequence<string> recording_names;
+
+      string output_topic;
+
+      float replay_speed;
+
+      string repeat_mode;
+
+      int32 repeat_count;
+
+      float interval_s;
+    };
+    struct PlaySequence_Response {
+      boolean success;
+
+      string message;
+    };
+  };
+};

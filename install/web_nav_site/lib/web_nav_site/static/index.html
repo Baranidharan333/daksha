@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>iHub Navigation</title>
+    <style>
+        :root {
+            --bg: #0a0e17;
+            --panel: #111826;
+            --panel-2: #182131;
+            --panel-3: #1e293d;
+            --border: #26314a;
+            --text: #eef2f8;
+            --muted: #8592a8;
+            --dim: #4d5a72;
+            --accent: #3b82f6;
+            --accent-deep: #2563eb;
+            --accent-soft: rgba(59,130,246,0.14);
+            --danger: #ef4444;
+            --danger-deep: #dc2626;
+            --success: #22c55e;
+            --warn: #f59e0b;
+            --radius: 9px;
+            --radius-lg: 12px;
+            --shadow: 0 8px 24px rgba(0,0,0,0.5);
+            --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Consolas", monospace;
+            --sans: -apple-system, "Segoe UI", system-ui, sans-serif;
+        }
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0; height: 100%; width: 100%;
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            -webkit-user-select: none; user-select: none;
+            overflow: hidden; /* single-screen dashboard: no page scroll */
+        }
+        button { font-family: var(--sans); cursor: pointer; }
+        ::-webkit-scrollbar { width: 7px; height: 7px; }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+        #app { display: grid; grid-template-rows: 52px 1fr 26px; height: 100vh; min-height: 0; }
+
+        /* ── Top bar ───────────────────────────────────────────────────── */
+        #topbar { display: flex; align-items: center; gap: 14px; padding: 0 16px; background: var(--panel); border-bottom: 1px solid var(--border); z-index: 30; }
+        #brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 14px; white-space: nowrap; }
+        #brand .mark { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+        #topbar-status { display: flex; align-items: center; gap: 7px; flex: 1; overflow-x: auto; }
+        .pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--panel-2); border: 1px solid var(--border); font-size: 11px; color: var(--muted); white-space: nowrap; font-family: var(--mono); }
+        .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--dim); }
+        .pill.ok .dot { background: var(--success); box-shadow: 0 0 6px var(--success); }
+        .pill.warn .dot { background: var(--warn); box-shadow: 0 0 6px var(--warn); }
+        .pill.err .dot { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+        #clock { font-family: var(--mono); font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+
+        /* ── Bottom status bar ────────────────────────────────────────── */
+        #statusbar { display: flex; align-items: center; gap: 16px; padding: 0 16px; background: var(--panel); border-top: 1px solid var(--border); font-size: 10.5px; color: var(--dim); font-family: var(--mono); }
+        #statusbar .sb-spacer { flex: 1; }
+        #statusbar .sb-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); display: inline-block; margin-right: 5px; }
+
+        /* ── Body split: sidebar + main ───────────────────────────────── */
+        #body { display: grid; grid-template-columns: 190px 1fr; min-height: 0; }
+
+        #sidebar { display: flex; flex-direction: column; background: var(--panel); border-right: 1px solid var(--border); padding: 10px 8px; gap: 3px; overflow-y: auto; min-height: 0; }
+        .nav-item { display: flex; align-items: center; gap: 9px; padding: 9px 10px; border-radius: var(--radius); background: none; border: none; color: var(--muted); font-size: 12.5px; font-weight: 600; text-align: left; width: 100%; }
+        .nav-item .ic { width: 15px; text-align: center; font-size: 13px; }
+        .nav-item:hover { background: var(--panel-2); color: var(--text); }
+        .nav-item.active { background: var(--accent-soft); color: var(--accent); }
+        #sidebar-spacer { flex: 1; }
+        #estop-btn { width: 100%; margin: 8px 0 10px; background: var(--danger); border: 1px solid var(--danger); color: #fff; padding: 12px 8px; border-radius: var(--radius); font-size: 11.5px; font-weight: 800; letter-spacing: 0.03em; display: flex; align-items: center; justify-content: center; gap: 7px; box-shadow: 0 4px 16px rgba(239,68,68,0.35); flex: none; }
+        #estop-btn:hover { background: var(--danger-deep); }
+        #robot-info { background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; font-size: 11px; flex: none; }
+        #robot-info .ri-title { font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--dim); font-size: 9.5px; margin-bottom: 6px; }
+        #robot-info .ri-row { display: flex; justify-content: space-between; padding: 2px 0; color: var(--muted); }
+        #robot-info .ri-row b { color: var(--text); font-family: var(--mono); font-weight: 500; }
+
+        #main { min-height: 0; padding: 12px; overflow: hidden; }
+        .page { display: none; height: 100%; min-height: 0; flex-direction: column; gap: 10px; }
+        .page.active { display: flex; }
+
+        .toolbar-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: none; }
+        .toolbar-row .spacer { flex: 1; }
+        .page-title { font-size: 14px; font-weight: 700; letter-spacing: 0.03em; margin-right: 6px; }
+
+        .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 12px 14px; display: flex; flex-direction: column; min-height: 0; }
+        .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex: none; }
+        .card-head h3 { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+        .card-body { min-height: 0; overflow-y: auto; flex: 1; }
+
+        .btn { background: var(--panel-2); border: 1px solid var(--border); color: var(--text); padding: 8px 13px; border-radius: var(--radius); font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; }
+        .btn:hover { border-color: var(--accent); }
+        .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .btn.primary:hover { background: var(--accent-deep); }
+        .btn.danger { background: var(--danger); border-color: var(--danger); color: #fff; }
+        .btn.danger:hover { background: var(--danger-deep); }
+        .btn.success { background: var(--success); border-color: var(--success); color: #0a0e17; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn.small { padding: 5px 9px; font-size: 11px; }
+        .btn.block { width: 100%; }
+
+        /* ── Navigation page ──────────────────────────────────────────── */
+        .nav-primary-row { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: 1fr 260px; gap: 10px; }
+        .row-3col { flex: none; height: 175px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .row-3col.tall { height: 195px; }
+
+        #map-wrapper { position: relative; min-height: 0; background: radial-gradient(1200px 600px at 15% -10%, rgba(59,130,246,0.06), transparent 60%), var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: auto; display: flex; }
+        #map-surface { position: relative; flex: none; margin: auto; }
+        #map-canvas, #overlay-canvas { position: absolute; top: 0; left: 0; transform-origin: top left; touch-action: none; }
+        #map-empty { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; color: var(--dim); font-size: 12px; pointer-events: none; }
+        #map-empty .spinner { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); border-top-color: var(--accent); animation: spin 0.9s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #map-controls { position: absolute; top: 10px; left: 10px; display: flex; flex-direction: column; gap: 6px; z-index: 10; }
+        .map-btn { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: var(--panel); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius); box-shadow: var(--shadow); font-size: 14px; font-weight: 700; }
+        .map-btn:hover { border-color: var(--accent); color: var(--accent); }
+        .map-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+        #layers-panel { position: absolute; top: 10px; right: 10px; z-index: 10; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 8px 10px; font-size: 11px; min-width: 150px; max-height: calc(100% - 20px); overflow-y: auto; }
+        #layers-panel .lp-row { display: flex; align-items: center; gap: 7px; padding: 3px 0; color: var(--muted); }
+        #layers-panel .lp-swatch { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+        #layers-panel .lp-unavail { opacity: 0.4; }
+
+        #pose-hud { position: absolute; left: 10px; bottom: 10px; z-index: 10; display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow); }
+        #compass { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--border); position: relative; flex: none; }
+        #compass .needle { position: absolute; left: 50%; top: 50%; width: 2px; height: 9px; background: var(--accent); transform-origin: bottom center; margin-left: -1px; margin-top: -9px; }
+        #pose-text { font-family: var(--mono); font-size: 10.5px; color: var(--muted); line-height: 1.3; }
+        #pose-text b { color: var(--text); }
+
+        #scale-bar { position: absolute; right: 10px; bottom: 10px; z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 5px 8px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+        #scale-bar-fill { height: 4px; border-left: 2px solid var(--text); border-right: 2px solid var(--text); border-bottom: 2px solid var(--text); }
+        #scale-bar-label { font-family: var(--mono); font-size: 9.5px; color: var(--muted); }
+
+        #three-container { position: absolute; inset: 0; z-index: 4; display: none; cursor: grab; }
+        #three-container.active { display: block; }
+        #three-container:active { cursor: grabbing; }
+        #three-container canvas { display: block; width: 100%; height: 100%; }
+        #three-hint { position: absolute; left: 50%; bottom: 44px; transform: translateX(-50%); z-index: 10; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 5px 10px; font-size: 10px; color: var(--dim); font-family: var(--mono); white-space: nowrap; pointer-events: none; display: none; }
+        #three-hint.active { display: block; }
+
+        .status-list { display: flex; flex-direction: column; gap: 0; min-height: 0; overflow-y: auto; }
+        .status-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 11.5px; }
+        .status-row:last-of-type { border-bottom: none; }
+        .status-row .k { color: var(--muted); }
+        .status-row .v { font-family: var(--mono); font-weight: 600; }
+        .state-chip { display: inline-flex; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; }
+        .state-chip.idle { background: var(--panel-3); color: var(--muted); }
+        .state-chip.planning { background: rgba(245,158,11,0.15); color: var(--warn); }
+        .state-chip.navigating { background: var(--accent-soft); color: var(--accent); }
+        .state-chip.goal_reached { background: rgba(34,197,94,0.15); color: var(--success); }
+        .state-chip.failed, .state-chip.canceled { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+        .kv { display: flex; justify-content: space-between; padding: 5px 0; font-size: 11.5px; border-bottom: 1px solid var(--border); }
+        .kv:last-child { border-bottom: none; }
+        .kv .k { color: var(--muted); }
+        .kv .v { font-family: var(--mono); font-weight: 600; }
+        .confidence-badge { display: inline-flex; padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; }
+        .confidence-badge.high { background: rgba(34,197,94,0.15); color: var(--success); }
+        .confidence-badge.medium { background: rgba(245,158,11,0.15); color: var(--warn); }
+        .confidence-badge.low, .confidence-badge.unknown { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+        /* ── Manual control ───────────────────────────────────────────── */
+        .manual-grid { display: grid; grid-template-columns: auto 1fr; gap: 10px; min-height: 0; align-items: center; }
+        #joystick-base { width: 84px; height: 84px; border-radius: 50%; background: var(--panel-2); border: 1px solid var(--border); position: relative; touch-action: none; flex: none; }
+        #joystick-base::before, #joystick-base::after { content: ""; position: absolute; background: rgba(255,255,255,0.06); }
+        #joystick-base::before { left: 0; right: 0; top: 50%; height: 1px; }
+        #joystick-base::after { top: 0; bottom: 0; left: 50%; width: 1px; }
+        #joystick-knob { width: 28px; height: 28px; border-radius: 50%; background: var(--accent); box-shadow: 0 3px 10px rgba(59,130,246,0.5); position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); transition: transform 0.08s ease-out; }
+        #joystick-base.active #joystick-knob { transition: none; background: var(--accent-deep); }
+        .stepper { display: flex; align-items: center; gap: 6px; }
+        .stepper .val { font-family: var(--mono); font-weight: 700; min-width: 56px; text-align: center; background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 4px 0; font-size: 11px; }
+        .stepper button { width: 22px; height: 22px; border-radius: 50%; background: var(--panel-2); border: 1px solid var(--border); color: var(--text); font-size: 12px; padding: 0; }
+        .manual-actions { display: flex; flex-direction: column; gap: 6px; }
+
+        /* ── Waypoints / Missions item cards ──────────────────────────── */
+        .item-card { background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 7px 9px; margin-bottom: 6px; }
+        .item-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; gap: 6px; }
+        .item-name { font-weight: 600; font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .item-sub { font-family: var(--mono); font-size: 10px; color: var(--muted); margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .item-actions { display: flex; gap: 5px; }
+        .empty-hint { color: var(--dim); font-size: 11.5px; padding: 14px 4px; text-align: center; }
+        .tag { font-size: 9.5px; padding: 2px 6px; border-radius: 999px; background: var(--panel-3); color: var(--muted); font-weight: 700; white-space: nowrap; }
+
+        /* ── Diagnostics compact card ─────────────────────────────────── */
+        .diag-mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; font-size: 11px; min-height: 0; overflow-y: auto; }
+        .diag-mini-row { display: flex; align-items: center; justify-content: space-between; padding: 3px 0; color: var(--muted); }
+        .diag-mini-row .v-ok { color: var(--success); font-weight: 700; font-size: 10.5px; }
+        .diag-mini-row .v-na { color: var(--dim); font-weight: 700; font-size: 10.5px; }
+        #health-ring-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; flex: none; }
+        #health-ring { width: 58px; height: 58px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; }
+        #health-ring-wrap span { font-size: 9px; font-weight: 600; color: var(--muted); }
+
+        /* ── Docking card ─────────────────────────────────────────────── */
+        .docking-grid { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; min-height: 0; }
+        .docking-actions { display: flex; flex-direction: column; gap: 6px; }
+
+        /* ── Sensors page ──────────────────────────────────────────────── */
+        .sensors-grid { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 10px; min-height: 0; }
+        #lidar-canvas-wrap { flex: 1; display: flex; align-items: center; justify-content: center; background: var(--panel-2); border-radius: var(--radius); min-height: 0; }
+        #camera-placeholder { flex: 1; display: flex; align-items: center; justify-content: center; background: var(--panel-2); border-radius: var(--radius); color: var(--dim); font-size: 11.5px; min-height: 0; }
+
+        #toast-container { position: fixed; bottom: 34px; right: 16px; z-index: 999; display: flex; flex-direction: column; gap: 8px; }
+        .toast { background: var(--panel); border: 1px solid var(--border); border-left: 3px solid var(--accent); color: var(--text); padding: 10px 14px; border-radius: var(--radius); box-shadow: var(--shadow); font-size: 12px; max-width: 300px; }
+        .toast.error { border-left-color: var(--danger); }
+    </style>
+</head>
+<body>
+<div id="app">
+    <div id="topbar">
+        <div id="brand"><span class="mark"></span>ROS 2 Navigation</div>
+        <div id="topbar-status">
+            <span class="pill" id="ros-pill"><span class="dot"></span><span id="ros-pill-text">Connecting…</span></span>
+            <span class="pill" id="map-pill"><span class="dot"></span><span id="map-pill-text">No map</span></span>
+            <span class="pill" id="battery-pill"><span class="dot"></span><span id="battery-pill-text">Battery —</span></span>
+        </div>
+        <div id="clock"></div>
+    </div>
+
+    <div id="body">
+        <div id="sidebar">
+            <button class="nav-item active" data-page="page-navigation"><span class="ic">&#128506;</span>Navigation</button>
+            <button class="nav-item" data-page="page-navigation"><span class="ic">&#128204;</span>Waypoints</button>
+            <button class="nav-item" data-page="page-navigation"><span class="ic">&#127918;</span>Manual Control</button>
+            <button class="nav-item" data-page="page-navigation"><span class="ic">&#129302;</span>Missions</button>
+            <button class="nav-item" data-page="page-sensors"><span class="ic">&#128225;</span>Sensors</button>
+            <button class="nav-item" data-page="page-navigation"><span class="ic">&#128295;</span>Diagnostics</button>
+            <button class="nav-item" data-page="page-navigation"><span class="ic">&#128267;</span>Docking</button>
+            <div id="sidebar-spacer"></div>
+            <button id="estop-btn" type="button">&#9209; EMERGENCY STOP</button>
+            <div id="robot-info">
+                <div class="ri-title">System Info</div>
+                <div class="ri-row"><span>Host</span><b id="ri-host">—</b></div>
+                <div class="ri-row"><span>Domain</span><b id="ri-domain">—</b></div>
+                <div class="ri-row"><span>Uptime</span><b id="ri-uptime">—</b></div>
+                <div class="ri-row"><span>Distro</span><b>Humble</b></div>
+            </div>
+        </div>
+
+        <div id="main">
+            <!-- ═══════════════════ NAVIGATION (default, matches the single-screen mockup) ═══════════════════ -->
+            <div class="page active" id="page-navigation">
+                <div class="toolbar-row">
+                    <span class="page-title">NAVIGATION</span>
+                    <button class="btn" id="mode-initpose-btn" type="button">&#128205; Set Initial Pose</button>
+                    <button class="btn primary" id="mode-goal-btn" type="button">&#127937; Set Goal</button>
+                    <button class="btn danger" id="cancel-goal-btn" type="button">&#8855; Cancel Goal</button>
+                    <div class="spacer"></div>
+                </div>
+
+                <div class="nav-primary-row">
+                    <div id="map-wrapper">
+                        <div id="map-surface">
+                            <canvas id="map-canvas"></canvas>
+                            <canvas id="overlay-canvas"></canvas>
+                        </div>
+                        <div id="map-empty"><div class="spinner"></div><span>Waiting for /map…</span></div>
+
+                        <div id="three-container"></div>
+                        <div id="three-hint">Left-drag: pan &nbsp;·&nbsp; Right-drag: tilt/rotate &nbsp;·&nbsp; Scroll: zoom</div>
+
+                        <div id="map-controls">
+                            <button class="map-btn" id="zoom-in" type="button" title="Zoom in">+</button>
+                            <button class="map-btn" id="zoom-out" type="button" title="Zoom out">&minus;</button>
+                            <button class="map-btn" id="fit-btn" type="button" title="Fit to view" style="font-size:11px;">&#8862;</button>
+                            <button class="map-btn" id="recenter-btn" type="button" title="Center on robot">&#9678;</button>
+                            <button class="map-btn" id="toggle-3d-btn" type="button" title="Toggle 3D view" style="font-size:10px; font-weight:800;">3D</button>
+                        </div>
+
+                        <div id="layers-panel">
+                            <div class="lp-row"><input type="checkbox" id="layer-map" checked><span class="lp-swatch" style="background:#e6e9ef"></span>Map</div>
+                            <div class="lp-row"><input type="checkbox" id="layer-grid" checked><span class="lp-swatch" style="background:#5b6b85"></span>Grid</div>
+                            <div class="lp-row"><input type="checkbox" id="layer-scan" checked><span class="lp-swatch" style="background:#ff5a36"></span>Laser Scan</div>
+                            <div class="lp-row"><input type="checkbox" id="layer-globalCostmap"><span class="lp-swatch" style="background:#f59e0b"></span>Global Costmap</div>
+                            <div class="lp-row"><input type="checkbox" id="layer-localCostmap"><span class="lp-swatch" style="background:#ef4444"></span>Local Costmap</div>
+                            <div class="lp-row"><input type="checkbox" id="layer-globalPlan" checked><span class="lp-swatch" style="background:#38bdf8"></span>Global Plan</div>
+                            <div class="lp-row"><input type="checkbox" id="layer-localPlan" checked><span class="lp-swatch" style="background:#f472b6"></span>Local Plan</div>
+                            <div class="lp-row"><input type="checkbox" id="layer-particles" checked><span class="lp-swatch" style="background:#facc15"></span>Particles</div>
+                            <div class="lp-row"><input type="checkbox" id="layer-robot" checked><span class="lp-swatch" style="background:#3b82f6"></span>Robot</div>
+                            <div class="lp-row"><input type="checkbox" id="layer-goal" checked><span class="lp-swatch" style="background:#22c55e"></span>Goal</div>
+                        </div>
+
+                        <div id="pose-hud">
+                            <div id="compass"><div class="needle" id="compass-needle"></div></div>
+                            <div id="pose-text">
+                                <div>x <b id="pose-x">0.00</b>&nbsp;&nbsp;y <b id="pose-y">0.00</b></div>
+                                <div>yaw <b id="pose-yaw">0.00</b> rad</div>
+                            </div>
+                        </div>
+
+                        <div id="scale-bar">
+                            <div id="scale-bar-fill"></div>
+                            <span id="scale-bar-label">1 m</span>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-head"><h3>Navigation Status</h3><span class="state-chip idle" id="nav-state-chip">Idle</span></div>
+                        <div class="card-body status-list">
+                            <div class="status-row"><span class="k">Current Goal</span><span class="v" id="ns-goal">—</span></div>
+                            <div class="status-row"><span class="k">Distance Remaining</span><span class="v" id="ns-distance">—</span></div>
+                            <div class="status-row"><span class="k">Estimated Time</span><span class="v" id="ns-eta">—</span></div>
+                            <div class="status-row"><span class="k">Robot Speed</span><span class="v" id="ns-speed">—</span></div>
+                            <div class="status-row"><span class="k">Navigation State</span><span class="v" id="ns-state">Idle</span></div>
+                            <div class="status-row"><span class="k">Planner Status</span><span class="v" id="ns-planner">—</span></div>
+                            <div class="status-row"><span class="k">Controller Status</span><span class="v" id="ns-controller">—</span></div>
+                            <div class="status-row"><span class="k">Recovery Status</span><span class="v" id="ns-recovery">—</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row-3col">
+                    <div class="card">
+                        <div class="card-head"><h3>Localization</h3><span class="pill" id="amcl-pill"><span class="dot"></span><span id="amcl-pill-text">AMCL —</span></span></div>
+                        <div class="card-body">
+                            <div class="kv"><span class="k">Status</span><span class="v" id="loc-status">—</span></div>
+                            <div class="kv"><span class="k">Confidence</span><span class="v"><span class="confidence-badge unknown" id="loc-confidence">—</span></span></div>
+                            <div class="kv"><span class="k">Pose (x,y,yaw)</span><span class="v" id="loc-pose">—</span></div>
+                            <div style="display:flex; gap:6px; margin-top:8px;">
+                                <button class="btn small" id="set-initial-pose-btn" type="button">Set Initial</button>
+                                <button class="btn small" id="reset-localization-btn" type="button">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-head"><h3>Manual Control</h3></div>
+                        <div class="card-body manual-grid">
+                            <div id="joystick-base"><div id="joystick-knob"></div></div>
+                            <div>
+                                <div class="stepper" style="margin-bottom:6px;">
+                                    <button id="lin-dec" type="button">&minus;</button>
+                                    <div class="val" id="lin-val">0.00 m/s</div>
+                                    <button id="lin-inc" type="button">+</button>
+                                </div>
+                                <div class="stepper">
+                                    <button id="ang-dec" type="button">&minus;</button>
+                                    <div class="val" id="ang-val">0.00 rad/s</div>
+                                    <button id="ang-inc" type="button">+</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:6px; margin-top:8px;">
+                            <button class="btn danger small block" id="stop-robot-btn" type="button">Stop Robot</button>
+                            <button class="btn success small block" id="enable-motors-btn" type="button">Enable</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-head"><h3>Docking</h3></div>
+                        <div class="card-body docking-grid">
+                            <div>
+                                <div class="kv"><span class="k">Dock Status</span><span class="v" id="dock-status">—</span></div>
+                                <div class="kv"><span class="k">Battery</span><span class="v" id="dock-battery">—</span></div>
+                                <div class="kv"><span class="k">Charging</span><span class="v" id="dock-charging">—</span></div>
+                            </div>
+                            <div class="docking-actions">
+                                <button class="btn primary small" id="go-dock-btn" type="button">Go to Dock</button>
+                                <button class="btn small" id="undock-btn" type="button">Undock</button>
+                            </div>
+                        </div>
+                        <div id="dock-note" style="font-size:10px; color:var(--dim); margin-top:4px;"></div>
+                    </div>
+                </div>
+
+                <div class="row-3col tall">
+                    <div class="card">
+                        <div class="card-head"><h3>Waypoints</h3><span class="tag" id="wp-count">0</span></div>
+                        <div class="card-body" id="waypoint-list"></div>
+                        <div style="display:flex; gap:6px; margin-top:6px;">
+                            <button class="btn primary small block" id="add-current-btn" type="button">+ Add Waypoint</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-head"><h3>Missions</h3><span class="tag" id="mission-count">0</span></div>
+                        <div class="card-body" id="mission-list"></div>
+                        <div style="display:flex; gap:6px; margin-top:6px;">
+                            <button class="btn primary small block" id="add-mission-btn" type="button">+ New Mission</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-head"><h3>Diagnostics</h3></div>
+                        <div class="card-body" style="display:flex; gap:10px;">
+                            <div class="diag-mini-grid" id="node-health-grid"></div>
+                            <div id="health-ring-wrap">
+                                <div id="health-ring">—</div>
+                                <span>Health</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ═══════════════════ SENSORS (separate page) ═══════════════════ -->
+            <div class="page" id="page-sensors">
+                <div class="toolbar-row"><span class="page-title">SENSORS</span></div>
+                <div class="sensors-grid">
+                    <div class="card">
+                        <div class="card-head"><h3>LiDAR</h3><span class="tag">/scan_filtered</span></div>
+                        <div id="lidar-canvas-wrap"><canvas id="lidar-canvas" width="200" height="200"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-head"><h3>Camera</h3><span class="tag">/camera/image_raw</span></div>
+                        <div id="camera-placeholder">No live feed wired in this build</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-head"><h3>IMU</h3><span class="tag">/imu/data</span></div>
+                        <div class="card-body">
+                            <div class="kv"><span class="k">Angular Vel (x,y,z)</span><span class="v" id="imu-angvel">—</span></div>
+                            <div class="kv"><span class="k">Linear Accel (x,y,z)</span><span class="v" id="imu-accel">—</span></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-head"><h3>Odometry</h3><span class="tag">/odom</span></div>
+                        <div class="card-body">
+                            <div class="kv"><span class="k">X</span><span class="v" id="odom-x">—</span></div>
+                            <div class="kv"><span class="k">Y</span><span class="v" id="odom-y">—</span></div>
+                            <div class="kv"><span class="k">Yaw</span><span class="v" id="odom-yaw">—</span></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-head"><h3>Battery</h3><span class="tag">/battery_state</span></div>
+                        <div class="card-body">
+                            <div class="kv"><span class="k">Percentage</span><span class="v" id="sens-batt-pct">—</span></div>
+                            <div class="kv"><span class="k">Voltage</span><span class="v" id="sens-batt-volt">—</span></div>
+                            <div class="kv"><span class="k">Current</span><span class="v" id="sens-batt-curr">—</span></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-head"><h3>Wheel Encoders</h3></div>
+                        <div class="card-body"><div class="empty-hint">No encoder topic wired for this base</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="statusbar">
+        <span>ROS 2 Humble</span><span>Nav2 Humble</span><span id="sb-uptime">Uptime —</span>
+        <div class="sb-spacer"></div>
+        <span>© 2026 iHub Robotics</span>
+        <span><span class="sb-dot" id="sb-conn-dot"></span><span id="sb-conn-text">Connecting…</span></span>
+    </div>
+</div>
+<div id="toast-container"></div>
+
+<!-- Vendored locally under static/vendor/ (not loaded from a CDN) so the 3D
+     view keeps working with no internet connection on the robot. -->
+<script src="vendor/three.min.js"></script>
+<script src="vendor/OrbitControls.js"></script>
+<script src="vendor/STLLoader.js"></script>
+<script>
+(function () {
+    // ── shared helpers ───────────────────────────────────────────────────
+    function $(id) { return document.getElementById(id); }
+    function escapeHtml(s) {
+        const d = document.createElement('div');
+        d.innerText = String(s);
+        return d.innerHTML;
+    }
+    function toast(message, isError) {
+        const el = document.createElement('div');
+        el.className = 'toast' + (isError ? ' error' : '');
+        el.textContent = message;
+        $('toast-container').appendChild(el);
+        setTimeout(() => el.remove(), 4000);
+    }
+    async function getJSON(url) {
+        const r = await fetch(url);
+        if (!r.ok && r.status !== 204) throw new Error('http ' + r.status);
+        if (r.status === 204) return {};
+        return r.json();
+    }
+    async function postJSON(url, body) {
+        const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body || {}) });
+        let data = {};
+        try { data = await r.json(); } catch (e) {}
+        return { ok: r.ok, status: r.status, data };
+    }
+    function setPill(pill, textEl, cls, text) { pill.className = 'pill' + (cls ? ' ' + cls : ''); textEl.textContent = text; }
+    function fmtAge(age_s) {
+        if (age_s == null) return '';
+        if (age_s < 2) return 'live';
+        if (age_s < 60) return Math.floor(age_s) + 's ago';
+        return Math.floor(age_s / 60) + 'm ago';
+    }
+
+    // ── clock ─────────────────────────────────────────────────────────────
+    function tickClock() { $('clock').textContent = new Date().toLocaleTimeString(); }
+    tickClock(); setInterval(tickClock, 1000);
+
+    // ── sidebar page switching (single-screen dashboard -- no scroll, so
+    // sidebar items switch which page is visible instead of scrolling to
+    // an anchor). Navigation/Waypoints/Manual Control/Missions/Diagnostics/
+    // Docking all live together on the "Navigation" page (matches the
+    // reference layout); only Sensors is a separate page.
+    const navItems = Array.from(document.querySelectorAll('.nav-item'));
+    navItems.forEach(btn => {
+        btn.addEventListener('click', () => {
+            navItems.forEach(b => b.classList.toggle('active', b.dataset.page === btn.dataset.page));
+            document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === btn.dataset.page));
+        });
+    });
+
+    // ══════════════════════════ MAP / NAVIGATION ══════════════════════════
+    const mapCanvas = $('map-canvas'), overlayCanvas = $('overlay-canvas');
+    const mapCtx = mapCanvas.getContext('2d'), overlayCtx = overlayCanvas.getContext('2d');
+    let mapData = null, poseData = null, waypoints = [];
+    let dragStart = null, dragTarget = null;
+    let interactionMode = 'goal'; // 'goal' | 'initial_pose' | 'off'
+    let zoomScale = 1, hasEverHadMap = false, hasEverHadPose = false;
+    const ZOOM_MIN = 0.4, ZOOM_MAX = 4, ZOOM_STEP = 0.25;
+    // rviz2-style overlay state: live laser scan (projected via robot pose),
+    // a persistent goal marker (kept until the goal terminates), and the
+    // per-layer visibility toggles driven by the layers panel checkboxes.
+    let latestScan = null, activeGoal = null;
+    let layerState = {
+        map: true, grid: true, scan: true, robot: true, goal: true,
+        globalCostmap: false, localCostmap: false, globalPlan: true, localPlan: true, particles: true,
+    };
+    let latestGlobalCostmap = null, latestLocalCostmap = null;
+    let latestGlobalPlan = [], latestLocalPlan = [], latestParticles = [];
+
+    async function fetchMap() {
+        try {
+            const d = await getJSON('/api/map');
+            if (d && d.width) {
+                mapData = d;
+                renderMap();
+                if (!hasEverHadMap) { hasEverHadMap = true; fitMapToView(); }
+                if (three) buildTerrain();
+                setPill($('map-pill'), $('map-pill-text'), 'ok', `Map ${d.width}×${d.height}`);
+                $('map-empty').style.display = 'none';
+            }
+        } catch (e) { setPill($('map-pill'), $('map-pill-text'), 'warn', 'No map'); }
+    }
+    async function fetchPose() {
+        try {
+            poseData = await getJSON('/api/pose');
+            $('pose-x').textContent = poseData.x.toFixed(2);
+            $('pose-y').textContent = poseData.y.toFixed(2);
+            $('pose-yaw').textContent = poseData.yaw.toFixed(2);
+            $('compass-needle').style.transform = `rotate(${-poseData.yaw}rad)`;
+            if (!hasEverHadPose) hasEverHadPose = true;
+            setPill($('ros-pill'), $('ros-pill-text'), 'ok', 'Connected');
+            $('sb-conn-dot').style.background = 'var(--success)';
+            $('sb-conn-text').textContent = 'Connected';
+            drawOverlay();
+        } catch (e) {
+            setPill($('ros-pill'), $('ros-pill-text'), 'err', 'No /tf');
+            $('sb-conn-dot').style.background = 'var(--danger)';
+            $('sb-conn-text').textContent = 'No /tf';
+        }
+    }
+    function renderMap() {
+        if (!mapData) return;
+        mapCanvas.width = mapData.width; mapCanvas.height = mapData.height;
+        overlayCanvas.width = mapData.width; overlayCanvas.height = mapData.height;
+        const image = mapCtx.createImageData(mapData.width, mapData.height);
+        const data = mapData.data, width = mapData.width, height = mapData.height;
+        for (let row = 0; row < height; row++) {
+            for (let col = 0; col < width; col++) {
+                const idx = row * width + col, wear = data[idx];
+                const canvasRow = height - row - 1, px = (canvasRow * width + col) * 4;
+                // RViz2-standard occupancy-grid palette: free space fades white
+                // to gray as cost rises, occupied cells are black, and unknown
+                // (-1) cells are left as the dark viewport void, exactly like
+                // rviz's Map display over its default dark background.
+                if (wear === -1) { image.data[px]=24; image.data[px+1]=32; image.data[px+2]=47; image.data[px+3]=255; }
+                else if (wear > 65) { image.data[px]=6; image.data[px+1]=6; image.data[px+2]=8; image.data[px+3]=255; }
+                else { const s = 246 - Math.floor((wear/65)*150); image.data[px]=s; image.data[px+1]=s; image.data[px+2]=s; image.data[px+3]=255; }
+            }
+        }
+        mapCtx.putImageData(image, 0, 0);
+        applyZoom();
+    }
+    function applyZoom() {
+        mapCanvas.style.transform = `scale(${zoomScale})`;
+        overlayCanvas.style.transform = `scale(${zoomScale})`;
+        if (mapData) {
+            $('map-surface').style.width = (mapData.width * zoomScale) + 'px';
+            $('map-surface').style.height = (mapData.height * zoomScale) + 'px';
+        }
+        updateScaleBar();
+    }
+    function updateScaleBar() {
+        if (!mapData) return;
+        const screenPxPerMeter = zoomScale / mapData.resolution;
+        const niceSteps = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100];
+        let chosen = niceSteps[0];
+        for (const step of niceSteps) { if (step * screenPxPerMeter <= 90) chosen = step; else break; }
+        $('scale-bar-fill').style.width = Math.round(chosen * screenPxPerMeter) + 'px';
+        $('scale-bar-label').textContent = chosen >= 1 ? chosen + ' m' : Math.round(chosen * 100) + ' cm';
+    }
+    function setZoom(v) { zoomScale = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, v)); applyZoom(); }
+    function fitMapToView() {
+        if (!mapData) return;
+        const wrap = $('map-wrapper');
+        const fit = Math.min((wrap.clientWidth - 20) / mapData.width, (wrap.clientHeight - 20) / mapData.height);
+        zoomScale = Math.max(0.05, fit);
+        applyZoom();
+    }
+    function canvasToRos(x, y) { return mapData ? { x: mapData.origin.x + x*mapData.resolution, y: mapData.origin.y + (mapCanvas.height-y)*mapData.resolution } : null; }
+    function rosToCanvas(p) { return mapData ? { x: (p.x-mapData.origin.x)/mapData.resolution, y: mapCanvas.height - (p.y-mapData.origin.y)/mapData.resolution } : null; }
+    function clientToRos(ev) {
+        if (!mapData) return null;
+        const r = overlayCanvas.getBoundingClientRect();
+        return canvasToRos((ev.clientX-r.left)*(overlayCanvas.width/r.width), (ev.clientY-r.top)*(overlayCanvas.height/r.height));
+    }
+    function drawOverlay() {
+        overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+        if (layerState.grid) drawGrid();
+        if (layerState.globalCostmap) drawCostmap(latestGlobalCostmap, costGlobalColor);
+        if (layerState.localCostmap) drawCostmap(latestLocalCostmap, costLocalColor);
+        if (layerState.globalPlan) drawPathLine(latestGlobalPlan, '#38bdf8', 2.5);
+        if (layerState.localPlan) drawPathLine(latestLocalPlan, '#f472b6', 2.5);
+        if (layerState.scan) drawScanOnMap();
+        if (layerState.particles) drawParticles();
+        if (layerState.goal) drawGoalMarker();
+        if (dragStart && dragTarget) drawDragArrow(dragStart, dragTarget);
+        if (layerState.robot) drawRobot();
+    }
+    // Cost -> rgba: free cells stay fully transparent (so the layer only
+    // tints actually-costed cells, not the whole map), opacity rises with
+    // cost. Global/local use different hues so both can be on at once.
+    function costGlobalColor(v) { return v > 0 ? `rgba(245,158,11,${Math.min(0.75, 0.15 + v/140)})` : 'rgba(0,0,0,0)'; }
+    function costLocalColor(v) { return v > 0 ? `rgba(239,68,68,${Math.min(0.75, 0.15 + v/140)})` : 'rgba(0,0,0,0)'; }
+    function drawCostmap(grid, colorFn) {
+        // A costmap is just another OccupancyGrid, usually at a different
+        // resolution/extent than the static map (the local costmap is a
+        // small rolling window around the robot) -- draw it into its own
+        // offscreen canvas at its native size, then project that image onto
+        // the shared overlay via the two world-space corners, same as any
+        // other rosToCanvas placement.
+        if (!grid || !mapData) return;
+        const off = document.createElement('canvas');
+        off.width = grid.width; off.height = grid.height;
+        const octx = off.getContext('2d');
+        for (let row = 0; row < grid.height; row++) {
+            for (let col = 0; col < grid.width; col++) {
+                const v = grid.data[row * grid.width + col];
+                if (v <= 0) continue;
+                octx.fillStyle = colorFn(v);
+                octx.fillRect(col, grid.height - row - 1, 1, 1);
+            }
+        }
+        const topLeft = rosToCanvas({ x: grid.origin.x, y: grid.origin.y + grid.height * grid.resolution });
+        const bottomRight = rosToCanvas({ x: grid.origin.x + grid.width * grid.resolution, y: grid.origin.y });
+        overlayCtx.drawImage(off, topLeft.x, topLeft.y, bottomRight.x - topLeft.x, bottomRight.y - topLeft.y);
+    }
+    function drawPathLine(points, color, lineWidth) {
+        if (!points || points.length < 2 || !mapData) return;
+        overlayCtx.strokeStyle = color; overlayCtx.lineWidth = lineWidth;
+        overlayCtx.beginPath();
+        points.forEach((pt, i) => {
+            const p = rosToCanvas(pt);
+            if (i === 0) overlayCtx.moveTo(p.x, p.y); else overlayCtx.lineTo(p.x, p.y);
+        });
+        overlayCtx.stroke();
+    }
+    function drawParticles() {
+        // RViz2 "Particle Cloud" equivalent: AMCL's live belief distribution,
+        // one small arrow per particle (position + heading).
+        if (!latestParticles.length || !mapData) return;
+        overlayCtx.fillStyle = 'rgba(250,204,21,0.75)';
+        latestParticles.forEach(particle => {
+            const p = rosToCanvas(particle);
+            overlayCtx.save();
+            overlayCtx.translate(p.x, p.y);
+            overlayCtx.rotate(-particle.yaw);
+            overlayCtx.beginPath();
+            overlayCtx.moveTo(4, 0); overlayCtx.lineTo(-3, -2.5); overlayCtx.lineTo(-3, 2.5); overlayCtx.closePath();
+            overlayCtx.fill();
+            overlayCtx.restore();
+        });
+    }
+    function drawGrid() {
+        // RViz2 "Grid" display equivalent: 1m reference lines in the map
+        // frame, a heavier line every 5m, and red/green axis lines through
+        // x=0/y=0 (matching RViz's X=red, Y=green convention) for scale.
+        if (!mapData) return;
+        const res = mapData.resolution, ox = mapData.origin.x, oy = mapData.origin.y;
+        const worldW = mapData.width * res, worldH = mapData.height * res;
+        const minX = Math.floor(ox), maxX = Math.ceil(ox + worldW);
+        const minY = Math.floor(oy), maxY = Math.ceil(oy + worldH);
+        overlayCtx.lineWidth = 1;
+        for (let gx = minX; gx <= maxX; gx++) {
+            overlayCtx.strokeStyle = gx === 0 ? 'rgba(34,197,94,0.55)' : (gx % 5 === 0 ? 'rgba(133,146,168,0.28)' : 'rgba(133,146,168,0.12)');
+            const p1 = rosToCanvas({ x: gx, y: minY }), p2 = rosToCanvas({ x: gx, y: maxY });
+            overlayCtx.beginPath(); overlayCtx.moveTo(p1.x, p1.y); overlayCtx.lineTo(p2.x, p2.y); overlayCtx.stroke();
+        }
+        for (let gy = minY; gy <= maxY; gy++) {
+            overlayCtx.strokeStyle = gy === 0 ? 'rgba(239,68,68,0.55)' : (gy % 5 === 0 ? 'rgba(133,146,168,0.28)' : 'rgba(133,146,168,0.12)');
+            const p1 = rosToCanvas({ x: minX, y: gy }), p2 = rosToCanvas({ x: maxX, y: gy });
+            overlayCtx.beginPath(); overlayCtx.moveTo(p1.x, p1.y); overlayCtx.lineTo(p2.x, p2.y); overlayCtx.stroke();
+        }
+    }
+    function drawScanOnMap() {
+        // RViz2 "LaserScan" display equivalent: each range reading is
+        // projected from the robot's live pose (x,y,yaw) into the map frame
+        // and drawn as a point, instead of the sensor-centered polar plot
+        // used on the Sensors page.
+        if (!latestScan || !latestScan.available || !poseData || !mapData) return;
+        const rmax = latestScan.range_max || 30;
+        overlayCtx.fillStyle = 'rgba(255,90,54,0.85)';
+        for (let i = 0; i < latestScan.ranges.length; i++) {
+            const range = latestScan.ranges[i];
+            if (!isFinite(range) || range <= 0 || range > rmax) continue;
+            const ang = poseData.yaw + latestScan.angle_min + i * latestScan.angle_increment;
+            const p = rosToCanvas({ x: poseData.x + range * Math.cos(ang), y: poseData.y + range * Math.sin(ang) });
+            overlayCtx.beginPath(); overlayCtx.arc(p.x, p.y, 1.6, 0, Math.PI * 2); overlayCtx.fill();
+        }
+    }
+    function drawGoalMarker() {
+        if (!activeGoal || !mapData) return;
+        const p = rosToCanvas(activeGoal);
+        overlayCtx.save(); overlayCtx.translate(p.x, p.y);
+        overlayCtx.strokeStyle = '#22c55e'; overlayCtx.lineWidth = 2;
+        overlayCtx.beginPath(); overlayCtx.moveTo(0, 0); overlayCtx.lineTo(0, -22); overlayCtx.stroke();
+        overlayCtx.beginPath(); overlayCtx.moveTo(0, -22); overlayCtx.lineTo(12, -17); overlayCtx.lineTo(0, -12); overlayCtx.closePath();
+        overlayCtx.fillStyle = '#22c55e'; overlayCtx.fill();
+        overlayCtx.beginPath(); overlayCtx.arc(0, 0, 3, 0, Math.PI * 2); overlayCtx.fill();
+        overlayCtx.restore();
+    }
+    function drawRobot() {
+        if (!poseData || !mapData) return;
+        const pos = rosToCanvas(poseData); if (!pos) return;
+        overlayCtx.save(); overlayCtx.translate(pos.x, pos.y);
+        overlayCtx.beginPath(); overlayCtx.arc(0,0,16,0,Math.PI*2); overlayCtx.fillStyle='rgba(59,130,246,0.18)'; overlayCtx.fill();
+        overlayCtx.rotate(-poseData.yaw);
+        overlayCtx.beginPath(); overlayCtx.moveTo(0,-9); overlayCtx.lineTo(13,0); overlayCtx.lineTo(0,9); overlayCtx.closePath();
+        overlayCtx.fillStyle = '#3b82f6'; overlayCtx.fill();
+        overlayCtx.restore();
+    }
+    function drawDragArrow(start, target) {
+        const s = rosToCanvas(start), t = rosToCanvas(target); if (!s || !t) return;
+        const angle = Math.atan2(t.y-s.y, t.x-s.x);
+        const color = interactionMode === 'initial_pose' ? '#f59e0b' : '#22c55e';
+        overlayCtx.strokeStyle = color; overlayCtx.lineWidth = 3;
+        overlayCtx.beginPath(); overlayCtx.moveTo(s.x,s.y); overlayCtx.lineTo(t.x,t.y); overlayCtx.stroke();
+        overlayCtx.beginPath(); overlayCtx.moveTo(t.x,t.y);
+        overlayCtx.lineTo(t.x-Math.cos(angle-0.4)*12, t.y-Math.sin(angle-0.4)*12);
+        overlayCtx.lineTo(t.x-Math.cos(angle+0.4)*12, t.y-Math.sin(angle+0.4)*12);
+        overlayCtx.closePath(); overlayCtx.fillStyle = color; overlayCtx.fill();
+    }
+    function clearDrag() { dragStart = null; dragTarget = null; drawOverlay(); }
+    overlayCanvas.addEventListener('pointerdown', ev => {
+        if (interactionMode === 'off') return;
+        const p = clientToRos(ev); if (!p) return;
+        dragStart = p; dragTarget = p; drawOverlay(); ev.preventDefault();
+    });
+    overlayCanvas.addEventListener('pointermove', ev => { if (!dragStart) return; const p = clientToRos(ev); if (p) { dragTarget = p; drawOverlay(); } });
+    overlayCanvas.addEventListener('pointerup', ev => {
+        if (!dragStart) return;
+        const p = clientToRos(ev);
+        if (p) {
+            const yaw = Math.atan2(p.y-dragStart.y, p.x-dragStart.x);
+            if (interactionMode === 'initial_pose') sendInitialPose(p.x, p.y, yaw);
+            else sendGoal(p.x, p.y, yaw, 'Map click');
+        }
+        clearDrag();
+    });
+    overlayCanvas.addEventListener('pointerleave', () => { if (dragStart) clearDrag(); });
+
+    function setMode(mode) {
+        interactionMode = mode;
+        $('mode-goal-btn').classList.toggle('primary', mode === 'goal');
+        $('mode-initpose-btn').classList.toggle('primary', mode === 'initial_pose');
+    }
+    $('mode-goal-btn').addEventListener('click', () => setMode(interactionMode === 'goal' ? 'off' : 'goal'));
+    $('mode-initpose-btn').addEventListener('click', () => setMode(interactionMode === 'initial_pose' ? 'off' : 'initial_pose'));
+    setMode('goal');
+
+    ['map', 'grid', 'scan', 'robot', 'goal', 'globalCostmap', 'localCostmap', 'globalPlan', 'localPlan', 'particles'].forEach(name => {
+        const cb = $('layer-' + name);
+        cb.addEventListener('change', () => {
+            layerState[name] = cb.checked;
+            if (name === 'map') mapCanvas.style.visibility = cb.checked ? 'visible' : 'hidden';
+            drawOverlay();
+            if (three) {
+                if (name === 'map' && three.ground) { three.ground.visible = cb.checked; three.walls.visible = cb.checked; }
+                if (name === 'grid' && three.gridHelper) three.gridHelper.visible = cb.checked;
+                // robot/goal/scan visibility is re-evaluated every frame in update3DDynamic()
+            }
+        });
+    });
+
+    async function sendGoal(x, y, yaw, label) {
+        const r = await postJSON('/api/command', { x, y, yaw, label });
+        if (r.ok) { activeGoal = { x, y }; drawOverlay(); toast(`Goal sent${label ? ': ' + label : ''}`); }
+        else toast('Failed to send goal', true);
+    }
+    async function sendInitialPose(x, y, yaw) {
+        const r = await postJSON('/api/initial_pose', { x, y, yaw });
+        if (r.ok) toast('Initial pose published'); else toast('Failed to set initial pose', true);
+    }
+    $('cancel-goal-btn').addEventListener('click', async () => {
+        const r = await postJSON('/api/cancel_goal', {});
+        activeGoal = null; drawOverlay();
+        toast(r.data.message || (r.ok ? 'Canceled' : 'Nothing to cancel'), !r.ok);
+    });
+    $('zoom-in').addEventListener('click', () => setZoom(zoomScale + ZOOM_STEP));
+    $('zoom-out').addEventListener('click', () => setZoom(zoomScale - ZOOM_STEP));
+    $('fit-btn').addEventListener('click', fitMapToView);
+    $('recenter-btn').addEventListener('click', () => {
+        if (!poseData || !mapData) return;
+        const pos = rosToCanvas(poseData), wrap = $('map-wrapper');
+        wrap.scrollTo({ left: pos.x*zoomScale - wrap.clientWidth/2, top: pos.y*zoomScale - wrap.clientHeight/2, behavior: 'smooth' });
+    });
+    let resizeDebounce = null;
+    window.addEventListener('resize', () => { clearTimeout(resizeDebounce); resizeDebounce = setTimeout(() => { fitMapToView(); resizeThree(); }, 150); });
+
+    // ══════════════════════════ 3D VIEW (Three.js, vendored offline in static/vendor/) ══════════════════════════
+    // A "google maps 3D" style tilt/orbit view of the same live map+robot+scan
+    // data as the 2D canvas above. Lazily built on first toggle so pages that
+    // never touch it pay no WebGL cost.
+    let three = null, is3D = false, threeRafId = null;
+
+    function worldToThree(x, y) { return { x: x, z: -y }; }
+    // The URDF (like all ROS geometry) is authored Z-up; Three.js's scene
+    // here is Y-up. A -90 deg rotation about X maps ROS (x,y,z) -> three
+    // (x, z, -y) -- the same z=-y flip worldToThree already uses for map
+    // positions -- so the assembled robot stands upright instead of lying
+    // on its side, with its heading (yaw) then applied about the vertical
+    // Three Y axis on top of that fixed correction.
+    const URDF_ZUP_TO_YUP = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI / 2);
+
+    function initThree() {
+        if (three) return;
+        const container = $('three-container');
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setClearColor(0x0a0e17, 1);
+        container.appendChild(renderer.domElement);
+
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.Fog(0x0a0e17, 15, 60);
+
+        const camera = new THREE.PerspectiveCamera(55, 1, 0.05, 500);
+        const controls = new THREE.MapControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.08;
+        controls.maxPolarAngle = Math.PI * 0.49;
+        controls.minDistance = 1.5;
+        controls.maxDistance = 80;
+
+        scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+        const sun = new THREE.DirectionalLight(0xffffff, 0.85);
+        sun.position.set(8, 20, 10);
+        scene.add(sun);
+
+        const robotMesh = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.4, 3), new THREE.MeshStandardMaterial({ color: 0x3b82f6 }));
+        body.rotation.x = Math.PI / 2;
+        body.position.y = 0.2;
+        robotMesh.add(body);
+        const halo = new THREE.Mesh(new THREE.RingGeometry(0.24, 0.3, 24), new THREE.MeshBasicMaterial({ color: 0x3b82f6, transparent: true, opacity: 0.5, side: THREE.DoubleSide }));
+        halo.rotation.x = -Math.PI / 2;
+        halo.position.y = 0.02;
+        robotMesh.add(halo);
+        robotMesh.visible = false;
+        scene.add(robotMesh);
+
+        const goalMesh = new THREE.Group();
+        const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 0.6, 6), new THREE.MeshStandardMaterial({ color: 0x22c55e }));
+        pole.position.y = 0.3;
+        goalMesh.add(pole);
+        const flag = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.2, 8), new THREE.MeshStandardMaterial({ color: 0x22c55e }));
+        flag.rotation.z = Math.PI / 2;
+        flag.position.set(0.1, 0.5, 0);
+        goalMesh.add(flag);
+        goalMesh.visible = false;
+        scene.add(goalMesh);
+
+        const scanGeom = new THREE.BufferGeometry();
+        scanGeom.setAttribute('position', new THREE.BufferAttribute(new Float32Array(0), 3));
+        const scanPoints = new THREE.Points(scanGeom, new THREE.PointsMaterial({ color: 0xff5a36, size: 0.05, sizeAttenuation: true }));
+        scene.add(scanPoints);
+
+        three = { renderer, scene, camera, controls, robotMesh, goalMesh, scanPoints, ground: null, walls: null, gridHelper: null, builtKey: null };
+        resizeThree();
+    }
+
+    function resizeThree() {
+        if (!three) return;
+        const wrap = $('map-wrapper');
+        const w = wrap.clientWidth, h = wrap.clientHeight;
+        if (!w || !h) return;
+        three.renderer.setSize(w, h, true);
+        three.camera.aspect = w / h;
+        three.camera.updateProjectionMatrix();
+    }
+
+    function buildTerrain() {
+        if (!three || !mapData) return;
+        const key = `${mapData.width}x${mapData.height}x${mapData.resolution}x${mapData.origin.x}x${mapData.origin.y}`;
+        if (three.builtKey === key) return;
+        three.builtKey = key;
+
+        if (three.ground) { three.scene.remove(three.ground); three.ground.geometry.dispose(); three.ground.material.dispose(); }
+        if (three.walls) { three.scene.remove(three.walls); three.walls.geometry.dispose(); three.walls.material.dispose(); }
+        if (three.gridHelper) { three.scene.remove(three.gridHelper); three.gridHelper.geometry.dispose(); three.gridHelper.material.dispose(); }
+
+        const res = mapData.resolution, w = mapData.width, h = mapData.height;
+        const worldW = w * res, worldH = h * res;
+
+        // Drape the same occupancy-grid pixels used for the 2D map onto a flat
+        // ground plane -- the "google maps 3D" trick of texturing terrain with
+        // the top-down map instead of re-deriving geometry for free space.
+        const texCanvas = document.createElement('canvas');
+        texCanvas.width = w; texCanvas.height = h;
+        const tctx = texCanvas.getContext('2d');
+        const img = tctx.createImageData(w, h);
+        const data = mapData.data;
+        for (let row = 0; row < h; row++) {
+            for (let col = 0; col < w; col++) {
+                const wear = data[row * w + col];
+                const canvasRow = h - row - 1, px = (canvasRow * w + col) * 4;
+                if (wear === -1) { img.data[px]=24; img.data[px+1]=32; img.data[px+2]=47; img.data[px+3]=255; }
+                else if (wear > 65) { img.data[px]=6; img.data[px+1]=6; img.data[px+2]=8; img.data[px+3]=255; }
+                else { const s = 246 - Math.floor((wear/65)*150); img.data[px]=s; img.data[px+1]=s; img.data[px+2]=s; img.data[px+3]=255; }
+            }
+        }
+        tctx.putImageData(img, 0, 0);
+        const texture = new THREE.CanvasTexture(texCanvas);
+
+        const ground = new THREE.Mesh(
+            new THREE.PlaneGeometry(worldW, worldH),
+            new THREE.MeshStandardMaterial({ map: texture, roughness: 0.95 })
+        );
+        ground.rotation.x = -Math.PI / 2;
+        const centerRos = { x: mapData.origin.x + worldW / 2, y: mapData.origin.y + worldH / 2 };
+        const centerThree = worldToThree(centerRos.x, centerRos.y);
+        ground.position.set(centerThree.x, 0, centerThree.z);
+        ground.visible = layerState.map;
+        three.scene.add(ground);
+        three.ground = ground;
+
+        // Extrude occupied cells as wall blocks via InstancedMesh -- a Mesh
+        // per cell would mean tens of thousands of draw calls on a real map.
+        const WALL_HEIGHT = 0.5, THRESHOLD = 65, MAX_INSTANCES = 24000;
+        let occupiedCount = 0;
+        for (let i = 0; i < data.length; i++) if (data[i] > THRESHOLD) occupiedCount++;
+        const step = Math.max(1, Math.ceil(Math.sqrt(occupiedCount / MAX_INSTANCES)));
+
+        const cells = [];
+        for (let row = 0; row < h; row += step) {
+            for (let col = 0; col < w; col += step) {
+                if (data[row * w + col] > THRESHOLD) cells.push(row * w + col);
+            }
+        }
+        const cellSize = res * step;
+        const wallGeom = new THREE.BoxGeometry(cellSize, WALL_HEIGHT, cellSize);
+        const wallMat = new THREE.MeshStandardMaterial({ color: 0x2a3348, roughness: 0.85 });
+        const walls = new THREE.InstancedMesh(wallGeom, wallMat, cells.length);
+        const m = new THREE.Matrix4();
+        for (let i = 0; i < cells.length; i++) {
+            const row = Math.floor(cells[i] / w), col = cells[i] % w;
+            const wx = mapData.origin.x + col * res, wy = mapData.origin.y + row * res;
+            const p = worldToThree(wx, wy);
+            m.makeTranslation(p.x, WALL_HEIGHT / 2, p.z);
+            walls.setMatrixAt(i, m);
+        }
+        walls.instanceMatrix.needsUpdate = true;
+        walls.visible = layerState.map;
+        three.scene.add(walls);
+        three.walls = walls;
+
+        const gridSize = Math.max(worldW, worldH) * 1.3;
+        const gridHelper = new THREE.GridHelper(gridSize, Math.round(gridSize), 0x22c55e, 0x33415c);
+        gridHelper.position.set(centerThree.x, 0.01, centerThree.z);
+        gridHelper.visible = layerState.grid;
+        three.scene.add(gridHelper);
+        three.gridHelper = gridHelper;
+
+        three.controls.target.set(centerThree.x, 0, centerThree.z);
+        const dist = Math.max(worldW, worldH) * 0.6;
+        three.camera.position.set(centerThree.x, dist, centerThree.z + dist);
+        three.controls.update();
+    }
+
+    function update3DDynamic() {
+        if (!three) return;
+        const urdfReady = urdfRobot && urdfRobot.ready;
+        if (layerState.robot && poseData) {
+            const p = worldToThree(poseData.x, poseData.y);
+            if (urdfReady) {
+                urdfRobot.group.position.set(p.x, 0, p.z);
+                // Apply the fixed Z-up->Y-up correction first, then heading
+                // on top of it (quaternions, not Euler angles, so the two
+                // compose in exactly this order with no axis ambiguity).
+                const yawQ = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), -poseData.yaw);
+                urdfRobot.group.quaternion.copy(yawQ.multiply(URDF_ZUP_TO_YUP));
+                urdfRobot.group.visible = true;
+            } else {
+                three.robotMesh.position.set(p.x, 0, p.z);
+                three.robotMesh.rotation.y = -poseData.yaw + Math.PI / 2;
+            }
+            three.robotMesh.visible = !urdfReady;
+        } else {
+            three.robotMesh.visible = false;
+            if (urdfRobot) urdfRobot.group.visible = false;
+        }
+
+        if (layerState.goal && activeGoal) {
+            const p = worldToThree(activeGoal.x, activeGoal.y);
+            three.goalMesh.position.set(p.x, 0, p.z);
+            three.goalMesh.visible = true;
+        } else {
+            three.goalMesh.visible = false;
+        }
+
+        if (layerState.scan && latestScan && latestScan.available && poseData) {
+            const rmax = latestScan.range_max || 30;
+            const pts = [];
+            for (let i = 0; i < latestScan.ranges.length; i++) {
+                const range = latestScan.ranges[i];
+                if (!isFinite(range) || range <= 0 || range > rmax) continue;
+                const ang = poseData.yaw + latestScan.angle_min + i * latestScan.angle_increment;
+                const wx = poseData.x + range * Math.cos(ang), wy = poseData.y + range * Math.sin(ang);
+                const p = worldToThree(wx, wy);
+                pts.push(p.x, 0.12, p.z);
+            }
+            three.scanPoints.geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(pts), 3));
+            three.scanPoints.geometry.attributes.position.needsUpdate = true;
+            three.scanPoints.visible = true;
+        } else {
+            three.scanPoints.visible = false;
+        }
+    }
+
+    function threeLoop() {
+        if (!is3D || !three) return;
+        update3DDynamic();
+        if (urdfRobot && urdfRobot.ready) updateUrdfJoints(latestJointPositions);
+        three.controls.update();
+        three.renderer.render(three.scene, three.camera);
+        threeRafId = requestAnimationFrame(threeLoop);
+    }
+
+    // ── URDF robot model (3D-only): a small hand-rolled URDF parser +
+    // forward kinematics, walking the link/joint tree from
+    // daksha_description_full_body/urdf/robot.urdf (served by server.py at
+    // /robot_model/urdf, meshes at /robot_model/meshes/<file>.stl) exactly
+    // the way robot_state_publisher + RViz2's RobotModel display would, so
+    // the real robot geometry -- not a placeholder cone -- appears in 3D.
+    let urdfRobot = null, urdfLoadStarted = false, latestJointPositions = {};
+
+    function rpyToQuaternion(roll, pitch, yaw) {
+        const cr = Math.cos(roll/2), sr = Math.sin(roll/2);
+        const cp = Math.cos(pitch/2), sp = Math.sin(pitch/2);
+        const cy = Math.cos(yaw/2), sy = Math.sin(yaw/2);
+        return new THREE.Quaternion(
+            sr*cp*cy - cr*sp*sy,
+            cr*sp*cy + sr*cp*sy,
+            cr*cp*sy - sr*sp*cy,
+            cr*cp*cy + sr*sp*sy
+        );
+    }
+    function originMatrix(originEl) {
+        const xyz = ((originEl && originEl.getAttribute('xyz')) || '0 0 0').trim().split(/\s+/).map(Number);
+        const rpy = ((originEl && originEl.getAttribute('rpy')) || '0 0 0').trim().split(/\s+/).map(Number);
+        const m = new THREE.Matrix4();
+        m.compose(new THREE.Vector3(xyz[0], xyz[1], xyz[2]), rpyToQuaternion(rpy[0], rpy[1], rpy[2]), new THREE.Vector3(1, 1, 1));
+        return m;
+    }
+
+    async function loadUrdfRobot() {
+        if (urdfLoadStarted) return;
+        urdfLoadStarted = true;
+        let xmlText;
+        try {
+            const r = await fetch('/robot_model/urdf');
+            if (!r.ok) { console.warn('URDF model not available:', r.status); return; }
+            xmlText = await r.text();
+        } catch (e) { console.warn('Failed to fetch URDF model', e); return; }
+
+        try {
+        const xml = new DOMParser().parseFromString(xmlText, 'application/xml');
+        const links = {};
+        Array.from(xml.getElementsByTagName('link')).forEach(el => {
+            const name = el.getAttribute('name');
+            const link = { name, visualMeshUrl: null, visualOriginEl: null, visualScale: [1, 1, 1] };
+            const visual = el.getElementsByTagName('visual')[0];
+            if (visual) {
+                link.visualOriginEl = visual.getElementsByTagName('origin')[0] || null;
+                const meshEl = visual.getElementsByTagName('mesh')[0];
+                if (meshEl) {
+                    const filename = (meshEl.getAttribute('filename') || '').split('/').pop();
+                    link.visualMeshUrl = '/robot_model/meshes/' + filename;
+                    const scaleAttr = meshEl.getAttribute('scale');
+                    if (scaleAttr) link.visualScale = scaleAttr.trim().split(/\s+/).map(Number);
+                }
+            }
+            links[name] = link;
+        });
+
+        // getElementsByTagName('joint') is a document-wide search, so it also
+        // picks up the <joint name="..."> hardware-interface references
+        // nested inside this URDF's <ros2_control> blocks (16 of them) --
+        // those have no <parent>/<child> children and aren't kinematic
+        // joints at all. Only a real kinematic joint has both.
+        const joints = Array.from(xml.getElementsByTagName('joint'))
+            .filter(el => el.getElementsByTagName('parent')[0] && el.getElementsByTagName('child')[0])
+            .map(el => ({
+                name: el.getAttribute('name'),
+                type: el.getAttribute('type'),
+                parent: el.getElementsByTagName('parent')[0].getAttribute('link'),
+                child: el.getElementsByTagName('child')[0].getAttribute('link'),
+                originEl: el.getElementsByTagName('origin')[0] || null,
+                axisEl: el.getElementsByTagName('axis')[0] || null,
+                mimicEl: el.getElementsByTagName('mimic')[0] || null,
+            }));
+
+        const childNames = new Set(joints.map(j => j.child));
+        const rootLink = Object.keys(links).find(n => !childNames.has(n)) || 'base_link';
+
+        const group = new THREE.Group();
+        const nodeByLink = { [rootLink]: group };
+
+        // Build parents before children (order-independent w.r.t. how the
+        // joints happen to be declared in the URDF) so each new node always
+        // has a THREE.Group parent to attach to.
+        const built = new Set([rootLink]);
+        let progressed = true;
+        while (progressed) {
+            progressed = false;
+            for (const j of joints) {
+                if (built.has(j.child) || !built.has(j.parent)) continue;
+                const node = new THREE.Group();
+                node.matrixAutoUpdate = false;
+                node.userData.jointOrigin = originMatrix(j.originEl);
+                node.userData.joint = j;
+                node.matrix.copy(node.userData.jointOrigin);
+                nodeByLink[j.parent].add(node);
+                nodeByLink[j.child] = node;
+                built.add(j.child);
+                progressed = true;
+            }
+        }
+
+        // Matches the URDF's own <material name="silver"><color rgba="0.7 0.7 0.7 1"/>.
+        const material = new THREE.MeshStandardMaterial({ color: 0xb3b3b3, roughness: 0.55, metalness: 0.35 });
+        const loader = new THREE.STLLoader();
+        const meshLoads = Object.values(links)
+            .filter(link => link.visualMeshUrl && nodeByLink[link.name])
+            .map(link => new Promise(resolve => {
+                loader.load(link.visualMeshUrl, geometry => {
+                    geometry.computeVertexNormals();
+                    const mesh = new THREE.Mesh(geometry, material);
+                    const s = link.visualScale;
+                    const scaleM = new THREE.Matrix4().makeScale(s[0], s[1], s[2]);
+                    mesh.matrixAutoUpdate = false;
+                    mesh.matrix.copy(originMatrix(link.visualOriginEl).multiply(scaleM));
+                    nodeByLink[link.name].add(mesh);
+                    resolve();
+                }, undefined, () => resolve()); // one missing mesh shouldn't block the rest of the robot
+            }));
+
+        urdfRobot = { group, nodeByLink, ready: false };
+        three.scene.add(group);
+        group.visible = false;
+        Promise.all(meshLoads).then(() => { urdfRobot.ready = true; });
+        } catch (e) { console.error('Failed to build URDF robot model:', e); }
+    }
+
+    function jointVariableMatrix(joint, positions) {
+        if (!joint || joint.type === 'fixed') return null;
+        let value = positions[joint.name];
+        if (value === undefined && joint.mimicEl) {
+            const src = joint.mimicEl.getAttribute('joint');
+            const mult = parseFloat(joint.mimicEl.getAttribute('multiplier') || '1');
+            const off = parseFloat(joint.mimicEl.getAttribute('offset') || '0');
+            if (positions[src] !== undefined) value = positions[src] * mult + off;
+        }
+        if (value === undefined) value = 0;
+        const axisAttr = (joint.axisEl && joint.axisEl.getAttribute('xyz')) || '1 0 0';
+        const axis = axisAttr.trim().split(/\s+/).map(Number);
+        const axisVec = new THREE.Vector3(axis[0], axis[1], axis[2]).normalize();
+        return joint.type === 'prismatic'
+            ? new THREE.Matrix4().makeTranslation(axisVec.x * value, axisVec.y * value, axisVec.z * value)
+            : new THREE.Matrix4().makeRotationAxis(axisVec, value); // revolute / continuous
+    }
+    function updateUrdfJoints(positions) {
+        if (!urdfRobot) return;
+        Object.values(urdfRobot.nodeByLink).forEach(node => {
+            const joint = node.userData.joint;
+            if (!joint) return; // root link's own group has no incoming joint
+            const varM = jointVariableMatrix(joint, positions);
+            node.matrix.copy(varM ? node.userData.jointOrigin.clone().multiply(varM) : node.userData.jointOrigin);
+        });
+    }
+    async function fetchJointStates() {
+        try {
+            const d = await getJSON('/api/joint_states');
+            if (d.available) latestJointPositions = d.positions;
+        } catch (e) {}
+    }
+    setInterval(fetchJointStates, 500);
+
+    function set3D(active) {
+        is3D = active;
+        $('toggle-3d-btn').classList.toggle('active', active);
+        $('three-container').classList.toggle('active', active);
+        $('three-hint').classList.toggle('active', active);
+        $('map-surface').style.visibility = active ? 'hidden' : 'visible';
+        if (active) {
+            initThree();
+            resizeThree();
+            buildTerrain();
+            loadUrdfRobot();
+            fetchJointStates();
+            if (!threeRafId) threeLoop();
+        } else if (threeRafId) {
+            cancelAnimationFrame(threeRafId);
+            threeRafId = null;
+        }
+    }
+    $('toggle-3d-btn').addEventListener('click', () => set3D(!is3D));
+
+    // ── Navigation status card ───────────────────────────────────────────
+    let lastSpeed = null;
+    async function fetchNavStatus() {
+        try {
+            const d = await getJSON('/api/nav_status');
+            const chip = $('nav-state-chip');
+            chip.className = 'state-chip ' + d.state;
+            chip.textContent = d.state.replace('_', ' ');
+            $('ns-state').textContent = d.state.replace('_', ' ');
+            $('ns-goal').textContent = d.current_goal || '—';
+            $('ns-distance').textContent = d.distance_remaining != null ? d.distance_remaining.toFixed(2) + ' m' : '—';
+            $('ns-planner').textContent = d.state === 'planning' ? 'Planning' : (d.state === 'navigating' ? 'Idle' : '—');
+            $('ns-controller').textContent = d.state === 'navigating' ? 'Running' : (d.state === 'idle' ? 'Idle' : '—');
+            $('ns-recovery').textContent = '—';
+            if (d.distance_remaining != null && lastSpeed && lastSpeed > 0.02) {
+                $('ns-eta').textContent = Math.round(d.distance_remaining / lastSpeed) + ' s';
+            } else {
+                $('ns-eta').textContent = '—';
+            }
+            if (d.error && d.state === 'failed') toast(d.error, true);
+            if (activeGoal && (d.state === 'goal_reached' || d.state === 'failed' || d.state === 'canceled')) { activeGoal = null; drawOverlay(); }
+        } catch (e) {}
+    }
+
+    // ── Localization card ────────────────────────────────────────────────
+    async function fetchLocalization() {
+        try {
+            const d = await getJSON('/api/localization');
+            if (!d.available) {
+                setPill($('amcl-pill'), $('amcl-pill-text'), 'warn', 'No pose');
+                $('loc-status').textContent = 'Not Localized';
+                $('loc-confidence').textContent = '—'; $('loc-confidence').className = 'confidence-badge unknown';
+                $('loc-pose').textContent = '—';
+                return;
+            }
+            setPill($('amcl-pill'), $('amcl-pill-text'), 'ok', fmtAge(d.age_s));
+            $('loc-status').textContent = 'Localized';
+            $('loc-confidence').textContent = d.confidence;
+            $('loc-confidence').className = 'confidence-badge ' + d.confidence;
+            $('loc-pose').textContent = `${d.pose.x.toFixed(2)}, ${d.pose.y.toFixed(2)}, ${d.pose.yaw.toFixed(2)}`;
+        } catch (e) {}
+    }
+    $('set-initial-pose-btn').addEventListener('click', () => { setMode('initial_pose'); toast('Drag on the map to set the initial pose'); });
+    $('reset-localization-btn').addEventListener('click', async () => {
+        if (!poseData) { toast('No pose to reset from yet', true); return; }
+        await sendInitialPose(poseData.x, poseData.y, poseData.yaw);
+    });
+
+    // ══════════════════════════ WAYPOINTS ══════════════════════════
+    async function refreshWaypoints() {
+        try { const d = await getJSON('/api/waypoints'); waypoints = d.waypoints || []; } catch (e) { waypoints = []; }
+        renderWaypoints();
+    }
+    function renderWaypoints() {
+        const list = $('waypoint-list');
+        $('wp-count').textContent = waypoints.length;
+        list.innerHTML = '';
+        if (!waypoints.length) { list.innerHTML = '<div class="empty-hint">No waypoints yet.</div>'; return; }
+        waypoints.forEach(wp => {
+            const item = document.createElement('div');
+            item.className = 'item-card';
+            item.innerHTML = `<div class="item-top"><span class="item-name">&#128205; ${escapeHtml(wp.name || 'unnamed')}</span></div>
+                <div class="item-sub">x ${wp.x.toFixed(2)}  y ${wp.y.toFixed(2)}</div>`;
+            const actions = document.createElement('div'); actions.className = 'item-actions';
+            const go = document.createElement('button'); go.className = 'btn primary small'; go.textContent = '▶';
+            go.title = 'Navigate';
+            go.addEventListener('click', () => sendGoal(wp.x, wp.y, wp.yaw || 0, wp.name));
+            const del = document.createElement('button'); del.className = 'btn small'; del.textContent = '🗑';
+            del.addEventListener('click', () => { waypoints = waypoints.filter(c => c.id !== wp.id); persistWaypoints().then(refreshWaypoints); });
+            actions.append(go, del); item.appendChild(actions); list.appendChild(item);
+        });
+    }
+    async function persistWaypoints() {
+        try { await postJSON('/api/waypoints', { waypoints }); } catch (e) { toast('Failed to save waypoints', true); }
+    }
+    $('add-current-btn').addEventListener('click', () => {
+        if (!poseData) { toast('Pose not available yet', true); return; }
+        const name = prompt('Name this waypoint');
+        if (!name) return;
+        const id = Math.max(0, ...waypoints.map(w => w.id || 0)) + 1;
+        waypoints.push({ id, name, x: poseData.x, y: poseData.y, yaw: poseData.yaw });
+        persistWaypoints().then(refreshWaypoints);
+        toast(`Saved waypoint "${name}"`);
+    });
+
+    // ══════════════════════════ MISSIONS ══════════════════════════
+    let missions = [];
+    let missionRunner = { active: false, paused: false, mission: null, index: 0, poll: null };
+
+    async function refreshMissions() {
+        try { const d = await getJSON('/api/missions'); missions = d.missions || []; } catch (e) { missions = []; }
+        renderMissions();
+    }
+    function renderMissions() {
+        const list = $('mission-list');
+        $('mission-count').textContent = missions.length;
+        list.innerHTML = '';
+        if (!missions.length) { list.innerHTML = '<div class="empty-hint">No missions yet.</div>'; return; }
+        missions.forEach(m => {
+            const item = document.createElement('div'); item.className = 'item-card';
+            const running = missionRunner.active && missionRunner.mission && missionRunner.mission.id === m.id;
+            item.innerHTML = `<div class="item-top">
+                    <span class="item-name">${escapeHtml(m.name)}</span>
+                    <span class="tag">${m.waypoint_ids.length}wp · ${m.loop ? 'Loop' : 'Once'}</span>
+                </div>`;
+            const actions = document.createElement('div'); actions.className = 'item-actions';
+            if (running && !missionRunner.paused) {
+                const pause = document.createElement('button'); pause.className = 'btn small'; pause.textContent = '⏸';
+                pause.addEventListener('click', () => pauseMission());
+                const stop = document.createElement('button'); stop.className = 'btn danger small'; stop.textContent = '⏹';
+                stop.addEventListener('click', () => stopMission());
+                actions.append(pause, stop);
+            } else if (running && missionRunner.paused) {
+                const resume = document.createElement('button'); resume.className = 'btn primary small'; resume.textContent = '▶';
+                resume.addEventListener('click', () => resumeMission());
+                const stop = document.createElement('button'); stop.className = 'btn danger small'; stop.textContent = '⏹';
+                stop.addEventListener('click', () => stopMission());
+                actions.append(resume, stop);
+            } else {
+                const start = document.createElement('button'); start.className = 'btn primary small'; start.textContent = '▶';
+                start.title = 'Start'; start.addEventListener('click', () => startMission(m));
+                const del = document.createElement('button'); del.className = 'btn small'; del.textContent = '🗑';
+                del.addEventListener('click', () => { missions = missions.filter(x => x.id !== m.id); persistMissions().then(refreshMissions); });
+                actions.append(start, del);
+            }
+            item.appendChild(actions); list.appendChild(item);
+        });
+    }
+    async function persistMissions() { try { await postJSON('/api/missions', { missions }); } catch (e) { toast('Failed to save missions', true); } }
+
+    $('add-mission-btn').addEventListener('click', () => {
+        if (!waypoints.length) { toast('Save some waypoints first', true); return; }
+        const name = prompt('Mission name');
+        if (!name) return;
+        const list = waypoints.map((w, i) => `${i + 1}. ${w.name}`).join('\n');
+        const picks = prompt(`Enter waypoint numbers in order, comma-separated:\n${list}`);
+        if (!picks) return;
+        const ids = picks.split(',').map(s => parseInt(s.trim(), 10) - 1).filter(i => i >= 0 && i < waypoints.length).map(i => waypoints[i].id);
+        if (!ids.length) { toast('No valid waypoints selected', true); return; }
+        const loop = confirm('Loop this mission continuously? (OK = loop, Cancel = run once)');
+        const id = Math.max(0, ...missions.map(m => m.id || 0)) + 1;
+        missions.push({ id, name, waypoint_ids: ids, loop });
+        persistMissions().then(refreshMissions);
+    });
+
+    function startMission(mission) {
+        missionRunner = { active: true, paused: false, mission, index: 0, poll: null };
+        renderMissions();
+        advanceMission();
+    }
+    function advanceMission() {
+        if (!missionRunner.active || missionRunner.paused) return;
+        const m = missionRunner.mission;
+        if (missionRunner.index >= m.waypoint_ids.length) {
+            if (m.loop) { missionRunner.index = 0; } else { stopMission(); toast(`Mission "${m.name}" complete`); return; }
+        }
+        const wp = waypoints.find(w => w.id === m.waypoint_ids[missionRunner.index]);
+        if (!wp) { missionRunner.index++; advanceMission(); return; }
+        sendGoal(wp.x, wp.y, wp.yaw || 0, `${m.name}: ${wp.name}`);
+        clearInterval(missionRunner.poll);
+        missionRunner.poll = setInterval(async () => {
+            if (!missionRunner.active || missionRunner.paused) return;
+            try {
+                const s = await getJSON('/api/nav_status');
+                if (s.state === 'goal_reached') {
+                    clearInterval(missionRunner.poll);
+                    missionRunner.index++;
+                    setTimeout(advanceMission, 500);
+                } else if (s.state === 'failed' || s.state === 'canceled') {
+                    clearInterval(missionRunner.poll);
+                    toast(`Mission "${m.name}" stopped: ${s.error || s.state}`, true);
+                    stopMission();
+                }
+            } catch (e) {}
+        }, 1000);
+        renderMissions();
+    }
+    function pauseMission() { missionRunner.paused = true; clearInterval(missionRunner.poll); postJSON('/api/cancel_goal', {}); renderMissions(); }
+    function resumeMission() { missionRunner.paused = false; advanceMission(); renderMissions(); }
+    function stopMission() {
+        clearInterval(missionRunner.poll);
+        postJSON('/api/cancel_goal', {});
+        missionRunner = { active: false, paused: false, mission: null, index: 0, poll: null };
+        renderMissions();
+    }
+
+    // ══════════════════════════ MANUAL CONTROL ══════════════════════════
+    const joystickBase = $('joystick-base'), joystickKnob = $('joystick-knob');
+    const MAX_LINEAR = 0.5, MAX_ANGULAR = 1.0, KNOB_RADIUS = 28;
+    let teleopLinear = 0, teleopAngular = 0, teleopTimer = null, joystickDragging = false;
+
+    function setTeleop(l, a) {
+        teleopLinear = l; teleopAngular = a;
+        $('lin-val').textContent = l.toFixed(2) + ' m/s';
+        $('ang-val').textContent = a.toFixed(2) + ' rad/s';
+    }
+    function sendTeleop() { postJSON('/api/teleop', { linear: teleopLinear, angular: teleopAngular }); }
+    function startTeleopLoop() { if (!teleopTimer) teleopTimer = setInterval(sendTeleop, 100); }
+    function stopTeleopLoop() { if (teleopTimer) { clearInterval(teleopTimer); teleopTimer = null; } setTeleop(0, 0); sendTeleop(); }
+
+    function joystickFromEvent(ev) {
+        const r = joystickBase.getBoundingClientRect(), cx = r.left + r.width/2, cy = r.top + r.height/2;
+        let dx = ev.clientX - cx, dy = ev.clientY - cy;
+        const dist = Math.min(KNOB_RADIUS, Math.hypot(dx, dy)), angle = Math.atan2(dy, dx);
+        dx = Math.cos(angle)*dist; dy = Math.sin(angle)*dist;
+        joystickKnob.style.transform = `translate(${dx-14}px, ${dy-14}px)`;
+        setTeleop(-(dy/KNOB_RADIUS)*MAX_LINEAR, -(dx/KNOB_RADIUS)*MAX_ANGULAR);
+    }
+    function resetJoystick() { joystickKnob.style.transform = 'translate(-50%,-50%)'; joystickBase.classList.remove('active'); joystickDragging = false; stopTeleopLoop(); }
+    joystickBase.addEventListener('pointerdown', ev => { joystickDragging = true; joystickBase.classList.add('active'); joystickBase.setPointerCapture(ev.pointerId); joystickFromEvent(ev); startTeleopLoop(); ev.preventDefault(); });
+    joystickBase.addEventListener('pointermove', ev => { if (joystickDragging) joystickFromEvent(ev); });
+    joystickBase.addEventListener('pointerup', resetJoystick);
+    joystickBase.addEventListener('pointercancel', resetJoystick);
+
+    const heldKeys = new Set();
+    function manualPageActive() { return $('page-navigation').classList.contains('active'); }
+    window.addEventListener('keydown', ev => {
+        if (!manualPageActive() || joystickDragging) return;
+        const k = ev.key.toLowerCase(); if (!'wasd'.includes(k)) return;
+        heldKeys.add(k); recomputeWasd(); ev.preventDefault();
+    });
+    window.addEventListener('keyup', ev => { const k = ev.key.toLowerCase(); if ('wasd'.includes(k)) { heldKeys.delete(k); recomputeWasd(); } });
+    window.addEventListener('blur', () => { heldKeys.clear(); recomputeWasd(); });
+    function recomputeWasd() {
+        if (!heldKeys.size) { stopTeleopLoop(); return; }
+        let l = 0, a = 0;
+        if (heldKeys.has('w')) l += MAX_LINEAR; if (heldKeys.has('s')) l -= MAX_LINEAR;
+        if (heldKeys.has('a')) a += MAX_ANGULAR; if (heldKeys.has('d')) a -= MAX_ANGULAR;
+        setTeleop(l, a); startTeleopLoop();
+    }
+    $('lin-inc').addEventListener('click', () => { setTeleop(Math.min(MAX_LINEAR, teleopLinear+0.05), teleopAngular); sendTeleop(); });
+    $('lin-dec').addEventListener('click', () => { setTeleop(Math.max(-MAX_LINEAR, teleopLinear-0.05), teleopAngular); sendTeleop(); });
+    $('ang-inc').addEventListener('click', () => { setTeleop(teleopLinear, Math.min(MAX_ANGULAR, teleopAngular+0.1)); sendTeleop(); });
+    $('ang-dec').addEventListener('click', () => { setTeleop(teleopLinear, Math.max(-MAX_ANGULAR, teleopAngular-0.1)); sendTeleop(); });
+    $('stop-robot-btn').addEventListener('click', () => { heldKeys.clear(); resetJoystick(); setTeleop(0, 0); sendTeleop(); toast('Stop sent'); });
+    $('enable-motors-btn').addEventListener('click', async () => { const r = await postJSON('/api/motors', { enabled: true }); toast(r.data.message || 'Enable sent'); });
+
+    // Emergency stop -- always visible in the sidebar regardless of active page.
+    $('estop-btn').addEventListener('click', () => {
+        heldKeys.clear(); resetJoystick(); setTeleop(0, 0); sendTeleop();
+        postJSON('/api/cancel_goal', {});
+        activeGoal = null; drawOverlay();
+        stopMission();
+        toast('EMERGENCY STOP: cmd_vel zeroed, active goal canceled', true);
+    });
+
+    // ══════════════════════════ DOCKING ══════════════════════════
+    $('go-dock-btn').addEventListener('click', async () => { const r = await postJSON('/api/dock', {}); if (!r.ok) toast(r.data.error, true); });
+    $('undock-btn').addEventListener('click', async () => { const r = await postJSON('/api/undock', {}); if (!r.ok) toast(r.data.error, true); });
+
+    // ══════════════════════════ SENSORS ══════════════════════════
+    async function fetchScan() {
+        try {
+            const d = await getJSON('/api/scan');
+            latestScan = d;
+            drawOverlay();
+            const canvas = $('lidar-canvas'), ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const cx = canvas.width/2, cy = canvas.height/2, maxR = cx - 8;
+            ctx.strokeStyle = '#26314a';
+            [0.25,0.5,0.75,1].forEach(f => { ctx.beginPath(); ctx.arc(cx,cy,maxR*f,0,Math.PI*2); ctx.stroke(); });
+            if (!d.available) return;
+            ctx.fillStyle = '#3b82f6';
+            const rmax = d.range_max || 10;
+            d.ranges.forEach((range, i) => {
+                if (!isFinite(range) || range <= 0) return;
+                const ang = d.angle_min + i * d.angle_increment;
+                const r = Math.min(range / rmax, 1) * maxR;
+                const x = cx + r * Math.cos(ang), y = cy + r * Math.sin(ang);
+                ctx.fillRect(x-1, y-1, 2, 2);
+            });
+            ctx.fillStyle = '#22c55e'; ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI*2); ctx.fill();
+        } catch (e) {}
+    }
+    async function fetchImu() {
+        try {
+            const d = await getJSON('/api/imu');
+            if (!d.available) { $('imu-angvel').textContent = 'No data'; $('imu-accel').textContent = 'No data'; return; }
+            const av = d.angular_velocity, la = d.linear_acceleration;
+            $('imu-angvel').textContent = `${av.x.toFixed(2)}, ${av.y.toFixed(2)}, ${av.z.toFixed(2)}`;
+            $('imu-accel').textContent = `${la.x.toFixed(2)}, ${la.y.toFixed(2)}, ${la.z.toFixed(2)}`;
+        } catch (e) {}
+    }
+    async function fetchOdometry() {
+        try {
+            const d = await getJSON('/api/odometry');
+            if (!d.available) { $('odom-x').textContent = 'No data'; $('odom-y').textContent = 'No data'; $('odom-yaw').textContent = 'No data'; lastSpeed = null; return; }
+            $('odom-x').textContent = d.x.toFixed(2) + ' m';
+            $('odom-y').textContent = d.y.toFixed(2) + ' m';
+            $('odom-yaw').textContent = d.yaw.toFixed(2) + ' rad';
+            lastSpeed = Math.abs(d.linear_x);
+            $('ns-speed').textContent = lastSpeed.toFixed(2) + ' m/s';
+        } catch (e) {}
+    }
+    async function fetchBattery() {
+        try {
+            const d = await getJSON('/api/battery');
+            if (!d.available) {
+                $('sens-batt-pct').textContent = 'No data'; $('sens-batt-volt').textContent = 'No data'; $('sens-batt-curr').textContent = 'No data';
+                setPill($('battery-pill'), $('battery-pill-text'), 'warn', 'Battery —');
+                $('dock-battery').textContent = 'No data';
+                $('dock-status').textContent = 'Unknown'; $('dock-charging').textContent = '—';
+                return;
+            }
+            const pct = Math.round(d.percentage * 100);
+            $('sens-batt-pct').textContent = pct + '%';
+            $('sens-batt-volt').textContent = d.voltage.toFixed(1) + ' V';
+            $('sens-batt-curr').textContent = d.current.toFixed(1) + ' A';
+            $('dock-battery').textContent = pct + '%';
+            $('dock-charging').textContent = d.power_supply_status === 1 ? 'Charging' : 'Not Charging';
+            setPill($('battery-pill'), $('battery-pill-text'), pct < 20 ? 'warn' : 'ok', 'Battery ' + pct + '%');
+        } catch (e) {}
+    }
+
+    // ══════════════════════════ DIAGNOSTICS ══════════════════════════
+    const NODE_LABELS = {
+        map_server: 'Map Server', amcl: 'AMCL', nav2_bt_navigator: 'Nav2',
+        lidar: 'LiDAR', odom: 'Odometry', imu: 'IMU', camera: 'Camera',
+        battery_topic: 'Battery', local_costmap: 'Local Costmap', global_costmap: 'Global Costmap',
+        docking_msgs_installed: 'Docking',
+    };
+    async function fetchSystemStatus() {
+        try {
+            const d = await getJSON('/api/system_status');
+            $('ri-host').textContent = d.hostname;
+            $('ri-domain').textContent = d.ros_domain_id;
+            const up = Math.floor(d.uptime_s);
+            const upStr = `${String(Math.floor(up/3600)).padStart(2,'0')}:${String(Math.floor(up/60)%60).padStart(2,'0')}:${String(up%60).padStart(2,'0')}`;
+            $('ri-uptime').textContent = upStr;
+            $('sb-uptime').textContent = 'Uptime ' + upStr;
+
+            const grid = $('node-health-grid');
+            grid.innerHTML = '';
+            let okCount = 0, total = 0;
+            Object.entries(NODE_LABELS).forEach(([key, label]) => {
+                total++;
+                const ok = !!d[key];
+                if (ok) okCount++;
+                const row = document.createElement('div');
+                row.className = 'diag-mini-row';
+                row.innerHTML = `<span>${label}</span><span class="${ok ? 'v-ok' : 'v-na'}">${ok ? '✔' : '—'}</span>`;
+                grid.appendChild(row);
+            });
+            const pct = Math.round((okCount / total) * 100);
+            const ring = $('health-ring');
+            const color = pct >= 70 ? 'var(--success)' : pct >= 40 ? 'var(--warn)' : 'var(--danger)';
+            ring.style.border = `5px solid ${color}`;
+            ring.style.color = color;
+            ring.textContent = pct + '%';
+
+            $('dock-note').textContent = d.docking_msgs_installed ? '' : 'opennav_docking_msgs not installed';
+        } catch (e) {}
+    }
+
+    // ══════════════════════════ RViz2-equivalent layers: costmaps, plans, particles ══════════════════════════
+    async function fetchGlobalCostmap() {
+        try { const d = await getJSON('/api/global_costmap'); latestGlobalCostmap = d.available ? d : null; drawOverlay(); } catch (e) {}
+    }
+    async function fetchLocalCostmap() {
+        try { const d = await getJSON('/api/local_costmap'); latestLocalCostmap = d.available ? d : null; drawOverlay(); } catch (e) {}
+    }
+    async function fetchGlobalPlan() {
+        try { const d = await getJSON('/api/global_plan'); latestGlobalPlan = d.available ? d.points : []; drawOverlay(); } catch (e) {}
+    }
+    async function fetchLocalPlan() {
+        try { const d = await getJSON('/api/local_plan'); latestLocalPlan = d.available ? d.points : []; drawOverlay(); } catch (e) {}
+    }
+    async function fetchParticleCloud() {
+        try { const d = await getJSON('/api/particle_cloud'); latestParticles = d.available ? d.particles : []; drawOverlay(); } catch (e) {}
+    }
+
+    // ══════════════════════════ boot ══════════════════════════
+    fetchMap(); refreshWaypoints(); refreshMissions(); fetchPose();
+    setInterval(fetchPose, 400);
+    setInterval(fetchMap, 5000);
+    setInterval(fetchNavStatus, 1000);
+    setInterval(fetchLocalization, 1000);
+    setInterval(fetchScan, 800);
+    setInterval(fetchImu, 500);
+    setInterval(fetchOdometry, 500);
+    setInterval(fetchBattery, 3000);
+    setInterval(fetchSystemStatus, 2000);
+    setInterval(fetchGlobalCostmap, 2000);
+    setInterval(fetchLocalCostmap, 1500);
+    setInterval(fetchGlobalPlan, 1000);
+    setInterval(fetchLocalPlan, 500);
+    setInterval(fetchParticleCloud, 1000);
+    fetchNavStatus(); fetchLocalization(); fetchBattery(); fetchSystemStatus();
+    fetchGlobalCostmap(); fetchLocalCostmap(); fetchGlobalPlan(); fetchLocalPlan(); fetchParticleCloud();
+})();
+</script>
+</body>
+</html>

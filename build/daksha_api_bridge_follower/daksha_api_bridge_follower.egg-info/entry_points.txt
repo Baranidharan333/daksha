@@ -1,0 +1,5 @@
+[console_scripts]
+camera_publisher = daksha_api_bridge_follower.camera_suscriber:main
+joint_cmd_api_subscriber = daksha_api_bridge_follower.joint_cmd_api_publish:main
+joint_states_api_publisher = daksha_api_bridge_follower.joint_states_api_suscriber:main
+

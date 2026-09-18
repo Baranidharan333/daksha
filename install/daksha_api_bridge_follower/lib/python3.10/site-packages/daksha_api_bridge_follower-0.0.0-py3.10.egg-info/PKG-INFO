@@ -1,0 +1,12 @@
+Metadata-Version: 2.1
+Name: daksha-api-bridge-follower
+Version: 0.0.0
+Summary: Follower-side Daksha API bridge: reports local camera feeds and /joint_states to the cloud dashboard and receives dashboard-issued joint_cmd events.
+Home-page: UNKNOWN
+Maintainer: baranidharan
+Maintainer-email: baranidharan@example.com
+License: Apache-2.0
+Platform: UNKNOWN
+
+UNKNOWN
+

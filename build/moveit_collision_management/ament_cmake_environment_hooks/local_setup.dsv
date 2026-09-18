@@ -1,0 +1,2 @@
+source;share/moveit_collision_management/environment/ament_prefix_path.sh
+source;share/moveit_collision_management/environment/path.sh

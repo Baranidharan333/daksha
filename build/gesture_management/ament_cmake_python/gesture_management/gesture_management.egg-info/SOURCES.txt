@@ -1,0 +1,15 @@
+setup.py
+gesture_management/__init__.py
+gesture_management.egg-info/PKG-INFO
+gesture_management.egg-info/SOURCES.txt
+gesture_management.egg-info/dependency_links.txt
+gesture_management.egg-info/top_level.txt
+gesture_management/srv/__init__.py
+gesture_management/srv/_delete_sequence.py
+gesture_management/srv/_get_replay_status.py
+gesture_management/srv/_list_sequences.py
+gesture_management/srv/_play_recording.py
+gesture_management/srv/_play_sequence.py
+gesture_management/srv/_replay_recording.py
+gesture_management/srv/_save_sequence.py
+gesture_management/srv/_start_recording.py

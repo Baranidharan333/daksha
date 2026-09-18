@@ -1,0 +1,3 @@
+string recording_name
+string output_topic
+float32 replay_speed

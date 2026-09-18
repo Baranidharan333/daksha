@@ -1,0 +1,184 @@
+[1.340s] Invoking command in '/home/phy_ai/.ihub/daksha/build/daksha_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/phy_ai/.barani/gen2_full/install/world_camera_launch:/home/phy_ai/.barani/gen2_full/install/gen2:/home/phy_ai/.barani/gen2_full/install/vr_teleop:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint:/home/phy_ai/.barani/gen2_full/install/nav_bringup:/home/phy_ai/.barani/gen2_full/install/nav2_config:/home/phy_ai/.barani/gen2_full/install/kinematics:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger:/home/phy_ai/.barani/gen2_full/install/joint_analyzer:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection:/home/phy_ai/.barani/gen2_full/install/gen2_leader:/home/phy_ai/.barani/gen2_full/install/amr_bringup:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower:/opt/ros/humble /usr/bin/cmake --build /home/phy_ai/.ihub/daksha/build/daksha_msgs -- -j16 -l16
+[4.962s] [  2%] Built target daksha_msgs__rs
+[4.963s] [  5%] Built target daksha_msgs__cpp
+[4.963s] [ 15%] Built target daksha_msgs__rosidl_generator_c
+[4.963s] [ 15%] Built target ament_cmake_python_copy_daksha_msgs
+[4.964s] [ 25%] Built target daksha_msgs__rosidl_typesupport_introspection_cpp
+[4.965s] [ 35%] Built target daksha_msgs__rosidl_typesupport_c
+[4.965s] [ 45%] Built target daksha_msgs__rosidl_typesupport_fastrtps_c
+[4.965s] [ 55%] Built target daksha_msgs__rosidl_typesupport_fastrtps_cpp
+[4.965s] [ 65%] Built target daksha_msgs__rosidl_typesupport_cpp
+[4.965s] [ 75%] Built target daksha_msgs__rosidl_typesupport_introspection_c
+[4.965s] [ 75%] Built target daksha_msgs
+[4.966s] [ 77%] Built target daksha_msgs__py
+[4.966s] [ 85%] Built target daksha_msgs__rosidl_generator_py
+[4.966s] [ 95%] Built target daksha_msgs__rosidl_typesupport_introspection_c__pyext
+[4.966s] [ 95%] Built target daksha_msgs__rosidl_typesupport_fastrtps_c__pyext
+[4.966s] [100%] Built target daksha_msgs__rosidl_typesupport_c__pyext
+[4.966s] running egg_info
+[4.966s] writing daksha_msgs.egg-info/PKG-INFO
+[4.966s] writing dependency_links to daksha_msgs.egg-info/dependency_links.txt
+[4.968s] writing top-level names to daksha_msgs.egg-info/top_level.txt
+[4.969s] reading manifest file 'daksha_msgs.egg-info/SOURCES.txt'
+[4.969s] writing manifest file 'daksha_msgs.egg-info/SOURCES.txt'
+[4.970s] [100%] Built target ament_cmake_python_build_daksha_msgs_egg
+[5.034s] Invoked command in '/home/phy_ai/.ihub/daksha/build/daksha_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/phy_ai/.barani/gen2_full/install/world_camera_launch:/home/phy_ai/.barani/gen2_full/install/gen2:/home/phy_ai/.barani/gen2_full/install/vr_teleop:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint:/home/phy_ai/.barani/gen2_full/install/nav_bringup:/home/phy_ai/.barani/gen2_full/install/nav2_config:/home/phy_ai/.barani/gen2_full/install/kinematics:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger:/home/phy_ai/.barani/gen2_full/install/joint_analyzer:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection:/home/phy_ai/.barani/gen2_full/install/gen2_leader:/home/phy_ai/.barani/gen2_full/install/amr_bringup:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower:/opt/ros/humble /usr/bin/cmake --build /home/phy_ai/.ihub/daksha/build/daksha_msgs -- -j16 -l16
+[5.034s] Invoking command in '/home/phy_ai/.ihub/daksha/build/daksha_msgs': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/phy_ai/.barani/gen2_full/install/world_camera_launch:/home/phy_ai/.barani/gen2_full/install/gen2:/home/phy_ai/.barani/gen2_full/install/vr_teleop:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint:/home/phy_ai/.barani/gen2_full/install/nav_bringup:/home/phy_ai/.barani/gen2_full/install/nav2_config:/home/phy_ai/.barani/gen2_full/install/kinematics:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger:/home/phy_ai/.barani/gen2_full/install/joint_analyzer:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection:/home/phy_ai/.barani/gen2_full/install/gen2_leader:/home/phy_ai/.barani/gen2_full/install/amr_bringup:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower:/opt/ros/humble /usr/bin/cmake --install /home/phy_ai/.ihub/daksha/build/daksha_msgs
+[5.125s] -- Install configuration: ""
+[5.126s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/ament_index/resource_index/rosidl_interfaces/daksha_msgs
+[5.132s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs
+[5.132s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv
+[5.132s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/start_record.h
+[5.132s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail
+[5.132s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_replay__functions.c
+[5.132s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_replay__type_support.h
+[5.133s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_replay__struct.h
+[5.133s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_record__functions.h
+[5.133s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_record__type_support.h
+[5.133s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_record__functions.c
+[5.133s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_replay__functions.h
+[5.133s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_record__struct.h
+[5.133s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/start_replay.h
+[5.133s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/msg
+[5.133s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/msg/rosidl_generator_c__visibility_control.h
+[5.134s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/environment/library_path.sh
+[5.134s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/environment/library_path.dsv
+[5.141s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/lib/libdaksha_msgs__rosidl_generator_c.so
+[5.142s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs
+[5.142s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv
+[5.142s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail
+[5.142s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_replay__rosidl_typesupport_fastrtps_c.h
+[5.142s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_record__rosidl_typesupport_fastrtps_c.h
+[5.143s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/msg
+[5.143s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+[5.143s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/lib/libdaksha_msgs__rosidl_typesupport_fastrtps_c.so
+[5.143s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs
+[5.143s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv
+[5.147s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail
+[5.147s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_record__rosidl_typesupport_introspection_c.h
+[5.147s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_record__type_support.c
+[5.147s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_replay__type_support.c
+[5.147s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_replay__rosidl_typesupport_introspection_c.h
+[5.147s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/msg
+[5.147s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/msg/rosidl_typesupport_introspection_c__visibility_control.h
+[5.148s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/lib/libdaksha_msgs__rosidl_typesupport_introspection_c.so
+[5.151s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/lib/libdaksha_msgs__rosidl_typesupport_c.so
+[5.166s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs
+[5.166s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv
+[5.170s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/start_record.hpp
+[5.185s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail
+[5.186s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_record__builder.hpp
+[5.186s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_replay__type_support.hpp
+[5.186s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_record__traits.hpp
+[5.186s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_record__type_support.hpp
+[5.186s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_replay__builder.hpp
+[5.186s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_replay__struct.hpp
+[5.186s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_replay__traits.hpp
+[5.186s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_record__struct.hpp
+[5.186s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/start_replay.hpp
+[5.187s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/msg
+[5.198s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/msg/rosidl_generator_cpp__visibility_control.hpp
+[5.198s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs
+[5.199s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv
+[5.199s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail
+[5.199s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_record__rosidl_typesupport_fastrtps_cpp.hpp
+[5.199s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/dds_fastrtps
+[5.199s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_replay__rosidl_typesupport_fastrtps_cpp.hpp
+[5.199s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/msg
+[5.199s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+[5.200s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/lib/libdaksha_msgs__rosidl_typesupport_fastrtps_cpp.so
+[5.200s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs
+[5.200s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv
+[5.200s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail
+[5.200s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_replay__rosidl_typesupport_introspection_cpp.hpp
+[5.200s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_record__rosidl_typesupport_introspection_cpp.hpp
+[5.200s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_replay__type_support.cpp
+[5.200s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/include/daksha_msgs/daksha_msgs/srv/detail/start_record__type_support.cpp
+[5.200s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/lib/libdaksha_msgs__rosidl_typesupport_introspection_cpp.so
+[5.201s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/lib/libdaksha_msgs__rosidl_typesupport_cpp.so
+[5.201s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/environment/pythonpath.sh
+[5.201s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/environment/pythonpath.dsv
+[5.201s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs-0.0.1-py3.10.egg-info
+[5.201s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs-0.0.1-py3.10.egg-info/SOURCES.txt
+[5.201s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs-0.0.1-py3.10.egg-info/top_level.txt
+[5.201s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs-0.0.1-py3.10.egg-info/PKG-INFO
+[5.246s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs-0.0.1-py3.10.egg-info/dependency_links.txt
+[5.253s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs
+[5.253s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs/srv
+[5.259s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs/srv/_start_record.py
+[5.260s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs/srv/_start_replay.py
+[5.261s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs/srv/_start_replay_s.c
+[5.265s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs/srv/_start_record_s.c
+[5.266s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs/srv/__init__.py
+[5.269s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs/daksha_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[5.271s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs/_daksha_msgs_s.ep.rosidl_typesupport_fastrtps_c.c
+[5.281s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs/__init__.py
+[5.288s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs/libdaksha_msgs__rosidl_generator_py.so
+[5.289s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs/_daksha_msgs_s.ep.rosidl_typesupport_introspection_c.c
+[5.289s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs/daksha_msgs_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[5.289s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs/_daksha_msgs_s.ep.rosidl_typesupport_c.c
+[5.289s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs/daksha_msgs_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[5.423s] Listing '/home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs'...
+[5.423s] Listing '/home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs/srv'...
+[5.424s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs/daksha_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[5.424s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs/daksha_msgs_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[5.424s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/local/lib/python3.10/dist-packages/daksha_msgs/daksha_msgs_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[5.424s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/lib/libdaksha_msgs__rosidl_generator_py.so
+[5.425s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/ament_index/resource_index/rust_packages/daksha_msgs
+[5.425s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/rust
+[5.425s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/rust/build.rs
+[5.425s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/rust/src
+[5.425s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/rust/src/srv
+[5.425s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/rust/src/srv/rmw.rs
+[5.425s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/rust/src/lib.rs
+[5.425s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/rust/src/srv.rs
+[5.425s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/rust/Cargo.toml
+[5.426s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/srv/StartRecord.idl
+[5.426s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/srv/StartReplay.idl
+[5.426s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/srv/StartRecord.srv
+[5.426s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/srv/StartRecord_Request.msg
+[5.426s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/srv/StartRecord_Response.msg
+[5.427s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/srv/StartReplay.srv
+[5.427s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/srv/StartReplay_Request.msg
+[5.427s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/srv/StartReplay_Response.msg
+[5.427s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/ament_index/resource_index/package_run_dependencies/daksha_msgs
+[5.427s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/ament_index/resource_index/parent_prefix_path/daksha_msgs
+[5.427s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/environment/ament_prefix_path.sh
+[5.427s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/environment/ament_prefix_path.dsv
+[5.427s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/environment/path.sh
+[5.428s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/environment/path.dsv
+[5.428s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/local_setup.bash
+[5.428s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/local_setup.sh
+[5.428s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/local_setup.zsh
+[5.428s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/local_setup.dsv
+[5.438s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/package.dsv
+[5.438s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/ament_index/resource_index/packages/daksha_msgs
+[5.438s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/export_daksha_msgs__rosidl_generator_cExport.cmake
+[5.438s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/export_daksha_msgs__rosidl_generator_cExport-noconfig.cmake
+[5.439s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/export_daksha_msgs__rosidl_typesupport_fastrtps_cExport.cmake
+[5.439s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/export_daksha_msgs__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+[5.439s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/daksha_msgs__rosidl_typesupport_introspection_cExport.cmake
+[5.439s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/daksha_msgs__rosidl_typesupport_introspection_cExport-noconfig.cmake
+[5.439s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/daksha_msgs__rosidl_typesupport_cExport.cmake
+[5.439s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/daksha_msgs__rosidl_typesupport_cExport-noconfig.cmake
+[5.439s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/export_daksha_msgs__rosidl_generator_cppExport.cmake
+[5.439s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/export_daksha_msgs__rosidl_typesupport_fastrtps_cppExport.cmake
+[5.439s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/export_daksha_msgs__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+[5.440s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/daksha_msgs__rosidl_typesupport_introspection_cppExport.cmake
+[5.440s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/daksha_msgs__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+[5.440s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/daksha_msgs__rosidl_typesupport_cppExport.cmake
+[5.440s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/daksha_msgs__rosidl_typesupport_cppExport-noconfig.cmake
+[5.440s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/export_daksha_msgs__rosidl_generator_pyExport.cmake
+[5.440s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/export_daksha_msgs__rosidl_generator_pyExport-noconfig.cmake
+[5.440s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/rosidl_cmake-extras.cmake
+[5.441s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/ament_cmake_export_include_directories-extras.cmake
+[5.441s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/ament_cmake_export_libraries-extras.cmake
+[5.441s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/ament_cmake_export_targets-extras.cmake
+[5.441s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+[5.441s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/ament_cmake_export_dependencies-extras.cmake
+[5.441s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+[5.442s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/rosidl_cmake_aggregate_target-extras.cmake
+[5.452s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/daksha_msgsConfig.cmake
+[5.452s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/cmake/daksha_msgsConfig-version.cmake
+[5.452s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/daksha_msgs/share/daksha_msgs/package.xml
+[5.833s] Invoked command in '/home/phy_ai/.ihub/daksha/build/daksha_msgs' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/phy_ai/.barani/gen2_full/install/world_camera_launch:/home/phy_ai/.barani/gen2_full/install/gen2:/home/phy_ai/.barani/gen2_full/install/vr_teleop:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint:/home/phy_ai/.barani/gen2_full/install/nav_bringup:/home/phy_ai/.barani/gen2_full/install/nav2_config:/home/phy_ai/.barani/gen2_full/install/kinematics:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger:/home/phy_ai/.barani/gen2_full/install/joint_analyzer:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection:/home/phy_ai/.barani/gen2_full/install/gen2_leader:/home/phy_ai/.barani/gen2_full/install/amr_bringup:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower:/opt/ros/humble /usr/bin/cmake --install /home/phy_ai/.ihub/daksha/build/daksha_msgs

@@ -1,0 +1,19 @@
+running egg_info
+writing ../../../build/vajara/vajara.egg-info/PKG-INFO
+writing dependency_links to ../../../build/vajara/vajara.egg-info/dependency_links.txt
+writing entry points to ../../../build/vajara/vajara.egg-info/entry_points.txt
+writing requirements to ../../../build/vajara/vajara.egg-info/requires.txt
+writing top-level names to ../../../build/vajara/vajara.egg-info/top_level.txt
+reading manifest file '../../../build/vajara/vajara.egg-info/SOURCES.txt'
+writing manifest file '../../../build/vajara/vajara.egg-info/SOURCES.txt'
+running build
+running build_py
+running install
+running install_lib
+running install_data
+running install_egg_info
+removing '/home/phy_ai/.ihub/daksha/install/vajara/lib/python3.10/site-packages/vajara-0.0.0-py3.10.egg-info' (and everything under it)
+Copying ../../../build/vajara/vajara.egg-info to /home/phy_ai/.ihub/daksha/install/vajara/lib/python3.10/site-packages/vajara-0.0.0-py3.10.egg-info
+running install_scripts
+Installing power_monitor_node script to /home/phy_ai/.ihub/daksha/install/vajara/lib/vajara
+writing list of installed files to '/home/phy_ai/.ihub/daksha/build/vajara/install.log'

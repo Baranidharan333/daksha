@@ -1,0 +1,4 @@
+source;share/daksha_msgs/local_setup.bash
+source;share/daksha_msgs/local_setup.dsv
+source;share/daksha_msgs/local_setup.sh
+source;share/daksha_msgs/local_setup.zsh

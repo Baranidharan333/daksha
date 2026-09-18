@@ -1,0 +1,346 @@
+[3.694s] Invoking command in '/home/phy_ai/.ihub/daksha/build/gesture_management': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/phy_ai/.barani/gen2_full/install/world_camera_launch:/home/phy_ai/.barani/gen2_full/install/gen2:/home/phy_ai/.barani/gen2_full/install/vr_teleop:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint:/home/phy_ai/.barani/gen2_full/install/nav_bringup:/home/phy_ai/.barani/gen2_full/install/nav2_config:/home/phy_ai/.barani/gen2_full/install/kinematics:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger:/home/phy_ai/.barani/gen2_full/install/joint_analyzer:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection:/home/phy_ai/.barani/gen2_full/install/gen2_leader:/home/phy_ai/.barani/gen2_full/install/amr_bringup:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower:/opt/ros/humble /usr/bin/cmake --build /home/phy_ai/.ihub/daksha/build/gesture_management -- -j16 -l16
+[5.722s] [35m[1mConsolidate compiler generated dependencies of target gesture_management__rosidl_generator_c[0m
+[5.722s] [  2%] Built target gesture_management__cpp
+[5.723s] [  2%] Built target gesture_management__rs
+[5.723s] [ 13%] Built target gesture_management__rosidl_generator_c
+[5.723s] [35m[1mConsolidate compiler generated dependencies of target gesture_management__rosidl_typesupport_introspection_cpp[0m
+[5.723s] [35m[1mConsolidate compiler generated dependencies of target gesture_management__rosidl_typesupport_fastrtps_cpp[0m
+[5.723s] [35m[1mConsolidate compiler generated dependencies of target gesture_management__rosidl_typesupport_cpp[0m
+[5.723s] [ 13%] Built target ament_cmake_python_copy_gesture_management
+[5.723s] [35m[1mConsolidate compiler generated dependencies of target gesture_management__rosidl_typesupport_introspection_c[0m
+[5.723s] [35m[1mConsolidate compiler generated dependencies of target gesture_management__rosidl_typesupport_fastrtps_c[0m
+[5.723s] [35m[1mConsolidate compiler generated dependencies of target gesture_management__rosidl_typesupport_c[0m
+[5.724s] [ 25%] Built target gesture_management__rosidl_typesupport_cpp
+[5.724s] [ 39%] Built target gesture_management__rosidl_typesupport_fastrtps_cpp
+[5.724s] [ 47%] Built target gesture_management__rosidl_typesupport_introspection_cpp
+[5.724s] [ 59%] Built target gesture_management__rosidl_typesupport_introspection_c
+[5.724s] [ 70%] Built target gesture_management__rosidl_typesupport_c
+[5.724s] [ 81%] Built target gesture_management__rosidl_typesupport_fastrtps_c
+[5.724s] [ 81%] Built target gesture_management
+[5.724s] [ 82%] Built target gesture_management__py
+[5.725s] [35m[1mConsolidate compiler generated dependencies of target gesture_management__rosidl_generator_py[0m
+[5.725s] [ 93%] Built target gesture_management__rosidl_generator_py
+[5.725s] [35m[1mConsolidate compiler generated dependencies of target gesture_management__rosidl_typesupport_c__pyext[0m
+[5.725s] [35m[1mConsolidate compiler generated dependencies of target gesture_management__rosidl_typesupport_fastrtps_c__pyext[0m
+[5.725s] [35m[1mConsolidate compiler generated dependencies of target gesture_management__rosidl_typesupport_introspection_c__pyext[0m
+[5.725s] [ 95%] Built target gesture_management__rosidl_typesupport_fastrtps_c__pyext
+[5.725s] [ 97%] Built target gesture_management__rosidl_typesupport_c__pyext
+[5.725s] [100%] Built target gesture_management__rosidl_typesupport_introspection_c__pyext
+[5.725s] running egg_info
+[5.725s] writing gesture_management.egg-info/PKG-INFO
+[5.726s] writing dependency_links to gesture_management.egg-info/dependency_links.txt
+[5.726s] writing top-level names to gesture_management.egg-info/top_level.txt
+[5.726s] reading manifest file 'gesture_management.egg-info/SOURCES.txt'
+[5.726s] writing manifest file 'gesture_management.egg-info/SOURCES.txt'
+[5.726s] [100%] Built target ament_cmake_python_build_gesture_management_egg
+[5.757s] Invoked command in '/home/phy_ai/.ihub/daksha/build/gesture_management' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/phy_ai/.barani/gen2_full/install/world_camera_launch:/home/phy_ai/.barani/gen2_full/install/gen2:/home/phy_ai/.barani/gen2_full/install/vr_teleop:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint:/home/phy_ai/.barani/gen2_full/install/nav_bringup:/home/phy_ai/.barani/gen2_full/install/nav2_config:/home/phy_ai/.barani/gen2_full/install/kinematics:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger:/home/phy_ai/.barani/gen2_full/install/joint_analyzer:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection:/home/phy_ai/.barani/gen2_full/install/gen2_leader:/home/phy_ai/.barani/gen2_full/install/amr_bringup:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower:/opt/ros/humble /usr/bin/cmake --build /home/phy_ai/.ihub/daksha/build/gesture_management -- -j16 -l16
+[5.761s] Invoking command in '/home/phy_ai/.ihub/daksha/build/gesture_management': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/phy_ai/.barani/gen2_full/install/world_camera_launch:/home/phy_ai/.barani/gen2_full/install/gen2:/home/phy_ai/.barani/gen2_full/install/vr_teleop:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint:/home/phy_ai/.barani/gen2_full/install/nav_bringup:/home/phy_ai/.barani/gen2_full/install/nav2_config:/home/phy_ai/.barani/gen2_full/install/kinematics:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger:/home/phy_ai/.barani/gen2_full/install/joint_analyzer:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection:/home/phy_ai/.barani/gen2_full/install/gen2_leader:/home/phy_ai/.barani/gen2_full/install/amr_bringup:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower:/opt/ros/humble /usr/bin/cmake --install /home/phy_ai/.ihub/daksha/build/gesture_management
+[5.981s] -- Install configuration: ""
+[5.991s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/ament_index/resource_index/rosidl_interfaces/gesture_management
+[5.991s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management
+[5.991s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv
+[5.995s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/get_replay_status.h
+[5.995s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/start_recording.h
+[5.995s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/save_sequence.h
+[5.995s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/replay_recording.h
+[5.995s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail
+[5.995s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/get_replay_status__type_support.h
+[5.995s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/delete_sequence__functions.c
+[5.996s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/replay_recording__functions.h
+[5.997s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/delete_sequence__type_support.h
+[5.999s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/save_sequence__functions.h
+[5.999s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_sequence__functions.h
+[6.000s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/start_recording__functions.h
+[6.001s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/replay_recording__functions.c
+[6.001s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/start_recording__functions.c
+[6.002s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_sequence__type_support.h
+[6.003s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/save_sequence__functions.c
+[6.003s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_recording__struct.h
+[6.004s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/save_sequence__type_support.h
+[6.006s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/delete_sequence__struct.h
+[6.006s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/list_sequences__struct.h
+[6.006s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/list_sequences__functions.h
+[6.006s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/get_replay_status__struct.h
+[6.006s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/list_sequences__type_support.h
+[6.009s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/delete_sequence__functions.h
+[6.010s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/list_sequences__functions.c
+[6.010s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/save_sequence__struct.h
+[6.010s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/get_replay_status__functions.h
+[6.010s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/start_recording__struct.h
+[6.010s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_recording__type_support.h
+[6.010s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_recording__functions.c
+[6.010s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_sequence__struct.h
+[6.010s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_recording__functions.h
+[6.010s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_sequence__functions.c
+[6.011s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/start_recording__type_support.h
+[6.011s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/get_replay_status__functions.c
+[6.011s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/replay_recording__struct.h
+[6.011s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/replay_recording__type_support.h
+[6.011s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/list_sequences.h
+[6.011s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/delete_sequence.h
+[6.011s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/play_recording.h
+[6.011s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/play_sequence.h
+[6.012s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/msg
+[6.012s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/msg/rosidl_generator_c__visibility_control.h
+[6.012s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/environment/library_path.sh
+[6.012s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/environment/library_path.dsv
+[6.012s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/lib/libgesture_management__rosidl_generator_c.so
+[6.012s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management
+[6.012s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv
+[6.012s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail
+[6.012s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_sequence__rosidl_typesupport_fastrtps_c.h
+[6.013s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/list_sequences__rosidl_typesupport_fastrtps_c.h
+[6.013s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/start_recording__rosidl_typesupport_fastrtps_c.h
+[6.015s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_recording__rosidl_typesupport_fastrtps_c.h
+[6.015s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/replay_recording__rosidl_typesupport_fastrtps_c.h
+[6.015s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/save_sequence__rosidl_typesupport_fastrtps_c.h
+[6.015s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/get_replay_status__rosidl_typesupport_fastrtps_c.h
+[6.015s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/delete_sequence__rosidl_typesupport_fastrtps_c.h
+[6.016s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/msg
+[6.016s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+[6.016s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/lib/libgesture_management__rosidl_typesupport_fastrtps_c.so
+[6.016s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management
+[6.016s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv
+[6.016s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/save_sequence.hpp
+[6.016s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/start_recording.hpp
+[6.016s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/play_sequence.hpp
+[6.024s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail
+[6.025s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_recording__traits.hpp
+[6.025s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/replay_recording__struct.hpp
+[6.025s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/get_replay_status__type_support.hpp
+[6.025s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_sequence__builder.hpp
+[6.025s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/get_replay_status__traits.hpp
+[6.025s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/start_recording__traits.hpp
+[6.025s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/save_sequence__traits.hpp
+[6.025s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/replay_recording__type_support.hpp
+[6.025s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/save_sequence__type_support.hpp
+[6.026s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/start_recording__type_support.hpp
+[6.026s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/get_replay_status__builder.hpp
+[6.026s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/list_sequences__type_support.hpp
+[6.026s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/save_sequence__struct.hpp
+[6.026s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/delete_sequence__type_support.hpp
+[6.026s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/replay_recording__traits.hpp
+[6.026s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_sequence__traits.hpp
+[6.026s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/delete_sequence__struct.hpp
+[6.026s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/delete_sequence__traits.hpp
+[6.027s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/delete_sequence__builder.hpp
+[6.027s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/start_recording__struct.hpp
+[6.027s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/list_sequences__traits.hpp
+[6.027s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/list_sequences__builder.hpp
+[6.027s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/list_sequences__struct.hpp
+[6.027s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_recording__type_support.hpp
+[6.027s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_recording__builder.hpp
+[6.027s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/replay_recording__builder.hpp
+[6.028s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/get_replay_status__struct.hpp
+[6.028s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_sequence__type_support.hpp
+[6.030s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_sequence__struct.hpp
+[6.032s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/save_sequence__builder.hpp
+[6.033s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/start_recording__builder.hpp
+[6.033s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_recording__struct.hpp
+[6.034s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/list_sequences.hpp
+[6.037s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/delete_sequence.hpp
+[6.037s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/play_recording.hpp
+[6.038s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/replay_recording.hpp
+[6.038s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/get_replay_status.hpp
+[6.040s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/msg
+[6.040s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/msg/rosidl_generator_cpp__visibility_control.hpp
+[6.041s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management
+[6.042s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv
+[6.043s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail
+[6.045s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/list_sequences__rosidl_typesupport_fastrtps_cpp.hpp
+[6.046s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/delete_sequence__rosidl_typesupport_fastrtps_cpp.hpp
+[6.046s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/start_recording__rosidl_typesupport_fastrtps_cpp.hpp
+[6.048s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/save_sequence__rosidl_typesupport_fastrtps_cpp.hpp
+[6.048s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/dds_fastrtps
+[6.049s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/get_replay_status__rosidl_typesupport_fastrtps_cpp.hpp
+[6.057s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_sequence__rosidl_typesupport_fastrtps_cpp.hpp
+[6.058s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_recording__rosidl_typesupport_fastrtps_cpp.hpp
+[6.060s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/replay_recording__rosidl_typesupport_fastrtps_cpp.hpp
+[6.060s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/msg
+[6.061s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+[6.062s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/lib/libgesture_management__rosidl_typesupport_fastrtps_cpp.so
+[6.063s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management
+[6.064s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv
+[6.064s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail
+[6.065s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/delete_sequence__rosidl_typesupport_introspection_c.h
+[6.066s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/delete_sequence__type_support.c
+[6.067s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/replay_recording__rosidl_typesupport_introspection_c.h
+[6.068s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/get_replay_status__rosidl_typesupport_introspection_c.h
+[6.069s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/list_sequences__rosidl_typesupport_introspection_c.h
+[6.070s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/get_replay_status__type_support.c
+[6.070s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/start_recording__type_support.c
+[6.071s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/start_recording__rosidl_typesupport_introspection_c.h
+[6.072s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/list_sequences__type_support.c
+[6.074s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_recording__rosidl_typesupport_introspection_c.h
+[6.075s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_sequence__rosidl_typesupport_introspection_c.h
+[6.075s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_sequence__type_support.c
+[6.076s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/replay_recording__type_support.c
+[6.077s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/save_sequence__rosidl_typesupport_introspection_c.h
+[6.078s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_recording__type_support.c
+[6.079s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/save_sequence__type_support.c
+[6.079s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/msg
+[6.079s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/msg/rosidl_typesupport_introspection_c__visibility_control.h
+[6.080s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/lib/libgesture_management__rosidl_typesupport_introspection_c.so
+[6.080s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/lib/libgesture_management__rosidl_typesupport_c.so
+[6.084s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management
+[6.085s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv
+[6.085s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail
+[6.085s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/delete_sequence__type_support.cpp
+[6.085s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/list_sequences__rosidl_typesupport_introspection_cpp.hpp
+[6.085s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/save_sequence__rosidl_typesupport_introspection_cpp.hpp
+[6.085s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_sequence__type_support.cpp
+[6.085s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/replay_recording__type_support.cpp
+[6.085s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/get_replay_status__type_support.cpp
+[6.086s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/get_replay_status__rosidl_typesupport_introspection_cpp.hpp
+[6.086s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/start_recording__type_support.cpp
+[6.086s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_recording__type_support.cpp
+[6.086s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/list_sequences__type_support.cpp
+[6.086s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/replay_recording__rosidl_typesupport_introspection_cpp.hpp
+[6.086s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/save_sequence__type_support.cpp
+[6.086s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/start_recording__rosidl_typesupport_introspection_cpp.hpp
+[6.086s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/delete_sequence__rosidl_typesupport_introspection_cpp.hpp
+[6.086s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_recording__rosidl_typesupport_introspection_cpp.hpp
+[6.087s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/include/gesture_management/gesture_management/srv/detail/play_sequence__rosidl_typesupport_introspection_cpp.hpp
+[6.087s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/lib/libgesture_management__rosidl_typesupport_introspection_cpp.so
+[6.093s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/lib/libgesture_management__rosidl_typesupport_cpp.so
+[6.097s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/environment/pythonpath.sh
+[6.097s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/environment/pythonpath.dsv
+[6.098s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management-0.0.1-py3.10.egg-info
+[6.100s] -- Installing: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management-0.0.1-py3.10.egg-info/SOURCES.txt
+[6.100s] -- Installing: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management-0.0.1-py3.10.egg-info/top_level.txt
+[6.101s] -- Installing: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management-0.0.1-py3.10.egg-info/PKG-INFO
+[6.101s] -- Installing: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management-0.0.1-py3.10.egg-info/dependency_links.txt
+[6.101s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management
+[6.101s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/srv
+[6.101s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/srv/_start_recording.py
+[6.101s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/srv/_delete_sequence_s.c
+[6.101s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/srv/_start_recording_s.c
+[6.101s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/srv/_list_sequences_s.c
+[6.101s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/srv/_replay_recording.py
+[6.102s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/srv/__init__.py
+[6.102s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/srv/_save_sequence_s.c
+[6.102s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/srv/_play_recording_s.c
+[6.102s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/srv/_save_sequence.py
+[6.102s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/srv/_play_sequence.py
+[6.102s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/srv/_replay_recording_s.c
+[6.102s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/srv/_list_sequences.py
+[6.102s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/srv/_delete_sequence.py
+[6.102s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/srv/_play_recording.py
+[6.103s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/srv/_play_sequence_s.c
+[6.103s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/srv/_get_replay_status_s.c
+[6.103s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/srv/_get_replay_status.py
+[6.103s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/_gesture_management_s.ep.rosidl_typesupport_introspection_c.c
+[6.103s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/_gesture_management_s.ep.rosidl_typesupport_fastrtps_c.c
+[6.103s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/__init__.py
+[6.103s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/libgesture_management__rosidl_generator_py.so
+[6.103s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/gesture_management_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[6.103s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/gesture_management_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[6.104s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/_gesture_management_s.ep.rosidl_typesupport_c.c
+[6.104s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/gesture_management_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[6.134s] Listing '/home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management'...
+[6.135s] Listing '/home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/srv'...
+[6.135s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/gesture_management_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[6.135s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/gesture_management_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[6.135s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/local/lib/python3.10/dist-packages/gesture_management/gesture_management_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[6.135s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/lib/libgesture_management__rosidl_generator_py.so
+[6.135s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/ament_index/resource_index/rust_packages/gesture_management
+[6.135s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/rust
+[6.135s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/rust/build.rs
+[6.136s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/rust/src
+[6.136s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/rust/src/srv
+[6.136s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/rust/src/srv/rmw.rs
+[6.136s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/rust/src/lib.rs
+[6.136s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/rust/src/srv.rs
+[6.136s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/rust/Cargo.toml
+[6.136s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/StartRecording.idl
+[6.136s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/ReplayRecording.idl
+[6.136s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/PlayRecording.idl
+[6.137s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/PlaySequence.idl
+[6.137s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/SaveSequence.idl
+[6.137s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/DeleteSequence.idl
+[6.137s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/ListSequences.idl
+[6.137s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/GetReplayStatus.idl
+[6.137s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/StartRecording.srv
+[6.137s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/StartRecording_Request.msg
+[6.137s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/StartRecording_Response.msg
+[6.137s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/ReplayRecording.srv
+[6.138s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/ReplayRecording_Request.msg
+[6.138s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/ReplayRecording_Response.msg
+[6.142s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/PlayRecording.srv
+[6.143s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/PlayRecording_Request.msg
+[6.143s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/PlayRecording_Response.msg
+[6.143s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/PlaySequence.srv
+[6.143s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/PlaySequence_Request.msg
+[6.143s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/PlaySequence_Response.msg
+[6.143s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/SaveSequence.srv
+[6.144s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/SaveSequence_Request.msg
+[6.144s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/SaveSequence_Response.msg
+[6.144s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/DeleteSequence.srv
+[6.144s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/DeleteSequence_Request.msg
+[6.144s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/DeleteSequence_Response.msg
+[6.144s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/ListSequences.srv
+[6.144s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/ListSequences_Request.msg
+[6.144s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/ListSequences_Response.msg
+[6.144s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/GetReplayStatus.srv
+[6.144s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/GetReplayStatus_Request.msg
+[6.145s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/srv/GetReplayStatus_Response.msg
+[6.145s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/lib/gesture_management/recorder_server.py
+[6.145s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/lib/gesture_management/replay_server.py
+[6.145s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/lib/gesture_management/gesture_management_app.py
+[6.145s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/launch
+[6.145s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/launch/gesture_management.launch.py
+[6.145s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/launch/__pycache__
+[6.145s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/launch/__pycache__/gesture_management.launch.cpython-310.pyc
+[6.145s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/config
+[6.146s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/config/gesture_management_params.yaml
+[6.146s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/recordings
+[6.147s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/recordings/gesture_index.json
+[6.150s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/recordings/hy.parquet
+[6.150s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/lib/gesture_management/templates
+[6.150s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/lib/gesture_management/templates/index.html
+[6.150s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/lib/gesture_management/static
+[6.150s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/lib/gesture_management/static/css
+[6.150s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/lib/gesture_management/static/css/style.css
+[6.150s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/lib/gesture_management/static/js
+[6.151s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/lib/gesture_management/static/js/app.js
+[6.151s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/ament_index/resource_index/package_run_dependencies/gesture_management
+[6.151s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/ament_index/resource_index/parent_prefix_path/gesture_management
+[6.151s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/environment/ament_prefix_path.sh
+[6.151s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/environment/ament_prefix_path.dsv
+[6.151s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/environment/path.sh
+[6.151s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/environment/path.dsv
+[6.151s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/local_setup.bash
+[6.152s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/local_setup.sh
+[6.152s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/local_setup.zsh
+[6.152s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/local_setup.dsv
+[6.152s] -- Installing: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/package.dsv
+[6.152s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/ament_index/resource_index/packages/gesture_management
+[6.152s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/export_gesture_management__rosidl_generator_cExport.cmake
+[6.152s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/export_gesture_management__rosidl_generator_cExport-noconfig.cmake
+[6.152s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/export_gesture_management__rosidl_typesupport_fastrtps_cExport.cmake
+[6.152s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/export_gesture_management__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+[6.153s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/export_gesture_management__rosidl_generator_cppExport.cmake
+[6.153s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/export_gesture_management__rosidl_typesupport_fastrtps_cppExport.cmake
+[6.156s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/export_gesture_management__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+[6.156s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/gesture_management__rosidl_typesupport_introspection_cExport.cmake
+[6.157s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/gesture_management__rosidl_typesupport_introspection_cExport-noconfig.cmake
+[6.157s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/gesture_management__rosidl_typesupport_cExport.cmake
+[6.157s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/gesture_management__rosidl_typesupport_cExport-noconfig.cmake
+[6.157s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/gesture_management__rosidl_typesupport_introspection_cppExport.cmake
+[6.157s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/gesture_management__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+[6.157s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/gesture_management__rosidl_typesupport_cppExport.cmake
+[6.157s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/gesture_management__rosidl_typesupport_cppExport-noconfig.cmake
+[6.157s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/export_gesture_management__rosidl_generator_pyExport.cmake
+[6.158s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/export_gesture_management__rosidl_generator_pyExport-noconfig.cmake
+[6.158s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/rosidl_cmake-extras.cmake
+[6.158s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/ament_cmake_export_include_directories-extras.cmake
+[6.158s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/ament_cmake_export_libraries-extras.cmake
+[6.158s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/ament_cmake_export_targets-extras.cmake
+[6.158s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+[6.158s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/ament_cmake_export_dependencies-extras.cmake
+[6.158s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+[6.159s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/rosidl_cmake_aggregate_target-extras.cmake
+[6.159s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/gesture_managementConfig.cmake
+[6.159s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/cmake/gesture_managementConfig-version.cmake
+[6.159s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/gesture_management/share/gesture_management/package.xml
+[6.496s] Invoked command in '/home/phy_ai/.ihub/daksha/build/gesture_management' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/phy_ai/.barani/gen2_full/install/world_camera_launch:/home/phy_ai/.barani/gen2_full/install/gen2:/home/phy_ai/.barani/gen2_full/install/vr_teleop:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint:/home/phy_ai/.barani/gen2_full/install/nav_bringup:/home/phy_ai/.barani/gen2_full/install/nav2_config:/home/phy_ai/.barani/gen2_full/install/kinematics:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger:/home/phy_ai/.barani/gen2_full/install/joint_analyzer:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection:/home/phy_ai/.barani/gen2_full/install/gen2_leader:/home/phy_ai/.barani/gen2_full/install/amr_bringup:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower:/opt/ros/humble /usr/bin/cmake --install /home/phy_ai/.ihub/daksha/build/gesture_management

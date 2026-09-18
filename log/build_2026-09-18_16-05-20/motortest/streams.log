@@ -1,0 +1,46 @@
+[8.980s] Invoking command in '/home/phy_ai/.ihub/daksha/build/motortest': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/motortest/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --uninstall --editable --build-directory /home/phy_ai/.ihub/daksha/build/motortest/build
+[10.457s] running develop
+[10.957s] Removing /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest.egg-link (link to .)
+[11.275s] Invoked command in '/home/phy_ai/.ihub/daksha/build/motortest' returned '0': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/motortest/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --uninstall --editable --build-directory /home/phy_ai/.ihub/daksha/build/motortest/build
+[11.276s] Invoking command in '/home/phy_ai/.ihub/daksha/src/motortest': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/motortest/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/motortest build --build-base /home/phy_ai/.ihub/daksha/build/motortest/build install --record /home/phy_ai/.ihub/daksha/build/motortest/install.log --install-scripts $base/lib/motortest --single-version-externally-managed install_data --force
+[11.871s] running egg_info
+[11.877s] writing ../../build/motortest/motortest.egg-info/PKG-INFO
+[11.877s] writing dependency_links to ../../build/motortest/motortest.egg-info/dependency_links.txt
+[11.877s] writing entry points to ../../build/motortest/motortest.egg-info/entry_points.txt
+[11.877s] writing requirements to ../../build/motortest/motortest.egg-info/requires.txt
+[11.878s] writing top-level names to ../../build/motortest/motortest.egg-info/top_level.txt
+[11.882s] reading manifest file '../../build/motortest/motortest.egg-info/SOURCES.txt'
+[11.883s] writing manifest file '../../build/motortest/motortest.egg-info/SOURCES.txt'
+[11.884s] running build
+[11.884s] running build_py
+[11.886s] creating /home/phy_ai/.ihub/daksha/build/motortest/build
+[11.886s] creating /home/phy_ai/.ihub/daksha/build/motortest/build/lib
+[11.886s] creating /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest
+[11.889s] copying motortest/motor_web.py -> /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest
+[11.889s] copying motortest/motor_driver.py -> /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest
+[11.889s] copying motortest/__init__.py -> /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest
+[11.890s] copying motortest/main.py -> /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest
+[11.890s] creating /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest/static
+[11.890s] copying motortest/static/index.html -> /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest/static
+[11.890s] running install
+[11.890s] running install_lib
+[11.892s] creating /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest
+[11.892s] copying /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest/motor_web.py -> /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest
+[11.892s] copying /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest/motor_driver.py -> /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest
+[11.892s] copying /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest/__init__.py -> /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest
+[11.892s] creating /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest/static
+[11.892s] copying /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest/static/index.html -> /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest/static
+[11.893s] copying /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest/main.py -> /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest
+[11.895s] byte-compiling /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest/motor_web.py to motor_web.cpython-310.pyc
+[11.898s] byte-compiling /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest/motor_driver.py to motor_driver.cpython-310.pyc
+[11.901s] byte-compiling /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest/__init__.py to __init__.cpython-310.pyc
+[11.901s] byte-compiling /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest/main.py to main.cpython-310.pyc
+[11.902s] running install_data
+[11.902s] copying resource/motortest -> /home/phy_ai/.ihub/daksha/install/motortest/share/ament_index/resource_index/packages
+[11.902s] copying package.xml -> /home/phy_ai/.ihub/daksha/install/motortest/share/motortest
+[11.902s] running install_egg_info
+[11.907s] Copying ../../build/motortest/motortest.egg-info to /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest-0.0.1-py3.10.egg-info
+[11.908s] running install_scripts
+[11.952s] Installing motortest script to /home/phy_ai/.ihub/daksha/install/motortest/lib/motortest
+[11.953s] writing list of installed files to '/home/phy_ai/.ihub/daksha/build/motortest/install.log'
+[12.050s] Invoked command in '/home/phy_ai/.ihub/daksha/src/motortest' returned '0': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/motortest/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/motortest build --build-base /home/phy_ai/.ihub/daksha/build/motortest/build install --record /home/phy_ai/.ihub/daksha/build/motortest/install.log --install-scripts $base/lib/motortest --single-version-externally-managed install_data --force

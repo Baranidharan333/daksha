@@ -1,0 +1,43 @@
+running egg_info
+creating ../../../build/vajara/vajara.egg-info
+writing ../../../build/vajara/vajara.egg-info/PKG-INFO
+writing dependency_links to ../../../build/vajara/vajara.egg-info/dependency_links.txt
+writing entry points to ../../../build/vajara/vajara.egg-info/entry_points.txt
+writing requirements to ../../../build/vajara/vajara.egg-info/requires.txt
+writing top-level names to ../../../build/vajara/vajara.egg-info/top_level.txt
+writing manifest file '../../../build/vajara/vajara.egg-info/SOURCES.txt'
+reading manifest file '../../../build/vajara/vajara.egg-info/SOURCES.txt'
+writing manifest file '../../../build/vajara/vajara.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/phy_ai/.ihub/daksha/build/vajara/build
+creating /home/phy_ai/.ihub/daksha/build/vajara/build/lib
+creating /home/phy_ai/.ihub/daksha/build/vajara/build/lib/vajara
+copying vajara/__init__.py -> /home/phy_ai/.ihub/daksha/build/vajara/build/lib/vajara
+copying vajara/power_monitor_node.py -> /home/phy_ai/.ihub/daksha/build/vajara/build/lib/vajara
+copying vajara/index.html -> /home/phy_ai/.ihub/daksha/build/vajara/build/lib/vajara
+running install
+running install_lib
+creating /home/phy_ai/.ihub/daksha/install/vajara/lib/python3.10/site-packages/vajara
+copying /home/phy_ai/.ihub/daksha/build/vajara/build/lib/vajara/__init__.py -> /home/phy_ai/.ihub/daksha/install/vajara/lib/python3.10/site-packages/vajara
+copying /home/phy_ai/.ihub/daksha/build/vajara/build/lib/vajara/power_monitor_node.py -> /home/phy_ai/.ihub/daksha/install/vajara/lib/python3.10/site-packages/vajara
+copying /home/phy_ai/.ihub/daksha/build/vajara/build/lib/vajara/index.html -> /home/phy_ai/.ihub/daksha/install/vajara/lib/python3.10/site-packages/vajara
+byte-compiling /home/phy_ai/.ihub/daksha/install/vajara/lib/python3.10/site-packages/vajara/__init__.py to __init__.cpython-310.pyc
+byte-compiling /home/phy_ai/.ihub/daksha/install/vajara/lib/python3.10/site-packages/vajara/power_monitor_node.py to power_monitor_node.cpython-310.pyc
+running install_data
+creating /home/phy_ai/.ihub/daksha/install/vajara/share/ament_index
+creating /home/phy_ai/.ihub/daksha/install/vajara/share/ament_index/resource_index
+creating /home/phy_ai/.ihub/daksha/install/vajara/share/ament_index/resource_index/packages
+copying resource/vajara -> /home/phy_ai/.ihub/daksha/install/vajara/share/ament_index/resource_index/packages
+copying package.xml -> /home/phy_ai/.ihub/daksha/install/vajara/share/vajara
+creating /home/phy_ai/.ihub/daksha/install/vajara/share/vajara/launch
+copying launch/vajara.launch.py -> /home/phy_ai/.ihub/daksha/install/vajara/share/vajara/launch
+creating /home/phy_ai/.ihub/daksha/install/vajara/share/vajara/firmware
+copying firmware/ina226.py -> /home/phy_ai/.ihub/daksha/install/vajara/share/vajara/firmware
+copying firmware/config.py -> /home/phy_ai/.ihub/daksha/install/vajara/share/vajara/firmware
+copying firmware/main.py -> /home/phy_ai/.ihub/daksha/install/vajara/share/vajara/firmware
+running install_egg_info
+Copying ../../../build/vajara/vajara.egg-info to /home/phy_ai/.ihub/daksha/install/vajara/lib/python3.10/site-packages/vajara-0.0.0-py3.10.egg-info
+running install_scripts
+Installing power_monitor_node script to /home/phy_ai/.ihub/daksha/install/vajara/lib/vajara
+writing list of installed files to '/home/phy_ai/.ihub/daksha/build/vajara/install.log'

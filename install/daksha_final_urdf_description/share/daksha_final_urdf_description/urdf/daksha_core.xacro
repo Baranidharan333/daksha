@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<robot name="daksha_final_urdf" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Include all robot components -->
+  <xacro:include filename="$(find daksha_final_urdf_description)/urdf/materials.xacro" />
+  <xacro:include filename="$(find daksha_final_urdf_description)/urdf/daksha_final_urdf.trans" />
+  <xacro:include filename="$(find daksha_final_urdf_description)/urdf/daksha_final_urdf.gazebo" />
+  <xacro:include filename="$(find daksha_final_urdf_description)/urdf/head_urdf.xacro" />
+  <xacro:include filename="$(find daksha_final_urdf_description)/urdf/wheel_base_urdf.xacro" />
+  <xacro:include filename="$(find daksha_final_urdf_description)/urdf/body_urdf.xacro" />
+  <xacro:include filename="$(find daksha_final_urdf_description)/urdf/arm_urdf.xacro" />
+  <xacro:include filename="$(find daksha_final_urdf_description)/urdf/gripper_urdf.xacro" />
+  <xacro:include filename="$(find daksha_final_urdf_description)/urdf/camera_urdf.xacro" />
+  <xacro:include filename="$(find daksha_final_urdf_description)/urdf/d405.urdf.xacro" />
+  <xacro:include filename="$(find daksha_final_urdf_description)/urdf/zed_macro.urdf.xacro"/>
+
+</robot>

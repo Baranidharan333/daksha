@@ -1,0 +1,9 @@
+/home/phy_ai/.ihub/daksha/build/automation/CMakeFiles/uninstall.dir
+/home/phy_ai/.ihub/daksha/build/automation/CMakeFiles/automation_uninstall.dir
+/home/phy_ai/.ihub/daksha/build/automation/CMakeFiles/test.dir
+/home/phy_ai/.ihub/daksha/build/automation/CMakeFiles/edit_cache.dir
+/home/phy_ai/.ihub/daksha/build/automation/CMakeFiles/rebuild_cache.dir
+/home/phy_ai/.ihub/daksha/build/automation/CMakeFiles/list_install_components.dir
+/home/phy_ai/.ihub/daksha/build/automation/CMakeFiles/install.dir
+/home/phy_ai/.ihub/daksha/build/automation/CMakeFiles/install/local.dir
+/home/phy_ai/.ihub/daksha/build/automation/CMakeFiles/install/strip.dir

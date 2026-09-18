@@ -1,0 +1,4 @@
+source;share/daksha_msgs/environment/ament_prefix_path.sh
+source;share/daksha_msgs/environment/library_path.sh
+source;share/daksha_msgs/environment/path.sh
+source;share/daksha_msgs/environment/pythonpath.sh

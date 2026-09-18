@@ -1,0 +1,21 @@
+[7.158s] Invoking command in '/home/phy_ai/.ihub/daksha/src/joint_cmd_logger': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/joint_cmd_logger/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/joint_cmd_logger/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/joint_cmd_logger build --build-base /home/phy_ai/.ihub/daksha/build/joint_cmd_logger/build install --record /home/phy_ai/.ihub/daksha/build/joint_cmd_logger/install.log --install-scripts $base/lib/joint_cmd_logger --single-version-externally-managed install_data
+[7.756s] running egg_info
+[7.757s] writing ../../build/joint_cmd_logger/joint_cmd_logger.egg-info/PKG-INFO
+[7.757s] writing dependency_links to ../../build/joint_cmd_logger/joint_cmd_logger.egg-info/dependency_links.txt
+[7.757s] writing entry points to ../../build/joint_cmd_logger/joint_cmd_logger.egg-info/entry_points.txt
+[7.757s] writing requirements to ../../build/joint_cmd_logger/joint_cmd_logger.egg-info/requires.txt
+[7.757s] writing top-level names to ../../build/joint_cmd_logger/joint_cmd_logger.egg-info/top_level.txt
+[7.757s] reading manifest file '../../build/joint_cmd_logger/joint_cmd_logger.egg-info/SOURCES.txt'
+[7.757s] writing manifest file '../../build/joint_cmd_logger/joint_cmd_logger.egg-info/SOURCES.txt'
+[7.758s] running build
+[7.758s] running build_py
+[7.758s] running install
+[7.758s] running install_lib
+[7.758s] running install_data
+[7.758s] running install_egg_info
+[7.758s] removing '/home/phy_ai/.ihub/daksha/install/joint_cmd_logger/lib/python3.10/site-packages/joint_cmd_logger-0.0.1-py3.10.egg-info' (and everything under it)
+[7.758s] Copying ../../build/joint_cmd_logger/joint_cmd_logger.egg-info to /home/phy_ai/.ihub/daksha/install/joint_cmd_logger/lib/python3.10/site-packages/joint_cmd_logger-0.0.1-py3.10.egg-info
+[7.758s] running install_scripts
+[7.758s] Installing joint_cmd_logger script to /home/phy_ai/.ihub/daksha/install/joint_cmd_logger/lib/joint_cmd_logger
+[7.759s] writing list of installed files to '/home/phy_ai/.ihub/daksha/build/joint_cmd_logger/install.log'
+[7.814s] Invoked command in '/home/phy_ai/.ihub/daksha/src/joint_cmd_logger' returned '0': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/joint_cmd_logger/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/joint_cmd_logger/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/joint_cmd_logger build --build-base /home/phy_ai/.ihub/daksha/build/joint_cmd_logger/build install --record /home/phy_ai/.ihub/daksha/build/joint_cmd_logger/install.log --install-scripts $base/lib/joint_cmd_logger --single-version-externally-managed install_data

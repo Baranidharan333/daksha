@@ -1,0 +1,4 @@
+srv/GetCollisionStatus.idl
+srv/GetCollisionStatus.srv
+srv/GetCollisionStatus_Request.msg
+srv/GetCollisionStatus_Response.msg

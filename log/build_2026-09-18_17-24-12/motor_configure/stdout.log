@@ -1,0 +1,18 @@
+running develop
+running egg_info
+writing motor_configure.egg-info/PKG-INFO
+writing dependency_links to motor_configure.egg-info/dependency_links.txt
+writing entry points to motor_configure.egg-info/entry_points.txt
+writing requirements to motor_configure.egg-info/requires.txt
+writing top-level names to motor_configure.egg-info/top_level.txt
+reading manifest file 'motor_configure.egg-info/SOURCES.txt'
+writing manifest file 'motor_configure.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/phy_ai/.ihub/daksha/install/motor_configure/lib/python3.10/site-packages/motor-configure.egg-link (link to .)
+Installing motor_configure script to /home/phy_ai/.ihub/daksha/install/motor_configure/lib/motor_configure
+
+Installed /home/phy_ai/.ihub/daksha/build/motor_configure
+running symlink_data
+symbolically linking /home/phy_ai/.ihub/daksha/build/motor_configure/resource/motor_configure -> /home/phy_ai/.ihub/daksha/install/motor_configure/share/ament_index/resource_index/packages
+symbolically linking /home/phy_ai/.ihub/daksha/build/motor_configure/package.xml -> /home/phy_ai/.ihub/daksha/install/motor_configure/share/motor_configure
+symbolically linking /home/phy_ai/.ihub/daksha/build/motor_configure/launch/motor_configure.launch.py -> /home/phy_ai/.ihub/daksha/install/motor_configure/share/motor_configure/launch

@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "gesture_management__rs",
+		"source" : "/home/phy_ai/.ihub/daksha/build/gesture_management/gesture_management__rs"
+	}
+}

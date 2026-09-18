@@ -1,0 +1,3 @@
+[console_scripts]
+joint_cmd_logger = joint_cmd_logger.joint_cmd_logger_node:main
+

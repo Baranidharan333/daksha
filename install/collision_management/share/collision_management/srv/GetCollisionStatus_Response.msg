@@ -1,0 +1,3 @@
+
+bool in_collision
+sensor_msgs/JointState status

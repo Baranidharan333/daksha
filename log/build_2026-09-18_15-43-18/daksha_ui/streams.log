@@ -1,0 +1,83 @@
+[1.678s] Invoking command in '/home/phy_ai/.ihub/daksha/build/daksha_ui': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/phy_ai/.barani/gen2_full/install/world_camera_launch:/home/phy_ai/.barani/gen2_full/install/gen2:/home/phy_ai/.barani/gen2_full/install/vr_teleop:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint:/home/phy_ai/.barani/gen2_full/install/nav_bringup:/home/phy_ai/.barani/gen2_full/install/nav2_config:/home/phy_ai/.barani/gen2_full/install/kinematics:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger:/home/phy_ai/.barani/gen2_full/install/joint_analyzer:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection:/home/phy_ai/.barani/gen2_full/install/gen2_leader:/home/phy_ai/.barani/gen2_full/install/amr_bringup:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower:/opt/ros/humble /usr/bin/cmake /home/phy_ai/.ihub/daksha/src/ui/Clients_UI/daksha_ui -DCMAKE_INSTALL_PREFIX=/home/phy_ai/.ihub/daksha/install/daksha_ui
+[2.742s] -- The C compiler identification is GNU 11.4.0
+[2.742s] -- The CXX compiler identification is GNU 11.4.0
+[2.742s] -- Detecting C compiler ABI info
+[2.742s] -- Detecting C compiler ABI info - done
+[2.742s] -- Check for working C compiler: /usr/bin/cc - skipped
+[2.742s] -- Detecting C compile features
+[2.742s] -- Detecting C compile features - done
+[2.743s] -- Detecting CXX compiler ABI info
+[2.743s] -- Detecting CXX compiler ABI info - done
+[2.743s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[2.743s] -- Detecting CXX compile features
+[2.743s] -- Detecting CXX compile features - done
+[2.743s] -- Found ament_cmake: 1.3.14 (/opt/ros/humble/share/ament_cmake/cmake)
+[2.743s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[2.743s] -- Found PkgConfig: /usr/bin/pkg-config (found version "0.29.2") 
+[2.743s] -- Looking for pthread.h
+[2.743s] -- Looking for pthread.h - found
+[2.743s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+[2.786s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+[2.788s] -- Found Threads: TRUE  
+[2.817s] -- Found nlohmann_json: /usr/lib/cmake/nlohmann_json/nlohmann_jsonConfig.cmake (found suitable version "3.10.5", minimum required is "3.2.0") 
+[2.818s] -- Checking for modules 'gstreamer-1.0;gstreamer-webrtc-1.0;gstreamer-sdp-1.0;gstreamer-video-1.0'
+[2.860s] --   Found gstreamer-1.0, version 1.20.3
+[2.882s] --   Found gstreamer-webrtc-1.0, version 1.20.3
+[2.907s] --   Found gstreamer-sdp-1.0, version 1.20.1
+[2.927s] --   Found gstreamer-video-1.0, version 1.20.1
+[3.114s] -- Configuring done
+[3.127s] -- Generating done
+[3.132s] -- Build files have been written to: /home/phy_ai/.ihub/daksha/build/daksha_ui
+[3.181s] Invoked command in '/home/phy_ai/.ihub/daksha/build/daksha_ui' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/phy_ai/.barani/gen2_full/install/world_camera_launch:/home/phy_ai/.barani/gen2_full/install/gen2:/home/phy_ai/.barani/gen2_full/install/vr_teleop:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint:/home/phy_ai/.barani/gen2_full/install/nav_bringup:/home/phy_ai/.barani/gen2_full/install/nav2_config:/home/phy_ai/.barani/gen2_full/install/kinematics:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger:/home/phy_ai/.barani/gen2_full/install/joint_analyzer:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection:/home/phy_ai/.barani/gen2_full/install/gen2_leader:/home/phy_ai/.barani/gen2_full/install/amr_bringup:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower:/opt/ros/humble /usr/bin/cmake /home/phy_ai/.ihub/daksha/src/ui/Clients_UI/daksha_ui -DCMAKE_INSTALL_PREFIX=/home/phy_ai/.ihub/daksha/install/daksha_ui
+[3.182s] Invoking command in '/home/phy_ai/.ihub/daksha/build/daksha_ui': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/phy_ai/.barani/gen2_full/install/world_camera_launch:/home/phy_ai/.barani/gen2_full/install/gen2:/home/phy_ai/.barani/gen2_full/install/vr_teleop:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint:/home/phy_ai/.barani/gen2_full/install/nav_bringup:/home/phy_ai/.barani/gen2_full/install/nav2_config:/home/phy_ai/.barani/gen2_full/install/kinematics:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger:/home/phy_ai/.barani/gen2_full/install/joint_analyzer:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection:/home/phy_ai/.barani/gen2_full/install/gen2_leader:/home/phy_ai/.barani/gen2_full/install/amr_bringup:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower:/opt/ros/humble /usr/bin/cmake --build /home/phy_ai/.ihub/daksha/build/daksha_ui -- -j16 -l16
+[3.306s] [ 50%] [32mBuilding CXX object camera_cpp/CMakeFiles/viveka_camera_ui.dir/src/main.cpp.o[0m
+[20.400s] [100%] [32m[1mLinking CXX executable viveka_camera_ui[0m
+[20.919s] [100%] Built target viveka_camera_ui
+[20.939s] Invoked command in '/home/phy_ai/.ihub/daksha/build/daksha_ui' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/phy_ai/.barani/gen2_full/install/world_camera_launch:/home/phy_ai/.barani/gen2_full/install/gen2:/home/phy_ai/.barani/gen2_full/install/vr_teleop:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint:/home/phy_ai/.barani/gen2_full/install/nav_bringup:/home/phy_ai/.barani/gen2_full/install/nav2_config:/home/phy_ai/.barani/gen2_full/install/kinematics:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger:/home/phy_ai/.barani/gen2_full/install/joint_analyzer:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection:/home/phy_ai/.barani/gen2_full/install/gen2_leader:/home/phy_ai/.barani/gen2_full/install/amr_bringup:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower:/opt/ros/humble /usr/bin/cmake --build /home/phy_ai/.ihub/daksha/build/daksha_ui -- -j16 -l16
+[20.942s] Invoking command in '/home/phy_ai/.ihub/daksha/build/daksha_ui': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/phy_ai/.barani/gen2_full/install/world_camera_launch:/home/phy_ai/.barani/gen2_full/install/gen2:/home/phy_ai/.barani/gen2_full/install/vr_teleop:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint:/home/phy_ai/.barani/gen2_full/install/nav_bringup:/home/phy_ai/.barani/gen2_full/install/nav2_config:/home/phy_ai/.barani/gen2_full/install/kinematics:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger:/home/phy_ai/.barani/gen2_full/install/joint_analyzer:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection:/home/phy_ai/.barani/gen2_full/install/gen2_leader:/home/phy_ai/.barani/gen2_full/install/amr_bringup:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower:/opt/ros/humble /usr/bin/cmake --install /home/phy_ai/.ihub/daksha/build/daksha_ui
+[20.951s] -- Install configuration: ""
+[20.952s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/dashboard_app.py
+[20.952s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/subui_app.py
+[20.952s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/viveka_camera_ui.py
+[20.952s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/templates
+[20.952s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/templates/index.html
+[20.952s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/static
+[20.953s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/static/css
+[20.953s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/static/css/style.css
+[20.953s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/static/images
+[20.953s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/static/images/ihub_logo_vercel_monochrome.png
+[20.953s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/static/images/ihub_logo_transparent.png
+[20.954s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/static/images/ihub_logo_dark_mode.png
+[20.954s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/static/images/ihub_logo.png
+[20.955s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/static/js
+[20.955s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/static/js/main.js
+[20.956s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/static/js/urdf_viewer.js
+[20.956s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/logs
+[20.956s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/logs/import_to_mongo.py
+[20.956s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/logs/logs.py
+[20.956s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/subui_templates
+[20.956s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/subui_templates/index.html
+[20.956s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/subui_static
+[20.956s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/subui_static/style.css
+[20.956s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/subui_static/script.js
+[20.957s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/share/daksha_ui/launch
+[20.957s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/share/daksha_ui/launch/client_ui.launch.py
+[20.957s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/share/daksha_ui/config
+[20.957s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/share/daksha_ui/config/camera_layout.json
+[20.957s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/share/ament_index/resource_index/package_run_dependencies/daksha_ui
+[20.958s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/share/ament_index/resource_index/parent_prefix_path/daksha_ui
+[20.958s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/share/daksha_ui/environment/ament_prefix_path.sh
+[20.958s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/share/daksha_ui/environment/ament_prefix_path.dsv
+[20.958s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/share/daksha_ui/environment/path.sh
+[20.958s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/share/daksha_ui/environment/path.dsv
+[20.958s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/share/daksha_ui/local_setup.bash
+[20.959s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/share/daksha_ui/local_setup.sh
+[20.959s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/share/daksha_ui/local_setup.zsh
+[20.959s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/share/daksha_ui/local_setup.dsv
+[20.959s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/share/daksha_ui/package.dsv
+[20.959s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/share/ament_index/resource_index/packages/daksha_ui
+[20.959s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/share/daksha_ui/cmake/daksha_uiConfig.cmake
+[20.960s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/share/daksha_ui/cmake/daksha_uiConfig-version.cmake
+[20.960s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/share/daksha_ui/package.xml
+[20.960s] -- Installing: /home/phy_ai/.ihub/daksha/install/daksha_ui/lib/daksha_ui/viveka_camera_ui
+[20.968s] Invoked command in '/home/phy_ai/.ihub/daksha/build/daksha_ui' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/phy_ai/.barani/gen2_full/install/world_camera_launch:/home/phy_ai/.barani/gen2_full/install/gen2:/home/phy_ai/.barani/gen2_full/install/vr_teleop:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint:/home/phy_ai/.barani/gen2_full/install/nav_bringup:/home/phy_ai/.barani/gen2_full/install/nav2_config:/home/phy_ai/.barani/gen2_full/install/kinematics:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger:/home/phy_ai/.barani/gen2_full/install/joint_analyzer:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection:/home/phy_ai/.barani/gen2_full/install/gen2_leader:/home/phy_ai/.barani/gen2_full/install/amr_bringup:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower:/opt/ros/humble /usr/bin/cmake --install /home/phy_ai/.ihub/daksha/build/daksha_ui

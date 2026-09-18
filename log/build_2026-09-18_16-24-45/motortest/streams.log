@@ -1,0 +1,26 @@
+[1.671s] Invoking command in '/home/phy_ai/.ihub/daksha/build/motortest': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/motortest/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/phy_ai/.ihub/daksha/build/motortest/build --no-deps symlink_data
+[2.206s] running develop
+[2.504s] running egg_info
+[2.505s] creating motortest.egg-info
+[2.505s] writing motortest.egg-info/PKG-INFO
+[2.505s] writing dependency_links to motortest.egg-info/dependency_links.txt
+[2.505s] writing entry points to motortest.egg-info/entry_points.txt
+[2.505s] writing requirements to motortest.egg-info/requires.txt
+[2.505s] writing top-level names to motortest.egg-info/top_level.txt
+[2.506s] writing manifest file 'motortest.egg-info/SOURCES.txt'
+[2.509s] reading manifest file 'motortest.egg-info/SOURCES.txt'
+[2.510s] writing manifest file 'motortest.egg-info/SOURCES.txt'
+[2.513s] running build_ext
+[2.513s] Creating /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest.egg-link (link to .)
+[2.515s] Installing motortest script to /home/phy_ai/.ihub/daksha/install/motortest/lib/motortest
+[2.515s] 
+[2.515s] Installed /home/phy_ai/.ihub/daksha/build/motortest
+[2.515s] running symlink_data
+[2.515s] creating /home/phy_ai/.ihub/daksha/install/motortest/share/ament_index
+[2.516s] creating /home/phy_ai/.ihub/daksha/install/motortest/share/ament_index/resource_index
+[2.516s] creating /home/phy_ai/.ihub/daksha/install/motortest/share/ament_index/resource_index/packages
+[2.516s] symbolically linking /home/phy_ai/.ihub/daksha/build/motortest/resource/motortest -> /home/phy_ai/.ihub/daksha/install/motortest/share/ament_index/resource_index/packages
+[2.516s] symbolically linking /home/phy_ai/.ihub/daksha/build/motortest/package.xml -> /home/phy_ai/.ihub/daksha/install/motortest/share/motortest
+[2.516s] creating /home/phy_ai/.ihub/daksha/install/motortest/share/motortest/launch
+[2.516s] symbolically linking /home/phy_ai/.ihub/daksha/build/motortest/launch/motortest.launch.py -> /home/phy_ai/.ihub/daksha/install/motortest/share/motortest/launch
+[2.586s] Invoked command in '/home/phy_ai/.ihub/daksha/build/motortest' returned '0': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/motortest/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/phy_ai/.ihub/daksha/build/motortest/build --no-deps symlink_data

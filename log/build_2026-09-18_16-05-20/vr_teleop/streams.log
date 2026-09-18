@@ -1,0 +1,28 @@
+[1.638s] Invoking command in '/home/phy_ai/.ihub/daksha/src/tele/vr_teleop': AMENT_PREFIX_PATH=/home/phy_ai/.ihub/daksha/install/kinematics:${AMENT_PREFIX_PATH} PYTHONPATH=/home/phy_ai/.ihub/daksha/build/vr_teleop/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/vr_teleop/lib/python3.10/site-packages:/home/phy_ai/.ihub/daksha/install/kinematics/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../build/vr_teleop build --build-base /home/phy_ai/.ihub/daksha/build/vr_teleop/build install --record /home/phy_ai/.ihub/daksha/build/vr_teleop/install.log --install-scripts $base/lib/vr_teleop --single-version-externally-managed install_data
+[2.150s] running egg_info
+[2.150s] writing ../../../build/vr_teleop/vr_teleop.egg-info/PKG-INFO
+[2.151s] writing dependency_links to ../../../build/vr_teleop/vr_teleop.egg-info/dependency_links.txt
+[2.151s] writing entry points to ../../../build/vr_teleop/vr_teleop.egg-info/entry_points.txt
+[2.152s] writing requirements to ../../../build/vr_teleop/vr_teleop.egg-info/requires.txt
+[2.152s] writing top-level names to ../../../build/vr_teleop/vr_teleop.egg-info/top_level.txt
+[2.155s] reading manifest file '../../../build/vr_teleop/vr_teleop.egg-info/SOURCES.txt'
+[2.157s] writing manifest file '../../../build/vr_teleop/vr_teleop.egg-info/SOURCES.txt'
+[2.158s] running build
+[2.158s] running build_py
+[2.160s] running install
+[2.160s] running install_lib
+[2.164s] running install_data
+[2.164s] running install_egg_info
+[2.168s] removing '/home/phy_ai/.ihub/daksha/install/vr_teleop/lib/python3.10/site-packages/vr_teleop-0.0.1-py3.10.egg-info' (and everything under it)
+[2.168s] Copying ../../../build/vr_teleop/vr_teleop.egg-info to /home/phy_ai/.ihub/daksha/install/vr_teleop/lib/python3.10/site-packages/vr_teleop-0.0.1-py3.10.egg-info
+[2.169s] running install_scripts
+[2.208s] Installing default_server_endpoint script to /home/phy_ai/.ihub/daksha/install/vr_teleop/lib/vr_teleop
+[2.208s] Installing quest_tf script to /home/phy_ai/.ihub/daksha/install/vr_teleop/lib/vr_teleop
+[2.208s] Installing quest_tf_mirror script to /home/phy_ai/.ihub/daksha/install/vr_teleop/lib/vr_teleop
+[2.209s] Installing quest_tf_switch script to /home/phy_ai/.ihub/daksha/install/vr_teleop/lib/vr_teleop
+[2.209s] Installing quest_tf_to_pose script to /home/phy_ai/.ihub/daksha/install/vr_teleop/lib/vr_teleop
+[2.209s] Installing vr_gripper_ctrl script to /home/phy_ai/.ihub/daksha/install/vr_teleop/lib/vr_teleop
+[2.210s] Installing vr_management_ui script to /home/phy_ai/.ihub/daksha/install/vr_teleop/lib/vr_teleop
+[2.210s] Installing vr_pose_relay script to /home/phy_ai/.ihub/daksha/install/vr_teleop/lib/vr_teleop
+[2.212s] writing list of installed files to '/home/phy_ai/.ihub/daksha/build/vr_teleop/install.log'
+[2.279s] Invoked command in '/home/phy_ai/.ihub/daksha/src/tele/vr_teleop' returned '0': AMENT_PREFIX_PATH=/home/phy_ai/.ihub/daksha/install/kinematics:${AMENT_PREFIX_PATH} PYTHONPATH=/home/phy_ai/.ihub/daksha/build/vr_teleop/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/vr_teleop/lib/python3.10/site-packages:/home/phy_ai/.ihub/daksha/install/kinematics/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../build/vr_teleop build --build-base /home/phy_ai/.ihub/daksha/build/vr_teleop/build install --record /home/phy_ai/.ihub/daksha/build/vr_teleop/install.log --install-scripts $base/lib/vr_teleop --single-version-externally-managed install_data

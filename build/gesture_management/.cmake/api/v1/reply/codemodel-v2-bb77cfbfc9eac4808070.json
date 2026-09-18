@@ -1,0 +1,258 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-2bac6c513a70679c7ff9.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						17,
+						18
+					]
+				},
+				{
+					"build" : "gesture_management__py",
+					"jsonFile" : "directory-gesture_management__py-8af74e601288b030d481.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/phy_ai/.ihub/daksha/build/gesture_management/gesture_management__py",
+					"targetIndexes" : 
+					[
+						4
+					]
+				},
+				{
+					"build" : "gesture_management__rs",
+					"jsonFile" : "directory-gesture_management__rs-f0f101270eff3edbb56a.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/phy_ai/.ihub/daksha/build/gesture_management/gesture_management__rs",
+					"targetIndexes" : 
+					[
+						16
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2
+					],
+					"name" : "gesture_management",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_build_gesture_management_egg::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_build_gesture_management_egg-a5fbcf68cdf0faaa6055.json",
+					"name" : "ament_cmake_python_build_gesture_management_egg",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_copy_gesture_management::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_copy_gesture_management-e6f651604a62e1e67944.json",
+					"name" : "ament_cmake_python_copy_gesture_management",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gesture_management::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gesture_management-7a7f2d0fb5b4580604e0.json",
+					"name" : "gesture_management",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gesture_management__cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gesture_management__cpp-4c26c623af913888d337.json",
+					"name" : "gesture_management__cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "gesture_management__py::@4c5f734f4b1e0d4e42dc",
+					"jsonFile" : "target-gesture_management__py-01ead13b3aacc6014e4e.json",
+					"name" : "gesture_management__py",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gesture_management__rosidl_generator_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gesture_management__rosidl_generator_c-5d869d2d57706348a692.json",
+					"name" : "gesture_management__rosidl_generator_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gesture_management__rosidl_generator_py::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gesture_management__rosidl_generator_py-67b6b43adb1b993c7544.json",
+					"name" : "gesture_management__rosidl_generator_py",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gesture_management__rosidl_typesupport_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gesture_management__rosidl_typesupport_c-c996d593df53c3711781.json",
+					"name" : "gesture_management__rosidl_typesupport_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gesture_management__rosidl_typesupport_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gesture_management__rosidl_typesupport_c__pyext-d6c2bf2621764e6292f8.json",
+					"name" : "gesture_management__rosidl_typesupport_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gesture_management__rosidl_typesupport_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gesture_management__rosidl_typesupport_cpp-5be38ceb310fd519c838.json",
+					"name" : "gesture_management__rosidl_typesupport_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gesture_management__rosidl_typesupport_fastrtps_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gesture_management__rosidl_typesupport_fastrtps_c-15d710ebce3b6adc016f.json",
+					"name" : "gesture_management__rosidl_typesupport_fastrtps_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gesture_management__rosidl_typesupport_fastrtps_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gesture_management__rosidl_typesupport_fastrtps_c__pyext-65ee4ca3b87d84e78c47.json",
+					"name" : "gesture_management__rosidl_typesupport_fastrtps_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gesture_management__rosidl_typesupport_fastrtps_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gesture_management__rosidl_typesupport_fastrtps_cpp-577a43748999303baf76.json",
+					"name" : "gesture_management__rosidl_typesupport_fastrtps_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gesture_management__rosidl_typesupport_introspection_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gesture_management__rosidl_typesupport_introspection_c-9f9fad4f80d9910c3aa9.json",
+					"name" : "gesture_management__rosidl_typesupport_introspection_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gesture_management__rosidl_typesupport_introspection_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gesture_management__rosidl_typesupport_introspection_c__pyext-a26a651615eccb6ea8ba.json",
+					"name" : "gesture_management__rosidl_typesupport_introspection_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gesture_management__rosidl_typesupport_introspection_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gesture_management__rosidl_typesupport_introspection_cpp-12f3411a0d48bc94baca.json",
+					"name" : "gesture_management__rosidl_typesupport_introspection_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "gesture_management__rs::@ab330d43dd4b87a15d3a",
+					"jsonFile" : "target-gesture_management__rs-79f5ed2e85203680a584.json",
+					"name" : "gesture_management__rs",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "gesture_management_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-gesture_management_uninstall-1984e8a5ada68d2eb3a0.json",
+					"name" : "gesture_management_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-4141572591aafebd5fe1.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/phy_ai/.ihub/daksha/build/gesture_management",
+		"source" : "/home/phy_ai/.ihub/daksha/src/gesture_management"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

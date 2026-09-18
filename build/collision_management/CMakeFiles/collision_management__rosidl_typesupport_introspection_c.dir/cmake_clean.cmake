@@ -1,0 +1,13 @@
+file(REMOVE_RECURSE
+  "CMakeFiles/collision_management__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/collision_management/srv/detail/get_collision_status__type_support.c.o"
+  "CMakeFiles/collision_management__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/collision_management/srv/detail/get_collision_status__type_support.c.o.d"
+  "libcollision_management__rosidl_typesupport_introspection_c.pdb"
+  "libcollision_management__rosidl_typesupport_introspection_c.so"
+  "rosidl_typesupport_introspection_c/collision_management/srv/detail/get_collision_status__rosidl_typesupport_introspection_c.h"
+  "rosidl_typesupport_introspection_c/collision_management/srv/detail/get_collision_status__type_support.c"
+)
+
+# Per-language clean rules from dependency scanning.
+foreach(lang C)
+  include(CMakeFiles/collision_management__rosidl_typesupport_introspection_c.dir/cmake_clean_${lang}.cmake OPTIONAL)
+endforeach()

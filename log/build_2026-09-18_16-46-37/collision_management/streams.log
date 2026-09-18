@@ -1,0 +1,165 @@
+[0.619s] Invoking command in '/home/phy_ai/.ihub/daksha/build/collision_management': AMENT_PREFIX_PATH=/home/phy_ai/.ihub/daksha/install/kinematics:/home/phy_ai/.ihub/daksha/install/daksha_description_full_body:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/phy_ai/.barani/gen2_full/install/world_camera_launch:/home/phy_ai/.barani/gen2_full/install/gen2:/home/phy_ai/.barani/gen2_full/install/vr_teleop:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint:/home/phy_ai/.barani/gen2_full/install/nav_bringup:/home/phy_ai/.barani/gen2_full/install/nav2_config:/home/phy_ai/.barani/gen2_full/install/kinematics:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger:/home/phy_ai/.barani/gen2_full/install/joint_analyzer:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection:/home/phy_ai/.barani/gen2_full/install/gen2_leader:/home/phy_ai/.barani/gen2_full/install/amr_bringup:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower:/opt/ros/humble PYTHONPATH=/home/phy_ai/.ihub/daksha/install/kinematics/lib/python3.10/site-packages:/home/phy_ai/.ihub/daksha/install/daksha_description_full_body/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/cmake --build /home/phy_ai/.ihub/daksha/build/collision_management -- -j16 -l16
+[0.744s] [  3%] Built target collision_management__rs
+[0.750s] [ 12%] Built target collision_management__rosidl_generator_c
+[0.754s] [ 15%] Built target collision_management__cpp
+[0.794s] [ 15%] Built target ament_cmake_python_copy_collision_management
+[0.834s] [ 25%] Built target collision_management__rosidl_typesupport_fastrtps_c
+[0.834s] [ 34%] Built target collision_management__rosidl_typesupport_introspection_c
+[0.840s] [ 43%] Built target collision_management__rosidl_typesupport_cpp
+[0.848s] [ 53%] Built target collision_management__rosidl_typesupport_introspection_cpp
+[0.852s] [ 62%] Built target collision_management__rosidl_typesupport_c
+[0.875s] [ 71%] Built target collision_management__rosidl_typesupport_fastrtps_cpp
+[0.936s] [ 71%] Built target collision_management
+[0.993s] [ 75%] Built target collision_management__py
+[1.064s] [ 81%] Built target collision_management__rosidl_generator_py
+[1.130s] [ 87%] Built target collision_management__rosidl_typesupport_fastrtps_c__pyext
+[1.134s] [ 93%] Built target collision_management__rosidl_typesupport_c__pyext
+[1.155s] [100%] Built target collision_management__rosidl_typesupport_introspection_c__pyext
+[1.566s] running egg_info
+[1.566s] writing collision_management.egg-info/PKG-INFO
+[1.566s] writing dependency_links to collision_management.egg-info/dependency_links.txt
+[1.566s] writing top-level names to collision_management.egg-info/top_level.txt
+[1.572s] reading manifest file 'collision_management.egg-info/SOURCES.txt'
+[1.573s] writing manifest file 'collision_management.egg-info/SOURCES.txt'
+[1.675s] [100%] Built target ament_cmake_python_build_collision_management_egg
+[1.707s] Invoked command in '/home/phy_ai/.ihub/daksha/build/collision_management' returned '0': AMENT_PREFIX_PATH=/home/phy_ai/.ihub/daksha/install/kinematics:/home/phy_ai/.ihub/daksha/install/daksha_description_full_body:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/phy_ai/.barani/gen2_full/install/world_camera_launch:/home/phy_ai/.barani/gen2_full/install/gen2:/home/phy_ai/.barani/gen2_full/install/vr_teleop:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint:/home/phy_ai/.barani/gen2_full/install/nav_bringup:/home/phy_ai/.barani/gen2_full/install/nav2_config:/home/phy_ai/.barani/gen2_full/install/kinematics:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger:/home/phy_ai/.barani/gen2_full/install/joint_analyzer:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection:/home/phy_ai/.barani/gen2_full/install/gen2_leader:/home/phy_ai/.barani/gen2_full/install/amr_bringup:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower:/opt/ros/humble PYTHONPATH=/home/phy_ai/.ihub/daksha/install/kinematics/lib/python3.10/site-packages:/home/phy_ai/.ihub/daksha/install/daksha_description_full_body/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/cmake --build /home/phy_ai/.ihub/daksha/build/collision_management -- -j16 -l16
+[1.708s] Invoking command in '/home/phy_ai/.ihub/daksha/build/collision_management': AMENT_PREFIX_PATH=/home/phy_ai/.ihub/daksha/install/kinematics:/home/phy_ai/.ihub/daksha/install/daksha_description_full_body:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/phy_ai/.barani/gen2_full/install/world_camera_launch:/home/phy_ai/.barani/gen2_full/install/gen2:/home/phy_ai/.barani/gen2_full/install/vr_teleop:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint:/home/phy_ai/.barani/gen2_full/install/nav_bringup:/home/phy_ai/.barani/gen2_full/install/nav2_config:/home/phy_ai/.barani/gen2_full/install/kinematics:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger:/home/phy_ai/.barani/gen2_full/install/joint_analyzer:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection:/home/phy_ai/.barani/gen2_full/install/gen2_leader:/home/phy_ai/.barani/gen2_full/install/amr_bringup:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower:/opt/ros/humble PYTHONPATH=/home/phy_ai/.ihub/daksha/install/kinematics/lib/python3.10/site-packages:/home/phy_ai/.ihub/daksha/install/daksha_description_full_body/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/cmake --install /home/phy_ai/.ihub/daksha/build/collision_management
+[1.741s] -- Install configuration: ""
+[1.742s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/ament_index/resource_index/rosidl_interfaces/collision_management
+[1.743s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management
+[1.743s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv
+[1.743s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail
+[1.743s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail/get_collision_status__functions.c
+[1.743s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail/get_collision_status__struct.h
+[1.743s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail/get_collision_status__functions.h
+[1.744s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail/get_collision_status__type_support.h
+[1.744s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/get_collision_status.h
+[1.744s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/msg
+[1.744s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/msg/rosidl_generator_c__visibility_control.h
+[1.745s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/environment/library_path.sh
+[1.747s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/environment/library_path.dsv
+[1.752s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/lib/libcollision_management__rosidl_generator_c.so
+[1.752s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management
+[1.753s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv
+[1.753s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail
+[1.753s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail/get_collision_status__rosidl_typesupport_fastrtps_c.h
+[1.753s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/msg
+[1.753s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+[1.754s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/lib/libcollision_management__rosidl_typesupport_fastrtps_c.so
+[1.754s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management
+[1.754s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv
+[1.754s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail
+[1.754s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail/get_collision_status__struct.hpp
+[1.754s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail/get_collision_status__builder.hpp
+[1.754s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail/get_collision_status__type_support.hpp
+[1.755s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail/get_collision_status__traits.hpp
+[1.755s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/get_collision_status.hpp
+[1.755s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/msg
+[1.755s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/msg/rosidl_generator_cpp__visibility_control.hpp
+[1.756s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management
+[1.756s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv
+[1.756s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail
+[1.756s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail/dds_fastrtps
+[1.756s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail/get_collision_status__rosidl_typesupport_fastrtps_cpp.hpp
+[1.756s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/msg
+[1.757s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+[1.757s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/lib/libcollision_management__rosidl_typesupport_fastrtps_cpp.so
+[1.760s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management
+[1.762s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv
+[1.762s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail
+[1.762s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail/get_collision_status__type_support.c
+[1.762s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail/get_collision_status__rosidl_typesupport_introspection_c.h
+[1.762s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/msg
+[1.762s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/msg/rosidl_typesupport_introspection_c__visibility_control.h
+[1.767s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/lib/libcollision_management__rosidl_typesupport_introspection_c.so
+[1.767s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/lib/libcollision_management__rosidl_typesupport_c.so
+[1.767s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management
+[1.767s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv
+[1.767s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail
+[1.767s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail/get_collision_status__type_support.cpp
+[1.767s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/include/collision_management/collision_management/srv/detail/get_collision_status__rosidl_typesupport_introspection_cpp.hpp
+[1.767s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/lib/libcollision_management__rosidl_typesupport_introspection_cpp.so
+[1.770s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/lib/libcollision_management__rosidl_typesupport_cpp.so
+[1.770s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/environment/pythonpath.sh
+[1.771s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/environment/pythonpath.dsv
+[1.771s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management-0.0.1-py3.10.egg-info
+[1.772s] -- Installing: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management-0.0.1-py3.10.egg-info/SOURCES.txt
+[1.772s] -- Installing: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management-0.0.1-py3.10.egg-info/top_level.txt
+[1.772s] -- Installing: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management-0.0.1-py3.10.egg-info/PKG-INFO
+[1.772s] -- Installing: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management-0.0.1-py3.10.egg-info/dependency_links.txt
+[1.772s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management
+[1.773s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management/srv
+[1.773s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management/srv/_get_collision_status_s.c
+[1.773s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management/srv/__init__.py
+[1.773s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management/srv/_get_collision_status.py
+[1.773s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management/libcollision_management__rosidl_generator_py.so
+[1.774s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management/_collision_management_s.ep.rosidl_typesupport_c.c
+[1.774s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management/_collision_management_s.ep.rosidl_typesupport_fastrtps_c.c
+[1.774s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management/__init__.py
+[1.774s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management/_collision_management_s.ep.rosidl_typesupport_introspection_c.c
+[1.774s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management/collision_management_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[1.774s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management/collision_management_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[1.774s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management/collision_management_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[1.858s] Listing '/home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management'...
+[1.859s] Listing '/home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management/srv'...
+[1.869s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management/collision_management_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[1.869s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management/collision_management_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[1.870s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/local/lib/python3.10/dist-packages/collision_management/collision_management_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[1.871s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/lib/libcollision_management__rosidl_generator_py.so
+[1.871s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/ament_index/resource_index/rust_packages/collision_management
+[1.871s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/rust
+[1.871s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/rust/build.rs
+[1.871s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/rust/src
+[1.871s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/rust/src/srv
+[1.871s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/rust/src/srv/rmw.rs
+[1.872s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/rust/src/lib.rs
+[1.872s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/rust/src/srv.rs
+[1.872s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/rust/Cargo.toml
+[1.872s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/srv/GetCollisionStatus.idl
+[1.872s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/srv/GetCollisionStatus.srv
+[1.872s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/srv/GetCollisionStatus_Request.msg
+[1.872s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/srv/GetCollisionStatus_Response.msg
+[1.872s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/lib/collision_management/collision_guard_node.py
+[1.873s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/launch
+[1.873s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/launch/collision_management.launch.py
+[1.873s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/ament_index/resource_index/package_run_dependencies/collision_management
+[1.873s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/ament_index/resource_index/parent_prefix_path/collision_management
+[1.873s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/environment/ament_prefix_path.sh
+[1.874s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/environment/ament_prefix_path.dsv
+[1.874s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/environment/path.sh
+[1.874s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/environment/path.dsv
+[1.874s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/local_setup.bash
+[1.874s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/local_setup.sh
+[1.874s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/local_setup.zsh
+[1.874s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/local_setup.dsv
+[1.874s] -- Installing: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/package.dsv
+[1.875s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/ament_index/resource_index/packages/collision_management
+[1.875s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/export_collision_management__rosidl_generator_cExport.cmake
+[1.875s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/export_collision_management__rosidl_generator_cExport-noconfig.cmake
+[1.875s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/export_collision_management__rosidl_typesupport_fastrtps_cExport.cmake
+[1.875s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/export_collision_management__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+[1.875s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/export_collision_management__rosidl_generator_cppExport.cmake
+[1.875s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/export_collision_management__rosidl_typesupport_fastrtps_cppExport.cmake
+[1.875s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/export_collision_management__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+[1.875s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/collision_management__rosidl_typesupport_introspection_cExport.cmake
+[1.875s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/collision_management__rosidl_typesupport_introspection_cExport-noconfig.cmake
+[1.875s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/collision_management__rosidl_typesupport_cExport.cmake
+[1.876s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/collision_management__rosidl_typesupport_cExport-noconfig.cmake
+[1.876s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/collision_management__rosidl_typesupport_introspection_cppExport.cmake
+[1.876s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/collision_management__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+[1.876s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/collision_management__rosidl_typesupport_cppExport.cmake
+[1.876s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/collision_management__rosidl_typesupport_cppExport-noconfig.cmake
+[1.876s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/export_collision_management__rosidl_generator_pyExport.cmake
+[1.876s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/export_collision_management__rosidl_generator_pyExport-noconfig.cmake
+[1.876s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/rosidl_cmake-extras.cmake
+[1.876s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/ament_cmake_export_dependencies-extras.cmake
+[1.876s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/ament_cmake_export_include_directories-extras.cmake
+[1.877s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/ament_cmake_export_libraries-extras.cmake
+[1.877s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/ament_cmake_export_targets-extras.cmake
+[1.877s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+[1.877s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+[1.877s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/rosidl_cmake_aggregate_target-extras.cmake
+[1.877s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/collision_managementConfig.cmake
+[1.877s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/cmake/collision_managementConfig-version.cmake
+[1.877s] -- Up-to-date: /home/phy_ai/.ihub/daksha/install/collision_management/share/collision_management/package.xml
+[1.882s] Invoked command in '/home/phy_ai/.ihub/daksha/build/collision_management' returned '0': AMENT_PREFIX_PATH=/home/phy_ai/.ihub/daksha/install/kinematics:/home/phy_ai/.ihub/daksha/install/daksha_description_full_body:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/phy_ai/.barani/gen2_full/install/world_camera_launch:/home/phy_ai/.barani/gen2_full/install/gen2:/home/phy_ai/.barani/gen2_full/install/vr_teleop:/home/phy_ai/.barani/gen2_full/install/ros_tcp_endpoint:/home/phy_ai/.barani/gen2_full/install/nav_bringup:/home/phy_ai/.barani/gen2_full/install/nav2_config:/home/phy_ai/.barani/gen2_full/install/kinematics:/home/phy_ai/.barani/gen2_full/install/joint_cmd_logger:/home/phy_ai/.barani/gen2_full/install/joint_analyzer:/home/phy_ai/.barani/gen2_full/install/daksha_data_collection:/home/phy_ai/.barani/gen2_full/install/gen2_leader:/home/phy_ai/.barani/gen2_full/install/amr_bringup:/home/phy_ai/.barani/gen2_full/install/daksha_final_urdf_description:/home/phy_ai/.barani/gen2_full/install/daksha_description_full_body:/home/phy_ai/.barani/gen2_full/install/daksha_base_urdf:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_leader:/home/phy_ai/.barani/gen2_full/install/daksha_api_bridge_follower:/opt/ros/humble PYTHONPATH=/home/phy_ai/.ihub/daksha/install/kinematics/lib/python3.10/site-packages:/home/phy_ai/.ihub/daksha/install/daksha_description_full_body/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/cmake --install /home/phy_ai/.ihub/daksha/build/collision_management

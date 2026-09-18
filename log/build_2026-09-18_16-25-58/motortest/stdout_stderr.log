@@ -1,0 +1,24 @@
+running develop
+running egg_info
+creating motortest.egg-info
+writing motortest.egg-info/PKG-INFO
+writing dependency_links to motortest.egg-info/dependency_links.txt
+writing entry points to motortest.egg-info/entry_points.txt
+writing requirements to motortest.egg-info/requires.txt
+writing top-level names to motortest.egg-info/top_level.txt
+writing manifest file 'motortest.egg-info/SOURCES.txt'
+reading manifest file 'motortest.egg-info/SOURCES.txt'
+writing manifest file 'motortest.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest.egg-link (link to .)
+Installing motortest script to /home/phy_ai/.ihub/daksha/install/motortest/lib/motortest
+
+Installed /home/phy_ai/.ihub/daksha/build/motortest
+running symlink_data
+creating /home/phy_ai/.ihub/daksha/install/motortest/share/ament_index
+creating /home/phy_ai/.ihub/daksha/install/motortest/share/ament_index/resource_index
+creating /home/phy_ai/.ihub/daksha/install/motortest/share/ament_index/resource_index/packages
+symbolically linking /home/phy_ai/.ihub/daksha/build/motortest/resource/motortest -> /home/phy_ai/.ihub/daksha/install/motortest/share/ament_index/resource_index/packages
+symbolically linking /home/phy_ai/.ihub/daksha/build/motortest/package.xml -> /home/phy_ai/.ihub/daksha/install/motortest/share/motortest
+creating /home/phy_ai/.ihub/daksha/install/motortest/share/motortest/launch
+symbolically linking /home/phy_ai/.ihub/daksha/build/motortest/launch/motortest.launch.py -> /home/phy_ai/.ihub/daksha/install/motortest/share/motortest/launch

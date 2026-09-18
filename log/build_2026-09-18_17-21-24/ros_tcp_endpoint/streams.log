@@ -1,0 +1,22 @@
+[4.519s] Invoking command in '/home/phy_ai/.ihub/daksha/src/tele/ROS-TCP-Endpoint': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/ros_tcp_endpoint/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/ros_tcp_endpoint/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../build/ros_tcp_endpoint build --build-base /home/phy_ai/.ihub/daksha/build/ros_tcp_endpoint/build install --record /home/phy_ai/.ihub/daksha/build/ros_tcp_endpoint/install.log --install-scripts $base/lib/ros_tcp_endpoint --single-version-externally-managed install_data
+[5.112s] running egg_info
+[5.113s] writing ../../../build/ros_tcp_endpoint/ros_tcp_endpoint.egg-info/PKG-INFO
+[5.114s] writing dependency_links to ../../../build/ros_tcp_endpoint/ros_tcp_endpoint.egg-info/dependency_links.txt
+[5.114s] writing entry points to ../../../build/ros_tcp_endpoint/ros_tcp_endpoint.egg-info/entry_points.txt
+[5.114s] writing requirements to ../../../build/ros_tcp_endpoint/ros_tcp_endpoint.egg-info/requires.txt
+[5.114s] writing top-level names to ../../../build/ros_tcp_endpoint/ros_tcp_endpoint.egg-info/top_level.txt
+[5.117s] reading manifest file '../../../build/ros_tcp_endpoint/ros_tcp_endpoint.egg-info/SOURCES.txt'
+[5.117s] adding license file 'LICENSE'
+[5.118s] writing manifest file '../../../build/ros_tcp_endpoint/ros_tcp_endpoint.egg-info/SOURCES.txt'
+[5.119s] running build
+[5.119s] running build_py
+[5.120s] running install
+[5.120s] running install_lib
+[5.123s] running install_data
+[5.123s] running install_egg_info
+[5.126s] removing '/home/phy_ai/.ihub/daksha/install/ros_tcp_endpoint/lib/python3.10/site-packages/ros_tcp_endpoint-0.0.1-py3.10.egg-info' (and everything under it)
+[5.126s] Copying ../../../build/ros_tcp_endpoint/ros_tcp_endpoint.egg-info to /home/phy_ai/.ihub/daksha/install/ros_tcp_endpoint/lib/python3.10/site-packages/ros_tcp_endpoint-0.0.1-py3.10.egg-info
+[5.127s] running install_scripts
+[5.159s] Installing default_server_endpoint script to /home/phy_ai/.ihub/daksha/install/ros_tcp_endpoint/lib/ros_tcp_endpoint
+[5.160s] writing list of installed files to '/home/phy_ai/.ihub/daksha/build/ros_tcp_endpoint/install.log'
+[5.533s] Invoked command in '/home/phy_ai/.ihub/daksha/src/tele/ROS-TCP-Endpoint' returned '0': PYTHONPATH=/home/phy_ai/.ihub/daksha/build/ros_tcp_endpoint/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/phy_ai/.ihub/daksha/install/ros_tcp_endpoint/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../build/ros_tcp_endpoint build --build-base /home/phy_ai/.ihub/daksha/build/ros_tcp_endpoint/build install --record /home/phy_ai/.ihub/daksha/build/ros_tcp_endpoint/install.log --install-scripts $base/lib/ros_tcp_endpoint --single-version-externally-managed install_data

@@ -1,0 +1,43 @@
+running develop
+Removing /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest.egg-link (link to .)
+running egg_info
+writing ../../build/motortest/motortest.egg-info/PKG-INFO
+writing dependency_links to ../../build/motortest/motortest.egg-info/dependency_links.txt
+writing entry points to ../../build/motortest/motortest.egg-info/entry_points.txt
+writing requirements to ../../build/motortest/motortest.egg-info/requires.txt
+writing top-level names to ../../build/motortest/motortest.egg-info/top_level.txt
+reading manifest file '../../build/motortest/motortest.egg-info/SOURCES.txt'
+writing manifest file '../../build/motortest/motortest.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/phy_ai/.ihub/daksha/build/motortest/build
+creating /home/phy_ai/.ihub/daksha/build/motortest/build/lib
+creating /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest
+copying motortest/motor_web.py -> /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest
+copying motortest/motor_driver.py -> /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest
+copying motortest/__init__.py -> /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest
+copying motortest/main.py -> /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest
+creating /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest/static
+copying motortest/static/index.html -> /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest/static
+running install
+running install_lib
+creating /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest
+copying /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest/motor_web.py -> /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest
+copying /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest/motor_driver.py -> /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest
+copying /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest/__init__.py -> /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest
+creating /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest/static
+copying /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest/static/index.html -> /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest/static
+copying /home/phy_ai/.ihub/daksha/build/motortest/build/lib/motortest/main.py -> /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest
+byte-compiling /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest/motor_web.py to motor_web.cpython-310.pyc
+byte-compiling /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest/motor_driver.py to motor_driver.cpython-310.pyc
+byte-compiling /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest/__init__.py to __init__.cpython-310.pyc
+byte-compiling /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest/main.py to main.cpython-310.pyc
+running install_data
+copying resource/motortest -> /home/phy_ai/.ihub/daksha/install/motortest/share/ament_index/resource_index/packages
+copying package.xml -> /home/phy_ai/.ihub/daksha/install/motortest/share/motortest
+copying launch/motortest.launch.py -> /home/phy_ai/.ihub/daksha/install/motortest/share/motortest/launch
+running install_egg_info
+Copying ../../build/motortest/motortest.egg-info to /home/phy_ai/.ihub/daksha/install/motortest/lib/python3.10/site-packages/motortest-0.0.1-py3.10.egg-info
+running install_scripts
+Installing motortest script to /home/phy_ai/.ihub/daksha/install/motortest/lib/motortest
+writing list of installed files to '/home/phy_ai/.ihub/daksha/build/motortest/install.log'

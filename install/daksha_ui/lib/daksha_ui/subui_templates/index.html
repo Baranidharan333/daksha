@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iHub Robotics | GR00T Command Center</title>
+    <!-- Premium Google Fonts: Outfit for Display, Inter for UI, JetBrains Mono for Technical details -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="ambient-glow"></div>
+    <div class="grid-overlay"></div>
+
+    <main class="app-container">
+        <header class="app-header">
+            <div class="logo-wrapper">
+                <div class="logo-icon"><i class="fa-solid fa-robot"></i></div>
+                <div class="logo-text">
+                    <h1>iHub<span>Robotics</span></h1>
+                    <span class="badge">GR00T ENGINE</span>
+                </div>
+            </div>
+            <div class="system-clock" id="sys-clock">--:--:--</div>
+        </header>
+
+        <!-- STEP 1: USER INPUT -->
+        <section class="control-panel" id="step-1-input">
+            <div class="panel-header">
+                <h2><i class="fa-solid fa-terminal"></i> VLA Task</h2>
+                <div class="status-badge" id="top-status">
+                    <span class="pulse-dot idle"></span>
+                    <span id="top-status-text">SYSTEM STANDBY</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <div class="input-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                <input type="text" id="prompt-input" placeholder="e.g., 'Pick up the red object and place it inside the box'" autocomplete="off">
+            </div>
+
+            <div class="action-buttons single-btn">
+                <button id="preview-btn" class="btn btn-primary">
+                    <span class="btn-glow"></span>
+                    <i class="fa-solid fa-magnifying-glass"></i> EXECUTE TASK
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 2: TASK PREVIEW -->
+        <section class="control-panel" id="step-2-preview" style="display: none;">
+            <div class="panel-header">
+                <h2><i class="fa-solid fa-eye"></i> Task Preview</h2>
+            </div>
+            
+            <div class="preview-details">
+                <div class="preview-section">
+                    <p class="preview-label">Instruction:</p>
+                    <p id="preview-instruction" class="preview-value">"Pick up the red object"</p>
+                </div>
+                
+                <div class="preview-section">
+                    <p class="preview-label">Detected Objects:</p>
+                    <ul class="detected-objects-list">
+                        <li><i class="fa-solid fa-check text-success"></i> Red object</li>
+                        <li><i class="fa-solid fa-check text-success"></i> Box</li>
+                    </ul>
+                </div>
+
+                <div class="preview-stats">
+                    <div class="stat-box">
+                        <p class="stat-label">Model:</p>
+                        <p class="stat-value">GR00T-N1.7</p>
+                    </div>
+                    <div class="stat-box">
+                        <p class="stat-label">Confidence:</p>
+                        <p class="stat-value text-success">87%</p>
+                    </div>
+                    <div class="stat-box">
+                        <p class="stat-label">Estimated duration:</p>
+                        <p class="stat-value">12 seconds</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button id="confirm-btn" class="btn btn-primary">
+                    <span class="btn-glow"></span>
+                    <i class="fa-solid fa-check"></i> CONFIRM & EXECUTE
+                </button>
+                <button id="cancel-preview-btn" class="btn btn-danger">
+                    <i class="fa-solid fa-xmark"></i> CANCEL
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 3: EXECUTION -->
+        <section class="control-panel" id="step-3-execution" style="display: none;">
+            <div class="panel-header">
+                <h2><i class="fa-solid fa-gears"></i> TASK: <span id="exec-task-name">Pick red object</span></h2>
+            </div>
+            
+            <div class="execution-details">
+                <ul class="execution-steps-list" id="execution-steps-list">
+                    <li class="step-completed"><i class="fa-solid fa-check"></i> Step 1/4 Detect object</li>
+                    <li class="step-active"><i class="fa-solid fa-circle-dot"></i> Step 2/4 Move to object</li>
+                    <li class="step-pending"><i class="fa-regular fa-circle"></i> Step 3/4 Grasp object</li>
+                    <li class="step-pending"><i class="fa-regular fa-circle"></i> Step 4/4 Place object</li>
+                </ul>
+            </div>
+
+            <div class="execution-progress">
+                <div class="progress-labels">
+                    <span class="robot-status">Robot: <span class="status-executing">EXECUTING</span></span>
+                    <span class="progress-percent" id="progress-percent-text">70%</span>
+                </div>
+                <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" id="progress-bar-fill" style="width: 70%;"></div>
+                </div>
+            </div>
+
+            <div class="action-buttons triple-btn">
+                <button id="pause-btn" class="btn btn-outline">
+                    <i class="fa-solid fa-pause"></i> PAUSE
+                </button>
+                <button id="stop-btn" class="btn btn-danger-outline">
+                    <i class="fa-solid fa-stop"></i> STOP
+                </button>
+            </div>
+        </section>
+
+        <section class="telemetry-panel">
+            <div class="panel-header">
+                <h2><i class="fa-solid fa-satellite-dish"></i> Telemetry & Status</h2>
+            </div>
+            <div class="terminal-box">
+                <div class="terminal-header">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <div class="terminal-content" id="log-console">
+                    <div class="log-entry info">[SYSTEM] iHub Robotics GR00T Interface Initialized.</div>
+                    <div class="log-entry info">[SYSTEM] Awaiting user instructions...</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

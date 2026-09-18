@@ -1,0 +1,8 @@
+{
+  "package_name": "hw_interface",
+  "non_idl_tuples": [
+    "/home/phy_ai/.ihub/daksha/src/controllers/hw_interface:msg/MotorStatus.msg",
+    "/home/phy_ai/.ihub/daksha/src/controllers/hw_interface:msg/MotorStatusArray.msg",
+    "/home/phy_ai/.ihub/daksha/src/controllers/hw_interface:srv/SetMotorGains.srv"
+  ]
+}
