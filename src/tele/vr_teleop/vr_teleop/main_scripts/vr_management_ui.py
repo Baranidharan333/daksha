@@ -37,7 +37,9 @@ from rcl_interfaces.msg import (
     ParameterType,
 )
 from rcl_interfaces.srv import SetParameters, GetParameters
-from std_msgs.msg import String
+from rclpy.qos import QoSProfile, DurabilityPolicy
+from std_msgs.msg import Bool, String
+from std_srvs.srv import SetBool
 from flask import Flask, jsonify, Response, request
 
 logging.getLogger("werkzeug").setLevel(logging.WARNING)
@@ -251,6 +253,13 @@ async function ihubEmergencyStop(){
     </div>
 
     <div class="control">
+      <span class="dot" id="mirrorDot"></span>
+      <span class="label">Mirror</span>
+      <span class="state" id="mirrorText">...</span>
+      <button class="hmi-btn" id="mirrorBtn" disabled>...</button>
+    </div>
+
+    <div class="control">
       <span class="dot" id="postureDot"></span>
       <span class="label">Posture</span>
       <span class="state" id="postureText">...</span>
@@ -382,6 +391,48 @@ async function ihubEmergencyStop(){
       fetch('/api/mode_toggle', { method: 'POST' })
         .then(r => r.json())
         .then(renderMode);
+    });
+
+    const mirrorBtn = document.getElementById('mirrorBtn');
+    const mirrorDot = document.getElementById('mirrorDot');
+    const mirrorText = document.getElementById('mirrorText');
+
+    function renderMirror(data) {
+      if (!data.available) {
+        mirrorBtn.disabled = true;
+        mirrorDot.className = 'dot';
+        mirrorText.textContent = 'N/A';
+        mirrorBtn.textContent = 'Mirror';
+        mirrorBtn.className = 'hmi-btn';
+        return;
+      }
+      mirrorBtn.disabled = false;
+      if (data.enabled) {
+        mirrorDot.className = 'dot on';
+        mirrorText.textContent = 'Mirrored';
+        mirrorBtn.textContent = 'Switch to Normal';
+        mirrorBtn.className = 'hmi-btn active';
+      } else {
+        mirrorDot.className = 'dot off';
+        mirrorText.textContent = 'Normal';
+        mirrorBtn.textContent = 'Switch to Mirrored';
+        mirrorBtn.className = 'hmi-btn';
+      }
+    }
+
+    function pollMirror() {
+      fetch('/api/mirror_status')
+        .then(r => r.json())
+        .then(renderMirror)
+        .finally(() => setTimeout(pollMirror, 2000));
+    }
+    pollMirror();
+
+    mirrorBtn.addEventListener('click', () => {
+      mirrorBtn.disabled = true;
+      fetch('/api/mirror_toggle', { method: 'POST' })
+        .then(r => r.json())
+        .then(renderMirror);
     });
 
     const postureBtn = document.getElementById('postureBtn');
@@ -784,6 +835,40 @@ def api_gripper_publish_toggle():
     })
 
 
+@app.route("/api/mirror_status")
+def api_mirror_status():
+
+    if _node is None:
+        return jsonify({"available": False, "enabled": False})
+
+    return jsonify({
+        "available": _service_ready(_node.mirror_client),
+        "enabled": _node.mirror_enabled,
+    })
+
+
+@app.route("/api/mirror_toggle", methods=["POST"])
+def api_mirror_toggle():
+
+    if _node is None or not _service_ready(_node.mirror_client):
+        return jsonify({"success": False, "available": False}), 503
+
+    new_value = not _node.mirror_enabled
+
+    if not _node.set_mirror(new_value):
+        return jsonify({
+            "success": False,
+            "available": True,
+            "enabled": _node.mirror_enabled,
+        }), 502
+
+    return jsonify({
+        "success": True,
+        "available": True,
+        "enabled": _node.mirror_enabled,
+    })
+
+
 @app.route("/api/velocity_status")
 def api_velocity_status():
 
@@ -879,6 +964,22 @@ class VRManagementUI(Node):
         self.ik_set_params_client = self.create_client(
             SetParameters,
             "/dual_arm_ik/set_parameters",
+        )
+
+        # quest_tf_switch owns the left/right hand swap. Its ~/mirror_state is
+        # latched, so subscribing picks up the mode already in effect - after
+        # this UI restarts, and again whenever quest_tf_switch is restarted and
+        # falls back to its launch default.
+        self.mirror_enabled = False
+        self.create_subscription(
+            Bool,
+            "/quest_tf_switch/mirror_state",
+            self.mirror_state_cb,
+            QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL),
+        )
+        self.mirror_client = self.create_client(
+            SetBool,
+            "/quest_tf_switch/set_mirror",
         )
 
         self.gripper_publish_enabled = False
@@ -1213,6 +1314,34 @@ class VRManagementUI(Node):
             return False
 
         self.collision_enabled = enabled
+        return True
+
+    # --------------------------------
+
+    def mirror_state_cb(self, msg):
+        self.mirror_enabled = msg.data
+
+    # --------------------------------
+
+    def set_mirror(self, enabled):
+        """Flip quest_tf_switch's left/right hand swap.
+
+        Uses the ~/set_mirror service rather than the node's `mirror`
+        parameter: the service is what publishes ~/mirror_state back to us, so
+        the UI and the broadcaster cannot drift apart.
+        """
+
+        req = SetBool.Request()
+        req.data = enabled
+
+        self.get_logger().info(f"Requesting /quest_tf_switch mirror = {enabled}")
+
+        result = self.call_sync(self.mirror_client, req)
+
+        if result is None or not result.success:
+            return False
+
+        self.mirror_enabled = enabled
         return True
 
     # --------------------------------

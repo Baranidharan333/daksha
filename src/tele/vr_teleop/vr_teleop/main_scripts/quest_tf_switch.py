@@ -1,7 +1,9 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.executors import ExternalShutdownException
+from rclpy.parameter import Parameter
 from rclpy.qos import QoSProfile, DurabilityPolicy
+from rcl_interfaces.msg import SetParametersResult
 from geometry_msgs.msg import PoseStamped
 from geometry_msgs.msg import TransformStamped
 from std_msgs.msg import Bool
@@ -13,7 +15,12 @@ class QuestTFSwitch(Node):
     """Broadcasts Quest poses as TF, switching between normal and mirrored at runtime.
 
     Service ~/set_mirror (std_srvs/SetBool): data=True -> mirrored, data=False -> normal.
+    Param   mirror (bool): same switch, settable at runtime with `ros2 param set`.
     Topic   ~/mirror_state (std_msgs/Bool, latched): the mode currently in effect.
+
+    The service and the parameter are two doors into the same state: either one
+    flips the mode and updates the other, so `ros2 param get` never disagrees
+    with what is actually being broadcast.
     """
 
     def __init__(self):
@@ -37,6 +44,7 @@ class QuestTFSwitch(Node):
         self.create_subscription(PoseStamped, '/quest/right/pose', lambda msg: self.broadcast(msg, 'right'), 10)
 
         self.create_service(SetBool, '~/set_mirror', self.set_mirror)
+        self.add_on_set_parameters_callback(self.parameter_cb)
 
         self.publish_state()
         self.get_logger().info('quest_tf_switch started in %s mode' % self.mode_name())
@@ -47,12 +55,30 @@ class QuestTFSwitch(Node):
     def publish_state(self):
         self.state_pub.publish(Bool(data=self.mirror))
 
+    def apply_mirror(self, value):
+        """Switch mode, announcing it only when it actually changed."""
+        if value == self.mirror:
+            return
+
+        self.mirror = value
+        self.publish_state()
+        self.get_logger().info('switched to %s mode' % self.mode_name())
+
+    def parameter_cb(self, params):
+        for p in params:
+            if p.name == 'mirror':
+                self.apply_mirror(p.value)
+            elif p.name == 'mirror_head_yaw':
+                self.mirror_head_yaw = p.value
+
+        return SetParametersResult(successful=True)
+
     def set_mirror(self, request, response):
-        changed = request.data != self.mirror
-        self.mirror = request.data
-        if changed:
-            self.publish_state()
-            self.get_logger().info('switched to %s mode' % self.mode_name())
+        self.apply_mirror(request.data)
+        # Push the same value into the parameter so `ros2 param get mirror`
+        # reflects the service call. This re-enters parameter_cb, where
+        # apply_mirror is already a no-op.
+        self.set_parameters([Parameter('mirror', Parameter.Type.BOOL, request.data)])
         response.success = True
         response.message = self.mode_name()
         return response

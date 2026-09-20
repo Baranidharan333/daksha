@@ -210,11 +210,7 @@ def generate_launch_description():
             )
         ],
     )
-    # vr_gripper_ctrl_node = Node(
-    #     package="vr_teleop",
-    #     executable="vr_gripper_ctrl",
-    #     output="screen",
-    # )
+
     battery_info_node = Node(
         package="gen2",
         executable="battery_info",
@@ -243,7 +239,7 @@ def generate_launch_description():
         vcan_bridge_node_cpp,
         vcan_bridge_node_py,
         TimerAction(
-            period=5.0,
+            period=3.0,
             actions=[
                 gravity_torque_launch,
                 gesture_management_launch,
@@ -268,9 +264,7 @@ def generate_launch_description():
                             teach_mode_node,
                             mode_toggler_node,
                             # vr_management_ui_node,
-                            # vr_pose_relay_node,
                             ik_node,
-                            # vr_gripper_ctrl_node,
                             # battery_info_node,
                             home_move_service_node,
                             leader_controller_ui_node,
