@@ -17,6 +17,7 @@ import socket
 import json
 import sys
 import threading
+import time
 import importlib
 
 from rclpy.node import Node
@@ -77,6 +78,27 @@ class TcpServer(Node):
         self.pending_srv_is_request = False
         self.server_socket = None
         self.shutdown_event = threading.Event()
+
+        # Set only once setup_executor() runs, but registrations can arrive
+        # before then - every reader guards on `is not None`, so define it here
+        # rather than letting those reads raise AttributeError.
+        self.executor = None
+
+        # Registration mutates the four node tables from whichever client thread
+        # happens to be handling the syscommand. Serialize them so two
+        # connections re-registering the same topic can't interleave.
+        self.registration_lock = threading.RLock()
+
+        # Live connections, tracked only so shutdown can close them. Several at
+        # once is normal for this protocol - see claim_client().
+        self.client_lock = threading.Lock()
+        self.active_clients = set()
+
+        # Nodes pulled out of the executor wait to be destroyed on the executor
+        # thread - see _drain_retired_nodes().
+        self.retired_nodes = []
+        self.retired_lock = threading.Lock()
+        self.retire_grace_period = 1.0
 
     def start(self, publishers=None, subscribers=None):
         if publishers is not None:
@@ -175,7 +197,11 @@ class TcpServer(Node):
             return
 
         try:
-            function(**params)
+            # Two clients re-registering the same topic at once would otherwise
+            # each read the old node out of the table, both unregister it, and
+            # both write a replacement - leaking one and destroying it twice.
+            with self.registration_lock:
+                function(**params)
         except TypeError as e:
             # wrong or missing arguments for this command
             self.logerr("Bad arguments for SysCommand '{}': {}".format(topic, e))
@@ -222,6 +248,10 @@ class TcpServer(Node):
         for ros_node in self.unity_services_table.values():
             executor.add_node(ros_node)
 
+        # Runs on the executor thread, so it is the one safe place to destroy
+        # nodes that registration pulled out from under it.
+        self.create_timer(0.5, self._drain_retired_nodes)
+
         self.executor = executor
         executor.spin()
 
@@ -230,15 +260,68 @@ class TcpServer(Node):
             return
         # Remove from the executor before tearing the node down, and keep going
         # if either half fails - a botched cleanup must not abort re-registration.
-        if self.executor is not None:
+        if self.executor is None:
+            # Nothing is spinning this node yet, so tearing it down here is safe.
             try:
-                self.executor.remove_node(old_node)
+                old_node.unregister()
             except Exception as e:
-                self.logwarn("Could not remove node from executor: {}".format(e))
+                self.logwarn("Error unregistering node: {}".format(e))
+            return
+
         try:
-            old_node.unregister()
+            self.executor.remove_node(old_node)
         except Exception as e:
-            self.logwarn("Error unregistering node: {}".format(e))
+            self.logwarn("Could not remove node from executor: {}".format(e))
+
+        # Destroying the node here would race the executor thread, which may
+        # still hold its entities in the wait set it is building right now -
+        # that surfaces as "InvalidHandle: cannot use Destroyable because
+        # destruction was requested" and kills spin(). Hand it to a timer that
+        # runs on the executor thread instead, once the current wait set has
+        # certainly been rebuilt without it.
+        with self.retired_lock:
+            self.retired_nodes.append((time.monotonic(), old_node))
+        try:
+            self.executor.wake()
+        except Exception:
+            pass
+
+    def _drain_retired_nodes(self):
+        """Destroy nodes retired by unregister_node(), on the executor thread."""
+        now = time.monotonic()
+        due = []
+        with self.retired_lock:
+            keep = []
+            for retired_at, node in self.retired_nodes:
+                if now - retired_at >= self.retire_grace_period:
+                    due.append(node)
+                else:
+                    keep.append((retired_at, node))
+            self.retired_nodes = keep
+
+        for node in due:
+            try:
+                node.unregister()
+            except Exception as e:
+                self.logwarn("Error unregistering retired node: {}".format(e))
+
+    def claim_client(self, new_client):
+        """Track a live connection so shutdown can close it.
+
+        Deliberately does NOT close the previous connection. The Unity client
+        legitimately keeps several sockets open at once and opens a fresh one
+        per outgoing message, and UnityTcpSender is built for exactly that -
+        each new sender takes over the outbound queue and the old one notices
+        it was replaced. Closing the displaced socket instead makes Unity
+        reconnect, which displaces another, which loops forever.
+        """
+        with self.client_lock:
+            self.active_clients.add(new_client)
+
+    def release_client(self, client):
+        """Forget a connection that has finished."""
+        with self.client_lock:
+            self.active_clients.discard(client)
 
     def shutdown(self):
         """Stop the listen loop and unblock the accept() call."""
@@ -258,6 +341,22 @@ class TcpServer(Node):
             Clean up all of the nodes
         """
         self.shutdown()
+
+        with self.client_lock:
+            clients = list(self.active_clients)
+            self.active_clients.clear()
+        for client in clients:
+            client.stop()
+
+        # Anything still waiting out its grace period never got its timer tick.
+        with self.retired_lock:
+            retired = [node for _at, node in self.retired_nodes]
+            self.retired_nodes = []
+        for node in retired:
+            try:
+                node.unregister()
+            except Exception as e:
+                self.logwarn("Error unregistering retired node: {}".format(e))
 
         for table in (
             self.publishers_table,

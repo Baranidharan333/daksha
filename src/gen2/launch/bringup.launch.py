@@ -204,6 +204,11 @@ def generate_launch_description():
         package="kinematics",
         executable="ik_node",
         output="screen",
+        parameters=[
+            os.path.join(
+                get_package_share_directory("kinematics"), "config", "orientation.yaml"
+            )
+        ],
     )
     # vr_gripper_ctrl_node = Node(
     #     package="vr_teleop",

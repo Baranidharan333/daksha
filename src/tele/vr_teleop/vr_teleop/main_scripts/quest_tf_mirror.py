@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+from rclpy.executors import ExternalShutdownException
 from geometry_msgs.msg import PoseStamped
 from tf2_ros import TransformBroadcaster
 from geometry_msgs.msg import TransformStamped
@@ -28,8 +29,15 @@ class QuestTFBroadcasterMirrored(Node):
 
 def main():
     rclpy.init()
-    rclpy.spin(QuestTFBroadcasterMirrored())
-    rclpy.shutdown()
+    node = QuestTFBroadcasterMirrored()
+    try:
+        rclpy.spin(node)
+    except (KeyboardInterrupt, ExternalShutdownException):
+        pass
+    finally:
+        node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 if __name__ == '__main__':
     main()

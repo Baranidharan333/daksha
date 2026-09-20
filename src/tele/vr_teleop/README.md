@@ -28,7 +28,7 @@ Put the workstation and the headset on the same network, note the workstation's 
 (`hostname -I`), and enter it as the ROS IP in the Unity app on the Quest. Then:
 
 ```bash
-ros2 launch vr_teleop vr_control_switch.py
+ros2 launch vr_teleop vr_control_switch.launch.py
 ```
 
 That starts the TCP endpoint on `0.0.0.0:10000` plus the TF broadcaster. Confirm poses
@@ -65,16 +65,16 @@ left-handed frame):
 
 | Launch file | Starts | Use when |
 |---|---|---|
-| `vr_control_switch.py` | endpoint + `quest_tf_switch` | **Default.** Normal or mirrored, switchable at runtime. |
-| `vr_control.py` | endpoint + `quest_tf` | Normal mapping only, fixed. |
-| `vr_control_mirror.py` | endpoint + `quest_tf_mirror` | Mirrored mapping only, fixed. |
-| `endpoint.py` | endpoint only | You want to run a TF node yourself, or debug the raw `/quest/*` topics. |
+| `vr_control_switch.launch.py` | endpoint + `quest_tf_switch` | **Default.** Normal or mirrored, switchable at runtime. |
+| `vr_control.launch.py` | endpoint + `quest_tf` | Normal mapping only, fixed. |
+| `vr_control_mirror.launch.py` | endpoint + `quest_tf_mirror` | Mirrored mapping only, fixed. |
+| `endpoint.launch.py` | endpoint only | You want to run a TF node yourself, or debug the raw `/quest/*` topics. |
 
 ```bash
-ros2 launch vr_teleop vr_control_switch.py
-ros2 launch vr_teleop vr_control.py
-ros2 launch vr_teleop vr_control_mirror.py
-ros2 launch vr_teleop endpoint.py
+ros2 launch vr_teleop vr_control_switch.launch.py
+ros2 launch vr_teleop vr_control.launch.py
+ros2 launch vr_teleop vr_control_mirror.launch.py
+ros2 launch vr_teleop endpoint.launch.py
 ```
 
 Nodes can also be run individually:
@@ -181,6 +181,54 @@ position: (x, y, z)     = ( uz,  ux,  uy)
 rotation: (x, y, z, w)  = ( uz,  ux,  uy,  uw)
 ```
 
+### This conversion happens exactly once
+
+The TF nodes are the only place it is applied. Everything downstream of them —
+`world -> quest_left` / `quest_right` in TF, and the `/left/pose` and `/right/pose`
+topics `quest_tf_to_pose` derives from those frames — is **already in ROS FLU**.
+
+Consumers must use those poses as-is. Converting a second time is silent: position
+looks fine (a consumer that passes position through is unaffected) while orientation
+comes out inverted on every axis, so RViz shows a correct controller frame while the
+robot rotates the wrong way. `kinematics/ik_node.py` had exactly this bug — it kept a
+Unity->ROS correction from when the old `vr_pose_relay` republished `/quest/*` raw.
+
+If a consumer needs to adjust how the gripper sits in the hand, apply a **rigid**
+rotation offset. Do not decompose to Euler angles and negate or swap them: that is a
+reflection, not a rotation, and it distorts compound rotations by tens of degrees in a
+way no offset tuning can correct.
+
+---
+
+## How the arm follows your hand
+
+`kinematics/ik_node.py` maps the controller onto the gripper. Its
+`orientation_anchor` parameter chooses how:
+
+| Mode | Behaviour |
+|---|---|
+| `clutch` | **Default.** Pressing the trigger latches the current controller and gripper orientations as neutral; the gripper then follows the rotation you make *from there*. |
+| `fixed` | The controller's world orientation is the target directly. Repeatable, but the wrist can snap the instant you engage. |
+
+Clutch mode works like lifting a mouse: release the trigger, move your hand to a
+comfortable position, press again. The arm does not move while you re-grip, so you
+never run out of wrist travel. Because neutral is defined at engage, there is no
+alignment constant to get wrong — which is what makes the mapping impossible to
+invert.
+
+In `fixed` mode, the controller's pointing direction maps to the gripper's approach
+direction with no offset. Both are their frame's local X: the Quest controller's
+forward axis becomes local X under the Unity->ROS conversion above, and
+`left_tcp_joint`'s `rpy="0 1.57 0"` puts the gripper's approach on the TCP's local X.
+
+```bash
+ros2 param set /dual_arm_ik orientation_anchor fixed
+ros2 param set /dual_arm_ik orientation_weight 0.3   # tighter orientation tracking
+```
+
+Note the two `*_tcp` frames are mirror images of one another, so anything that
+hardcodes a single orientation constant for both arms will be wrong on one of them.
+
 ---
 
 ## Troubleshooting
@@ -189,8 +237,8 @@ rotation: (x, y, z, w)  = ( uz,  ux,  uy,  uw)
 app matches `hostname -I` on this machine, that both are on the same subnet, and that
 port 10000 is open: `sudo ufw allow 10000/tcp`.
 
-**Topics publish but no TF appears.** The TF node is not running — `endpoint.py` alone
-does not start one. Use `vr_control_switch.py`, or run `ros2 run vr_teleop
+**Topics publish but no TF appears.** The TF node is not running — `endpoint.launch.py` alone
+does not start one. Use `vr_control_switch.launch.py`, or run `ros2 run vr_teleop
 quest_tf_switch` alongside it.
 
 **`TF_REPEATED_DATA` warnings, or frames flickering in RViz.** The TF nodes pass the

@@ -29,6 +29,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.parameter import Parameter
 from rclpy.executors import MultiThreadedExecutor
+from rclpy._rclpy_pybind11 import RCLError
 from rcl_interfaces.msg import (
     SetParametersResult,
     Parameter as ParameterMsg,
@@ -734,6 +735,21 @@ def api_collision_toggle():
     })
 
 
+def _service_ready(client):
+    """Is this service up, without throwing once the ROS context is gone?
+
+    Flask keeps answering browser polls while the node is being torn down, and
+    service_is_ready() raises RCLError("context is invalid") at that point. An
+    unusable service is simply unavailable as far as the UI is concerned.
+    """
+    if client is None or not rclpy.ok():
+        return False
+    try:
+        return client.service_is_ready()
+    except RCLError:
+        return False
+
+
 @app.route("/api/gripper_publish_status")
 def api_gripper_publish_status():
 
@@ -741,7 +757,7 @@ def api_gripper_publish_status():
         return jsonify({"available": False, "enabled": False})
 
     return jsonify({
-        "available": _node.gripper_set_params_client.service_is_ready(),
+        "available": _service_ready(_node.gripper_set_params_client),
         "enabled": _node.gripper_publish_enabled,
     })
 
@@ -749,7 +765,7 @@ def api_gripper_publish_status():
 @app.route("/api/gripper_publish_toggle", methods=["POST"])
 def api_gripper_publish_toggle():
 
-    if _node is None or not _node.gripper_set_params_client.service_is_ready():
+    if _node is None or not _service_ready(_node.gripper_set_params_client):
         return jsonify({"success": False, "available": False}), 503
 
     new_value = not _node.gripper_publish_enabled
@@ -1091,10 +1107,20 @@ class VRManagementUI(Node):
 
     def call_sync(self, client, req, timeout=2.0):
 
-        if not client.wait_for_service(timeout_sec=0.5):
+        # Flask serves on its own thread and keeps answering browser polls while
+        # the node is being torn down, so every call here can outlive the ROS
+        # context. Without this, shutdown spams "rcl node's context is invalid"
+        # tracebacks from each in-flight request.
+        if not rclpy.ok():
             return None
 
-        future = client.call_async(req)
+        try:
+            if not client.wait_for_service(timeout_sec=0.5):
+                return None
+
+            future = client.call_async(req)
+        except RCLError:
+            return None
 
         start = time.monotonic()
 
@@ -1295,7 +1321,8 @@ def main():
     finally:
         node.stop_node()
         node.destroy_node()
-        rclpy.shutdown()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == "__main__":

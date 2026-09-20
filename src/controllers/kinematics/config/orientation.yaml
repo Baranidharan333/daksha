@@ -1,0 +1,114 @@
+# Orientation / smoothing pipeline for kinematics/ik_node.
+#
+# Everything here is a live ROS parameter: change a value with
+#   ros2 param set /dual_arm_ik orientation.mode passthrough
+# and it takes effect on the next incoming pose - no rebuild, no restart.
+#
+# Debugging order that actually converges on the right frame:
+#   1. mode: passthrough  + apply_ref_rot: false  + alpha_pos/alpha_rot: 1.0
+#      -> /left/pose quaternion goes straight to the placo target. If the TF
+#         looks right here, you are done; leave it.
+#   2. mode: fixed        -> one explicit Quest->robot rotation, nothing else.
+#         Read debug.log_euler output and pick fixed.rotation_deg from it.
+#   3. mode: trim         -> the full legacy pipeline (swap + per-axis
+#         direction/offsets + correction + offset). Only once 1 and 2 have
+#         told you what the base frame conversion is.
+
+/**:
+  ros__parameters:
+
+    orientation:
+      # passthrough | fixed | trim
+      #   passthrough - use the incoming quaternion as-is (normalized only)
+      #   fixed       - single explicit rotation: R_corr * R_in
+      #   trim        - legacy pipeline: roll/pitch swap, per-axis direction
+      #                 and offsets, then correction and offset rotations
+      #
+      # passthrough, because quest_tf_switch already publishes the controller
+      # pose as a world-frame ROS FLU orientation. The trim values below were
+      # tuned to compensate for solver.apply_ref_rot, which was the actual
+      # axis swap - with that off they are no longer needed. If a constant
+      # grip-vs-tool offset remains, use "fixed" and read rotation_deg off
+      # debug.log_euler; do not go back to per-axis trims.
+      mode: "passthrough"
+
+      # trim mode only: exchange roll and pitch of the incoming pose before
+      # the per-axis direction/offset trim is applied.
+      swap_roll_pitch: true
+
+      # fixed mode only. Euler angles in degrees, applied in `sequence`.
+      # Lowercase sequence = extrinsic (fixed-frame) axes, uppercase =
+      # intrinsic. [90, 0, 180] is the same rotation as trim.correction_deg.
+      fixed:
+        rotation_deg: [90.0, 0.0, 180.0]
+        sequence: "xyz"
+
+      # trim mode only. Two fixed rotations applied after the per-axis trim,
+      # correction first then offset:
+      #   q_out = offset * correction * q_trimmed
+      # Both are extrinsic xyz Euler angles in degrees. These are the values
+      # the old hardcoded Q_CORRECTION / Q_OFFSET quaternions encoded.
+      trim:
+        correction_deg: [90.0, 0.0, 180.0]
+        offset_deg: [-90.0, 90.0, 0.0]
+
+      # trim mode only. Per-arm trim, applied to the incoming roll/pitch/yaw
+      # before the correction/offset rotations above.
+      #   *_dir     direction multiplier: 1.0 = as received, -1.0 = inverted
+      #   *_offset  constant added to that axis, in degrees
+      left:
+        roll_offset_deg: 0.0
+        pitch_offset_deg: 0.0
+        yaw_offset_deg: -90.0
+        roll_dir: -1.0
+        pitch_dir: 1.0
+        yaw_dir: -1.0
+      right:
+        roll_offset_deg: 0.0
+        pitch_offset_deg: 0.0
+        yaw_offset_deg: 90.0
+        roll_dir: 1.0
+        pitch_dir: -1.0
+        yaw_dir: -1.0
+
+    solver:
+      # Multiply the (already corrected) orientation by the robot's TCP
+      # orientation at the zero-joint configuration, i.e.
+      #   target_rot = ref_rot @ R(quat)     when true
+      #   target_rot = R(quat)               when false
+      # ref_rot is an extra rotation on top of whatever the Quest sends, so
+      # set this false while hunting for the right frame conversion.
+      #
+      # false, and it must stay false. ref_rot for left_tcp is [0, 90, 85.9]
+      # deg, i.e. the TCP's own axes at the zero configuration point local
+      # x -> world -z, local y -> world -x, local z -> world +y. Pre-
+      # multiplying by it applies the controller rotation in the TCP's LOCAL
+      # frame: a 30 deg controller yaw (world Z) came out as 30 deg about
+      # world Y at the robot. That is the roll/pitch/yaw swap.
+      apply_ref_rot: false
+
+      # Exponential smoothing on the target pose. 1.0 = no smoothing at all,
+      # which is what you want while debugging: the target then follows the
+      # controller exactly instead of lagging behind it.
+      alpha_pos: 0.8
+      alpha_rot: 0.3
+
+      # Weight of the orientation part of the placo frame task relative to
+      # position (1.0).
+      #
+      # This was 0.02, which told the solver orientation is worth 1/50th of
+      # position - so it mostly ignored it. Measured tracking error on a
+      # commanded 30 deg yaw, streamed to convergence:
+      #   0.02 -> 19.1 deg off    0.1 -> 8.8 deg    1.0 -> 1.4 deg
+      # That is why a correct Quest orientation still showed up wrong in the
+      # placo view: the target frame was right, the arm was never asked to
+      # match it. Raising this trades against position error when the target
+      # is not reachable in full 6 DOF, so back it off if the TCP starts
+      # missing the commanded point.
+      orientation_weight: 1.0
+
+    debug:
+      # Log RAW / CORRECTED / TARGET Euler angles (extrinsic xyz, degrees)
+      # for every arm, rate-limited to log_period_sec.
+      log_euler: false
+      log_period_sec: 0.5

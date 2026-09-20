@@ -9,8 +9,10 @@ and republishes them as the PoseStamped topics, so ik_node needs no changes.
 
 import rclpy
 from rclpy.node import Node
+from rclpy.executors import ExternalShutdownException
 from rclpy.time import Time
 from geometry_msgs.msg import PoseStamped
+from std_srvs.srv import SetBool
 from tf2_ros import Buffer, TransformException, TransformListener
 
 # arm name -> (TF child frame from quest_tf_switch, output topic ik_node subscribes to)
@@ -53,6 +55,12 @@ class QuestTFToPose(Node):
             for arm in ARMS
         ]
 
+        # Inherited from vr_pose_relay, which used to own these topics: lets an
+        # operator cut the arms loose from the controllers without stopping the
+        # stack. Publishing is gated, the TF lookups keep running.
+        self.enabled = True
+        self.create_service(SetBool, "/vr_enable", self.enable_cb)
+
         self.create_timer(1.0 / lookup_rate, self.lookup_cb)
 
         self.get_logger().info(
@@ -73,8 +81,15 @@ class QuestTFToPose(Node):
 
         self.get_logger().info("Quest client connected, starting TF lookups")
 
+    def enable_cb(self, request, response):
+        self.enabled = request.data
+        response.success = True
+        response.message = "VR relay enabled" if self.enabled else "VR relay disabled"
+        self.get_logger().info("VR relay %s" % ("ENABLED" if self.enabled else "DISABLED"))
+        return response
+
     def lookup_cb(self):
-        if not self.client_connected:
+        if not self.client_connected or not self.enabled:
             return
 
         for arm, (frame, _topic) in ARMS.items():
@@ -110,11 +125,12 @@ def main(args=None):
 
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         pass
-
-    node.destroy_node()
-    rclpy.shutdown()
+    finally:
+        node.destroy_node()
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == "__main__":

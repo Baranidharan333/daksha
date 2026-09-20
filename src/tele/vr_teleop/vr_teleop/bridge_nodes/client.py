@@ -44,7 +44,21 @@ class ClientThread(threading.Thread):
         self.tcp_server = tcp_server
         self.incoming_ip = incoming_ip
         self.incoming_port = incoming_port
+        self.halt_event = threading.Event()
         threading.Thread.__init__(self)
+
+    def stop(self):
+        """Ask this connection to finish, from another thread.
+
+        Closing the socket is what actually unblocks the read: recvall() sits in
+        recv_into() and would otherwise hang until the peer noticed, which a
+        headset that dropped off Wi-Fi never does.
+        """
+        self.halt_event.set()
+        try:
+            self.conn.shutdown(socket.SHUT_RDWR)
+        except OSError:
+            pass
 
     @staticmethod
     def recvall(conn, size, flags=0):
@@ -226,7 +240,10 @@ class ClientThread(threading.Thread):
 
         """
         self.tcp_server.loginfo("Connection from {}".format(self.incoming_ip))
-        halt_event = threading.Event()
+        # Registered only so shutdown can close this socket; concurrent
+        # connections are normal here and are left alone.
+        self.tcp_server.claim_client(self)
+        halt_event = self.halt_event
         self.tcp_server.unity_tcp_sender.start_sender(self.conn, halt_event)
         try:
             while not halt_event.is_set():
@@ -246,7 +263,13 @@ class ClientThread(threading.Thread):
                     self.tcp_server.send_unity_error(error_msg)
         except IOError as e:
             err_str = str(e)
-            if "No more data available" in err_str:
+            if halt_event.is_set():
+                # stop() shut the socket down under us to break the blocking
+                # read - that only happens on server shutdown, not a fault.
+                self.tcp_server.loginfo(
+                    "Connection from {} closed during shutdown.".format(self.incoming_ip)
+                )
+            elif "No more data available" in err_str:
                 self.tcp_server.loginfo("Client disconnected.")
             elif "Connection reset by peer" in err_str:
                 self.tcp_server.loginfo("Client disconnected abruptly.")
@@ -262,6 +285,7 @@ class ClientThread(threading.Thread):
             )
         finally:
             halt_event.set()
+            self.tcp_server.release_client(self)
             try:
                 self.conn.shutdown(socket.SHUT_RDWR)
             except OSError:

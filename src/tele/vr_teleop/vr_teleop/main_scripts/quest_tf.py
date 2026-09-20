@@ -1,5 +1,6 @@
 import rclpy
 from rclpy.node import Node
+from rclpy.executors import ExternalShutdownException
 from geometry_msgs.msg import PoseStamped
 from tf2_ros import TransformBroadcaster
 from geometry_msgs.msg import TransformStamped
@@ -28,8 +29,18 @@ class QuestTFBroadcaster(Node):
 
 def main():
     rclpy.init()
-    rclpy.spin(QuestTFBroadcaster())
-    rclpy.shutdown()
+    node = QuestTFBroadcaster()
+    try:
+        rclpy.spin(node)
+    except (KeyboardInterrupt, ExternalShutdownException):
+        pass
+    finally:
+        node.destroy_node()
+        # launch sends SIGINT on teardown and rclpy's own handler has already
+        # shut the context down by the time we get here; calling shutdown again
+        # raises RCLError and turns a clean stop into a spurious exit code 1.
+        if rclpy.ok():
+            rclpy.shutdown()
 
 if __name__ == '__main__':
     main()

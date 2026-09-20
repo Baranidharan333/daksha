@@ -54,42 +54,27 @@ REAL_JOINT_NAMES = {
 }
 
 
-def _quat_multiply(q1, q2):
-    x1, y1, z1, w1 = q1
-    x2, y2, z2, w2 = q2
+# Orientation pipeline stages, cheapest first. See config/orientation.yaml.
+#   passthrough - incoming quaternion used as the target rotation, unchanged
+#   fixed       - one explicit rotation: R_corr * R_in
+#   trim        - roll/pitch swap + per-axis direction/offset, then the
+#                 correction and offset rotations
+ORIENTATION_MODES = ("passthrough", "fixed", "trim")
 
-    return [
-        w1 * x2 + x1 * w2 + y1 * z2 - z1 * y2,
-        w1 * y2 - x1 * z2 + y1 * w2 + z1 * x2,
-        w1 * z2 + x1 * y2 - y1 * x2 + z1 * w2,
-        w1 * w2 - x1 * x2 - y1 * y2 - z1 * z2,
-    ]
+# Fallbacks for everything in config/orientation.yaml, used when the node runs
+# without that params file. Keep the two in sync.
+ORIENTATION_DEFAULTS = {
+    "mode": "passthrough",
+    "swap_roll_pitch": True,
+    "fixed.rotation_deg": [90.0, 0.0, 180.0],
+    "fixed.sequence": "xyz",
+    "trim.correction_deg": [90.0, 0.0, 180.0],
+    "trim.offset_deg": [-90.0, 90.0, 0.0],
+}
 
-
-def _build_correction_quaternion() -> list[float]:
-    """Fixed Quest -> ROS frame correction: +90 deg about X, +180 deg about Z."""
-    qx_90 = [math.sin(math.pi / 4), 0.0, 0.0, math.cos(math.pi / 4)]
-    qz_180 = [0.0, 0.0, math.sin(math.pi / 2), math.cos(math.pi / 2)]
-    return _quat_multiply(qz_180, qx_90)
-
-
-def _build_offset_quaternion() -> list[float]:
-    angle_x = math.radians(-90.0)
-    angle_y = math.radians(90.0)
-    angle_z = math.radians(0.0)
-
-    x_offset = [math.sin(angle_x / 2), 0.0, 0.0, math.cos(angle_x / 2)]
-    y_offset = [0.0, math.sin(angle_y / 2), 0.0, math.cos(angle_y / 2)]
-    z_offset = [0.0, 0.0, math.sin(angle_z / 2), math.cos(angle_z / 2)]
-    return _quat_multiply(z_offset, _quat_multiply(y_offset, x_offset))
-
-
-Q_CORRECTION = _build_correction_quaternion()
-Q_OFFSET = _build_offset_quaternion()
-
-# Per-arm orientation trim defaults: offset (deg) added to each axis, and a
-# direction multiplier (1.0 = clockwise/as-received, -1.0 = anticlockwise/inverted).
-# Edit left/right independently here.
+# Per-arm trim defaults: offset (deg) added to each axis, and a direction
+# multiplier (1.0 = as received, -1.0 = inverted). Overridden per arm by
+# orientation.<arm>.* in config/orientation.yaml.
 ARM_ORIENTATION_DEFAULTS = {
     "left": {
         "roll_offset_deg": 0.0,
@@ -109,6 +94,91 @@ ARM_ORIENTATION_DEFAULTS = {
     },
 }
 
+TRIM_KEYS = tuple(ARM_ORIENTATION_DEFAULTS["left"].keys())
+
+
+class _OrientationConfig:
+    """The node-wide half of the orientation pipeline, as live ROS parameters.
+
+    Everything here can be changed with `ros2 param set` while the node runs -
+    the fixed rotations are rebuilt on each change so the next incoming pose
+    uses them. Per-arm trim lives on _ArmContext instead.
+    """
+
+    def __init__(self, node: Node) -> None:
+        d = ORIENTATION_DEFAULTS
+        self.mode = node.declare_parameter('orientation.mode', d["mode"]).value
+        self.swap_roll_pitch = node.declare_parameter(
+            'orientation.swap_roll_pitch', d["swap_roll_pitch"]).value
+        self.fixed_rotation_deg = list(node.declare_parameter(
+            'orientation.fixed.rotation_deg', d["fixed.rotation_deg"]).value)
+        self.fixed_sequence = node.declare_parameter(
+            'orientation.fixed.sequence', d["fixed.sequence"]).value
+        self.correction_deg = list(node.declare_parameter(
+            'orientation.trim.correction_deg', d["trim.correction_deg"]).value)
+        self.offset_deg = list(node.declare_parameter(
+            'orientation.trim.offset_deg', d["trim.offset_deg"]).value)
+
+        if self.mode not in ORIENTATION_MODES:
+            node.get_logger().error(
+                f"[orientation] unknown mode '{self.mode}', falling back to "
+                f"'{d['mode']}' (valid: {', '.join(ORIENTATION_MODES)})"
+            )
+            self.mode = d["mode"]
+
+        self.rebuild()
+
+    def rebuild(self) -> None:
+        """Recompute the fixed rotations from the current angle parameters."""
+        self.r_fixed = R.from_euler(self.fixed_sequence, self.fixed_rotation_deg, degrees=True)
+        # Extrinsic xyz, i.e. Rz @ Ry @ Rx - the convention the previously
+        # hardcoded Q_CORRECTION / Q_OFFSET quaternions were built in.
+        r_correction = R.from_euler("xyz", self.correction_deg, degrees=True)
+        r_offset = R.from_euler("xyz", self.offset_deg, degrees=True)
+        # Applied as offset * correction * q_trimmed.
+        self.r_trim_post = r_offset * r_correction
+
+    def apply(self, name: str, value) -> str | None:
+        """Apply one orientation.* parameter. Returns an error message, or None on success."""
+        # Snapshot so a value that only fails inside rebuild() (a bad Euler
+        # sequence, say) leaves the node on its previous, working settings.
+        previous = (
+            self.mode, self.swap_roll_pitch, list(self.fixed_rotation_deg),
+            self.fixed_sequence, list(self.correction_deg), list(self.offset_deg),
+        )
+
+        if name == 'orientation.mode':
+            if value not in ORIENTATION_MODES:
+                return f"orientation.mode must be one of {', '.join(ORIENTATION_MODES)}"
+            self.mode = value
+        elif name == 'orientation.swap_roll_pitch':
+            self.swap_roll_pitch = value
+        elif name == 'orientation.fixed.rotation_deg':
+            if len(value) != 3:
+                return "orientation.fixed.rotation_deg needs 3 angles"
+            self.fixed_rotation_deg = list(value)
+        elif name == 'orientation.fixed.sequence':
+            self.fixed_sequence = value
+        elif name == 'orientation.trim.correction_deg':
+            if len(value) != 3:
+                return "orientation.trim.correction_deg needs 3 angles"
+            self.correction_deg = list(value)
+        elif name == 'orientation.trim.offset_deg':
+            if len(value) != 3:
+                return "orientation.trim.offset_deg needs 3 angles"
+            self.offset_deg = list(value)
+        else:
+            return f"unknown orientation parameter '{name}'"
+
+        try:
+            self.rebuild()
+        except ValueError as exc:
+            (self.mode, self.swap_roll_pitch, self.fixed_rotation_deg,
+             self.fixed_sequence, self.correction_deg, self.offset_deg) = previous
+            self.rebuild()
+            return f"invalid rotation ({exc})"
+        return None
+
 
 class _ArmContext:
     """Per-arm ROS wiring: solver instance + subscriptions + gripper state.
@@ -119,6 +189,7 @@ class _ArmContext:
     """
 
     def __init__(self, node: "DualArmIK", arm: str):
+        self.node = node
         self.arm = arm
         self.config = ARM_CONFIGS[arm]
         if node.collision_urdf_path:
@@ -134,6 +205,10 @@ class _ArmContext:
             )
         self.solver = ArmIKSolver(
             self.config,
+            orientation_weight=node.orientation_weight,
+            alpha_pos=node.alpha_pos,
+            alpha_rot=node.alpha_rot,
+            use_ref_rot=node.apply_ref_rot,
             collision_pairs_path=node.collision_pairs_path,
             self_collision_margin=node.self_collision_margin,
             self_collision_trigger=node.self_collision_trigger,
@@ -141,14 +216,11 @@ class _ArmContext:
         self.enabled = False
         self.gripper = 0.1
 
-        # Per-arm orientation trim, hardcoded in ARM_ORIENTATION_DEFAULTS above.
-        defaults = ARM_ORIENTATION_DEFAULTS[arm]
-        self.roll_offset_deg = defaults["roll_offset_deg"]
-        self.pitch_offset_deg = defaults["pitch_offset_deg"]
-        self.yaw_offset_deg = defaults["yaw_offset_deg"]
-        self.roll_dir = defaults["roll_dir"]
-        self.pitch_dir = defaults["pitch_dir"]
-        self.yaw_dir = defaults["yaw_dir"]
+        # Per-arm orientation trim: live parameters orientation.<arm>.<key>,
+        # defaulting to ARM_ORIENTATION_DEFAULTS when no params file is given.
+        for key, default in ARM_ORIENTATION_DEFAULTS[arm].items():
+            value = node.declare_parameter(f'orientation.{arm}.{key}', default).value
+            setattr(self, key, value)
 
         callback_group = MutuallyExclusiveCallbackGroup()
 
@@ -163,21 +235,42 @@ class _ArmContext:
             callback_group=callback_group,
         )
 
-    def correct_orientation(self, orientation_xyzw, swap_roll_pitch: bool) -> list[float]:
-        """Quest -> robot axis correction for this arm: roll/pitch swap + per-axis direction/trim, then fixed remap."""
-        yaw_in, pitch_in, roll_in = R.from_quat(orientation_xyzw).as_euler("zyx", degrees=False)
+    def set_trim(self, key: str, value: float) -> str | None:
+        """Apply one orientation.<arm>.* parameter. Returns an error message, or None."""
+        if key not in TRIM_KEYS:
+            return f"unknown orientation trim '{key}' (valid: {', '.join(TRIM_KEYS)})"
+        setattr(self, key, value)
+        return None
 
-        if swap_roll_pitch:
+    def correct_orientation(self, orientation_xyzw) -> list[float]:
+        """Quest -> robot orientation conversion for this arm.
+
+        Which transformations run is set by orientation.mode: 'passthrough'
+        applies none, 'fixed' applies a single explicit rotation, 'trim' runs
+        the full per-axis trim plus correction/offset rotations. See
+        config/orientation.yaml.
+        """
+        orient = self.node.orient
+        # from_quat normalizes, so passthrough still returns a unit quaternion.
+        r_in = R.from_quat(orientation_xyzw)
+
+        if orient.mode == "passthrough":
+            return r_in.as_quat().tolist()
+
+        if orient.mode == "fixed":
+            return (orient.r_fixed * r_in).as_quat().tolist()
+
+        yaw_in, pitch_in, roll_in = r_in.as_euler("zyx", degrees=False)
+
+        if orient.swap_roll_pitch:
             roll_in, pitch_in = pitch_in, roll_in
 
         yaw = self.yaw_dir * yaw_in + math.radians(self.yaw_offset_deg)
         pitch = self.pitch_dir * pitch_in + math.radians(self.pitch_offset_deg)
         roll = self.roll_dir * roll_in + math.radians(self.roll_offset_deg)
 
-        quat = R.from_euler("zyx", [yaw, pitch, roll], degrees=False).as_quat()
-
-        q_corr = _quat_multiply(Q_CORRECTION, list(quat))
-        return _quat_multiply(Q_OFFSET, q_corr)
+        r_trim = R.from_euler("zyx", [yaw, pitch, roll], degrees=False)
+        return (orient.r_trim_post * r_trim).as_quat().tolist()
 
 
 class DualArmIK(Node):
@@ -193,8 +286,19 @@ class DualArmIK(Node):
         requested_arms = self.get_parameter('arms').get_parameter_value().string_array_value
         arms = [arm for arm in requested_arms if arm in ARM_CONFIGS] or ['left', 'right']
 
-        self.declare_parameter('swap_roll_pitch', True)
-        self.swap_roll_pitch = self.get_parameter('swap_roll_pitch').get_parameter_value().bool_value
+        # Orientation pipeline + solver tuning. Defaults here match
+        # config/orientation.yaml; pass that file to override them, and
+        # `ros2 param set` to retune any of it while the node runs.
+        self.orient = _OrientationConfig(self)
+
+        self.apply_ref_rot = self.declare_parameter('solver.apply_ref_rot', False).value
+        self.alpha_pos = self.declare_parameter('solver.alpha_pos', 0.8).value
+        self.alpha_rot = self.declare_parameter('solver.alpha_rot', 0.3).value
+        self.orientation_weight = self.declare_parameter('solver.orientation_weight', 1.0).value
+
+        self.debug_euler = self.declare_parameter('debug.log_euler', False).value
+        self.debug_period = self.declare_parameter('debug.log_period_sec', 0.5).value
+        self._last_debug_log: dict[str, float] = {}
 
         # Self-collision avoidance. Needs two generated artifacts, both of
         # which must come from the SAME geometry or the pair list will
@@ -284,7 +388,25 @@ class DualArmIK(Node):
     def dynamic_parameter_cb(self, params):
         for p in params:
 
-            if p.name == 'posture_enabled':
+            if p.name.startswith('orientation.'):
+                error = self._apply_orientation_param(p)
+                if error:
+                    return SetParametersResult(successful=False, reason=error)
+                self.get_logger().info(f"[DEBUG] {p.name} -> {p.value}")
+
+            elif p.name.startswith('solver.'):
+                error = self._apply_solver_param(p)
+                if error:
+                    return SetParametersResult(successful=False, reason=error)
+                self.get_logger().info(f"[DEBUG] {p.name} -> {p.value}")
+
+            elif p.name == 'debug.log_euler':
+                self.debug_euler = p.value
+
+            elif p.name == 'debug.log_period_sec':
+                self.debug_period = p.value
+
+            elif p.name == 'posture_enabled':
                 self.posture_enabled = p.value
                 for ctx in self.arm_ctx.values():
                     ctx.solver.set_posture_enabled(p.value)
@@ -313,6 +435,37 @@ class DualArmIK(Node):
 
         return SetParametersResult(successful=True)
 
+    def _apply_orientation_param(self, p) -> str | None:
+        """Route one orientation.* parameter to the node config or to an arm's trim."""
+        _, section, *rest = p.name.split('.')
+
+        if section in ARM_CONFIGS:
+            ctx = self.arm_ctx.get(section)
+            if ctx is None:
+                # Trim for an arm this node isn't running: accept and ignore,
+                # so one params file can serve single- and dual-arm setups.
+                return None
+            return ctx.set_trim('.'.join(rest), p.value)
+
+        return self.orient.apply(p.name, p.value)
+
+    def _apply_solver_param(self, p) -> str | None:
+        """Route one solver.* parameter to every arm's solver."""
+        attribute = {
+            'solver.apply_ref_rot': 'use_ref_rot',
+            'solver.alpha_pos': 'alpha_pos',
+            'solver.alpha_rot': 'alpha_rot',
+            'solver.orientation_weight': 'orientation_weight',
+        }.get(p.name)
+
+        if attribute is None:
+            return f"unknown solver parameter '{p.name}'"
+
+        setattr(self, p.name.split('.', 1)[1], p.value)
+        for ctx in self.arm_ctx.values():
+            setattr(ctx.solver, attribute, p.value)
+        return None
+
     # -----------------------
     def joy_cb(self, ctx: _ArmContext, msg):
         trigger = msg.axes[2]
@@ -339,7 +492,7 @@ class DualArmIK(Node):
             msg.pose.orientation.z,
             msg.pose.orientation.w,
         ]
-        corrected_orientation = ctx.correct_orientation(orientation, self.swap_roll_pitch)
+        corrected_orientation = ctx.correct_orientation(orientation)
 
         self._mirror_other_arms(ctx)
 
@@ -349,11 +502,39 @@ class DualArmIK(Node):
             self.get_logger().warn(f"{ctx.arm} IK solve failed, skipping frame: {exc}")
             return
 
+        self._log_orientation_debug(ctx, orientation, corrected_orientation, T)
         self._visualize_target_frames(ctx.arm, T, fk_pose)
 
         self.publish()
 
     # -----------------------
+    def _log_orientation_debug(self, ctx: _ArmContext, raw, corrected, T: np.ndarray) -> None:
+        """Print RAW / CORRECTED / TARGET Euler angles for one arm, rate-limited.
+
+        The three stages of the pipeline side by side: what the controller
+        sent, what correct_orientation made of it, and what the solver was
+        actually asked to reach (which includes ref_rot and the slerp).
+        """
+        if not self.debug_euler:
+            return
+
+        now = self.get_clock().now().nanoseconds * 1e-9
+        if now - self._last_debug_log.get(ctx.arm, 0.0) < self.debug_period:
+            return
+        self._last_debug_log[ctx.arm] = now
+
+        def euler(rotation) -> str:
+            return np.array2string(
+                rotation.as_euler("xyz", degrees=True), precision=1, suppress_small=True
+            )
+
+        self.get_logger().info(
+            f"[orientation:{self.orient.mode}] {ctx.arm} "
+            f"RAW={euler(R.from_quat(raw))} "
+            f"CORRECTED={euler(R.from_quat(corrected))} "
+            f"TARGET={euler(R.from_matrix(T[:3, :3]))}"
+        )
+
     def _visualize_target_frames(self, arm: str, desired_pose: np.ndarray, fk_pose: np.ndarray) -> None:
         for suffix, pose in ("target", desired_pose), ("fk", fk_pose):
             try:

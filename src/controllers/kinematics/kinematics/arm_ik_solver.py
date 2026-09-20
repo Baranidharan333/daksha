@@ -206,6 +206,7 @@ class ArmIKSolver:
         max_acc: float = 2.0,
         alpha_pos: float = 0.8,
         alpha_rot: float = 0.3,
+        use_ref_rot: bool = True,
         posture_joints_deg: np.ndarray | None = None,
         posture_weight: float = 0.01,
         collision_pairs_path: str | None = None,
@@ -235,6 +236,13 @@ class ArmIKSolver:
         self.max_acc = max_acc
         self.alpha_pos = alpha_pos
         self.alpha_rot = alpha_rot
+
+        # When False the incoming orientation is used as the target rotation
+        # directly. When True it is pre-multiplied by `ref_rot`, the TCP
+        # orientation at the zero-joint configuration - an extra rotation on
+        # top of whatever the controller sends, so it is worth turning off
+        # while working out the correct frame conversion.
+        self.use_ref_rot = use_ref_rot
 
         self.base_offset = config.base_offset.copy()
 
@@ -350,7 +358,8 @@ class ArmIKSolver:
         quat = self._match_quaternion_sign(self.filtered_quat, quat)
         self.filtered_quat = self._quat_slerp(self.filtered_quat, quat, self.alpha_rot)
 
-        target_rot = self.ref_rot @ R.from_quat(self.filtered_quat).as_matrix()
+        rot = R.from_quat(self.filtered_quat).as_matrix()
+        target_rot = self.ref_rot @ rot if self.use_ref_rot else rot
 
         T = np.eye(4)
         T[:3, :3] = target_rot
