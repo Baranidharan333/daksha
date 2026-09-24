@@ -1,0 +1,12 @@
+# viewer_joint_overrides.yaml
+#
+# Rotation-direction fixes for the automation dashboard's 3D viewer only.
+# The URDF axis (and the real hardware's positive direction) is left
+# untouched — the viewer just negates the listed joints' axes so they spin
+# the right way on screen. Add a joint name here (URDF joint name, e.g.
+# "right_joint_6") if it looks inverted in the 3D view.
+
+launch_control_app:
+  ros__parameters:
+    viewer_joint_axis_overrides:
+      - right_joint_6

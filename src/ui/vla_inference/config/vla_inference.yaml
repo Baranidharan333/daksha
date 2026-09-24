@@ -1,0 +1,39 @@
+# ============================================================
+#  vla_inference configuration
+#  File: vla_inference/config/vla_inference.yaml
+#
+#  The natural-language task console.
+#
+#  Loaded by vla_inference/launch/vla_inference.launch.py. This
+#  file is self-contained - the package loads nothing else.
+#
+#  ROS 2 PARAMETER FILE: every key below is a real ROS parameter,
+#  reached by its dotted path, e.g.
+#      ros2 param get /vla_inference vla_inference.port
+#
+#  ros.domain_id is the exception. DDS reads ROS_DOMAIN_ID during
+#  rclpy.init(), before any node exists to hold a parameter, so
+#  the launch file reads that key out of this file itself and
+#  exports it before starting the nodes.
+#
+#  NOTE: `ros:` (and camera/joint topics, where present) also
+#  appear in the other packages' config files. Each package is
+#  self-contained by design, so a change to the domain id or a
+#  shared topic has to be made in each file that carries it.
+# ============================================================
+
+/**:
+  ros__parameters:
+
+
+
+    # ── SECTION 2: ROS 2 ENVIRONMENT ────────────────────────────
+    ros:
+      distro: "humble"
+      ros_setup: "/opt/ros/humble/setup.bash"
+      domain_id: 33                  # ROS_DOMAIN_ID (matches this robot's actual bringup — arm/motor/camera nodes all run on domain 33, see ~/.bashrc and start_robot.sh)
+      rmw_implementation: "rmw_cyclonedds_cpp"
+    vla_inference:
+      host: "0.0.0.0"
+      port: 7001
+      instruction_topic: "/viveka_instruction"

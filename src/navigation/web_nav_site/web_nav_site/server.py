@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 """HTTP server that also bridges ROS data to the browser."""
 
+# Method signatures below annotate params/returns with ROS message types
+# (TFMessage, OccupancyGrid, ...) that only exist when the optional rclpy
+# import block below succeeds. Deferring annotation evaluation (PEP 563)
+# keeps RosStateBridge importable -- and this file runnable in its
+# degraded, ROS-less mode -- even when those types were never imported.
+from __future__ import annotations
+
 import argparse
 import json
 import math
@@ -34,6 +41,11 @@ try:
     from tf2_msgs.msg import TFMessage
 except ImportError:  # pragma: no cover
     rclpy = None
+    # RosStateBridge(Node) is defined unconditionally below (only
+    # start_ros_bridge() checks `rclpy is None` before instantiating it), so
+    # Node must still name something or that class statement itself crashes
+    # the whole server at import time.
+    Node = object
 
 ROS_BRIDGE = None
 ROS_EXECUTOR = None
@@ -1155,7 +1167,10 @@ def main() -> None:
         # hostname instead, since "0.0.0.0" isn't an address anyone else can
         # actually type into a browser to reach this machine.
         display_host = f"{socket.gethostname().lower()}.local" if args.host in ("0.0.0.0", "::") else args.host
-        print(f"Serving {static_dir} with config {config_dir} at http://{display_host}:{args.port}")
+        # flush=True: stdout is fully (not line-) buffered once it's piped
+        # to `ros2 launch` instead of a real terminal, so without this the
+        # port never actually reaches the terminal until the process exits.
+        print(f"Serving {static_dir} with config {config_dir} at http://{display_host}:{args.port}", flush=True)
         try:
             httpd.serve_forever()
         except KeyboardInterrupt:

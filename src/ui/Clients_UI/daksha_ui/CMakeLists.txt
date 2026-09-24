@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.8)
 project(daksha_ui)
 
 find_package(ament_cmake REQUIRED)
-add_subdirectory(camera_cpp)
 
 # All three executables install flat into lib/${PROJECT_NAME} — ros2 launch's
 # Node action only looks for an executable directly in that directory (no
@@ -11,23 +10,19 @@ add_subdirectory(camera_cpp)
 # in a subdirectory.
 install(PROGRAMS
   daksha_ui/dashboard_app.py
-  daksha_ui/subui_app.py
   daksha_ui/viveka_camera_ui.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
-# Each Flask app's templates/static must sit alongside it in lib/${PROJECT_NAME}
-# (Flask(__name__) resolves them relative to the running script's own
-# location). subui_app.py explicitly names "subui_templates"/"subui_static"
-# in its Flask() constructor specifically so these don't collide with
-# dashboard_app.py's "templates"/"static". viveka_camera_ui.py serves no
-# templates/static of its own.
+# dashboard_app.py's templates/static must sit alongside it in
+# lib/${PROJECT_NAME} (Flask(__name__) resolves them relative to the running
+# script's own location). viveka_camera_ui.py serves no templates/static of
+# its own. The instruction console's resources moved out with it, to the
+# vla_inference package.
 install(DIRECTORY
   daksha_ui/templates
   daksha_ui/static
   daksha_ui/logs
-  daksha_ui/subui_templates
-  daksha_ui/subui_static
   DESTINATION lib/${PROJECT_NAME}
 )
 
@@ -36,5 +31,11 @@ install(DIRECTORY
   config
   DESTINATION share/${PROJECT_NAME}
 )
+
+# config/ (installed just above) carries this package's ROS parameter file,
+# config/daksha_ui.yaml, alongside camera_layout.json. Installing it is what
+# makes it reachable from a built workspace at all - client_ui.launch.py
+# resolves it with get_package_share_directory(), and nothing on the robot
+# knows where the source tree is.
 
 ament_package()

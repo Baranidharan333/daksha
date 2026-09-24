@@ -74,6 +74,10 @@ add_executable(vcan_bridge_node
   src/vcan_bridge_node.cpp
 )
 
+ament_target_dependencies(vcan_bridge_node
+  rclcpp
+)
+
 target_link_libraries(vcan_bridge_node
   PkgConfig::LIBUSB
   Threads::Threads

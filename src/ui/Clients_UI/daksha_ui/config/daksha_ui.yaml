@@ -1,0 +1,214 @@
+# ============================================================
+#  daksha_ui configuration
+#  File: Clients_UI/daksha_ui/config/daksha_ui.yaml
+#
+#  The 3D dashboard (dashboard_app.py) and the multi-camera
+#  monitor (viveka_camera_ui.py).
+#
+#  Loaded by daksha_ui/launch/client_ui.launch.py. This file is
+#  self-contained - the package loads nothing else.
+#
+#  ROS 2 PARAMETER FILE: every key below is a real ROS parameter,
+#  reached by its dotted path, e.g.
+#      ros2 param get /daksha_dashboard network.daksha_ui_port
+#
+#  ros.domain_id is the exception. DDS reads ROS_DOMAIN_ID during
+#  rclpy.init(), before any node exists to hold a parameter, so
+#  the launch file reads that key out of this file itself and
+#  exports it before starting the nodes.
+#
+#  NOTE: `ros:` (and camera/joint topics, where present) also
+#  appear in the other packages' config files. Each package is
+#  self-contained by design, so a change to the domain id or a
+#  shared topic has to be made in each file that carries it.
+# ============================================================
+
+/**:
+  ros__parameters:
+
+
+
+    # ── SECTION 2: ROS 2 ENVIRONMENT ────────────────────────────
+    ros:
+      distro: "humble"
+      ros_setup: "/opt/ros/humble/setup.bash"
+      domain_id: 33                  # ROS_DOMAIN_ID (matches this robot's actual bringup — arm/motor/camera nodes all run on domain 33, see ~/.bashrc and start_robot.sh)
+      rmw_implementation: "rmw_cyclonedds_cpp"
+    network:
+      daksha_ui_port: 7071           # Daksha Dashboard web server port (moved off 7070: AnyDesk holds that port on this machine)
+      data_collection_port: 8888     # Data Collection Terminal web server port
+      daksha_ui_host: "0.0.0.0"     # Listen on all interfaces
+      data_collection_host: "0.0.0.0"
+
+      # Cross-service links: Data Collection fetches live battery/telemetry from
+      # the Daksha Dashboard over HTTP. Change these if the UIs are on different
+      # machines.
+      daksha_ui_url: "http://localhost:7071"
+      data_collection_url: "http://localhost:8888"
+
+      # Robot subnet (CycloneDDS peer discovery whitelist)
+      robot_subnet: "192.168.200"    # First 3 octets (x.x.x.0/24 range)
+      static_peer_ips:               # Fallback peer IPs if nmap/ARP fails
+        - "192.168.200.88"
+        - "192.168.200.167"
+        - "192.168.200.200"
+
+
+    # ── SECTION 10: ROBOT METADATA ───────────────────────────────
+    robot:
+      name: "Daksha"
+      version: "v10.2"
+      organization: "iHub Robotics"
+      bimanual: true
+      dof_per_arm: 8
+      total_joints: 16
+      arm_type: "v10.2"
+      ee_type: "daksha_hand"
+      body_type: "v10.2"
+
+
+    # ── SECTION 9: FILE PATHS ────────────────────────────────────
+    # All paths are relative to their project root. Do NOT use
+    # hardcoded /home/username paths here — each backend resolves
+    # paths dynamically using its own __file__ location.
+    paths:
+      # Daksha UI workspace (relative to src/, sibling of Clients_UI/)
+      daksha_description_pkg: "daksha_description_full_body"
+
+      # Primary URDF file (inside daksha_description_pkg/urdf/)
+      primary_urdf: "robot.urdf"
+
+      # Data Collection workspace (relative to Clients_UI/)
+      data_collection_config: "daksha_data_collection/config/config.yaml"
+
+      # Dataset storage (relative to Clients_UI/)
+      dataset_dir: "daksha_data_collection/datasets"
+
+      # ROS install overlay (relative to final/)
+      ros_install: "install/setup.bash"
+
+
+    # ── SECTION 3: JOINT STATE TOPICS ───────────────────────────
+    joint_topics:
+      # Follower arm (Daksha robot joint states)
+      follower_left:  "/LeftArmSystem_ordered_joint_states"
+      follower_right: "/RightArmSystem_ordered_joint_states"
+
+      # Follower arm commands
+      follower_cmd_left:  "/joint_cmd"
+      follower_cmd_right: "/joint_cmd"
+
+      # Leader arm (teleoperation input)
+      leader_left:  "/leader/left_joint_states"
+      leader_right: "/leader/right_joint_states"
+
+      # Leader commands (optional, leave empty if not used)
+      leader_cmd_left:  ""
+      leader_cmd_right: ""
+
+
+    # ── SECTION 5: CAMERA TOPICS ────────────────────────────────
+    camera_topics:
+      # Wrist cameras — mounted on end-effectors
+      left_wrist:
+        display_name: "Left Wrist Camera"
+        topic: "/left/camera/color/image_raw"
+        compressed: "/left/camera/color/image_raw/compressed"  # for recording
+
+      right_wrist:
+        display_name: "Right Wrist Camera"
+        topic: "/right/camera/color/image_raw"
+        compressed: "/right/camera/color/image_raw/compressed"  # for recording
+
+      # Head/world-view camera (start_all_camera.sh's "world" RealSense)
+      world:
+        display_name: "World Camera"
+        topic: "/world/camera/color/image_raw"
+        compressed: "/world/camera/color/image_raw/compressed"
+
+      # Head stereo cameras (only present on ZED-equipped robot variants)
+      binocular_left:
+        display_name: "Primary Binocular Vision (Left)"
+        topic: "/zed/zed_node/left/color/rect/image"
+        compressed: "/zed/zed_node/left/color/rect/image/compressed"
+
+      binocular_right:
+        display_name: "Primary Binocular Vision (Right)"
+        topic: "/zed/zed_node/right/color/rect/image"
+        compressed: "/zed/zed_node/right/color/rect/image/compressed"
+    joint_calibration:
+      # Left Arm Joints (Calibrated to Physical Robot Parity)
+      left_joint_1:   { scale: -1.0,  offset:  0.0,    lower: -1.3963, upper: 3.4907 }  # Perfect
+      left_joint:     { scale: -1.0,  offset:  0.0,    lower: -1.3963, upper: 3.4907 }
+      left_joint_2:   { scale:  1.0,  offset:  0.0,    lower: -3.142,  upper: 0.175 }  # Fixed (Inverse -> 1.0)
+      left_joint2:    { scale:  1.0,  offset:  0.0,    lower: -3.142,  upper: 0.175 }
+      left_joint_3:   { scale:  1.0,  offset:  0.0,    lower: -1.571,  upper: 1.571 }  # Perfect
+      left_joint_4:   { scale:  1.0,  offset:  0.0,    lower: -2.094,  upper: 2.094 }  # Perfect
+      left_joint_5:   { scale:  1.0,  offset: -1.479,  lower: -1.571,  upper: 1.571 }  # Perfect
+      left_joint_6:   { scale:  1.0,  offset: -0.123,  lower: -0.785,  upper: 0.785 }  # Perfect
+      left_joint_7:   { scale:  1.0,  offset:  0.0,    lower: -1.571,  upper: 1.571 }  # Perfect
+
+      # Right Arm Joints (Calibrated to Physical Robot Parity)
+      right_joint_1:  { scale:  1.0,  offset:  0.0,    lower: -1.3963, upper: 3.4907 }  # Perfect
+      right_joint:    { scale:  1.0,  offset:  0.0,    lower: -1.3963, upper: 3.4907 }
+      right_joint_2:  { scale:  1.0,  offset:  0.0,    lower: -3.142,  upper: 0.175 }  # Perfect
+      right_joint2:   { scale:  1.0,  offset:  0.0,    lower: -3.142,  upper: 0.175 }
+      right_joint_3:  { scale:  1.0,  offset:  0.0,    lower: -1.571,  upper: 1.571 }  # Fixed (Inverse -> 1.0)
+      right_joint_4:  { scale:  1.0,  offset:  0.0,    lower: -2.094,  upper: 2.094 }  # Perfect
+      right_joint_5:  { scale:  1.0,  offset:  1.748,  lower: -1.571,  upper: 1.571 }  # Perfect
+      right_joint_6:  { scale: -1.0,  offset: -0.027,  lower: -0.785,  upper: 0.785 }  # Fixed (Inverse -> -1.0)
+      right_joint_7:  { scale: -1.0,  offset:  0.0,    lower: -1.571,  upper: 1.571 }  # Perfect
+
+      # Single Motor Gripper Hardware Calibration (0.0 m = OPEN, 0.044 m = CLOSED in URDF)
+      left_gripper_left_joint:   { scale: -1.0, offset: -0.003358, lower: 0.0, upper: 0.044 }
+      right_gripper_right_joint: { scale:  1.0, offset:  0.001242, lower: 0.0, upper: 0.044 }
+
+
+    # ── SECTION 4: MOTOR STATUS TOPICS ──────────────────────────
+    motor_topics:
+      left:  "/LeftArmSystem/motor_status"
+      right: "/RightArmSystem/motor_status"
+
+
+
+    # ── SECTION 6: SAFETY THRESHOLDS ────────────────────────────
+    safety:
+      # Battery thresholds
+      battery_warn_percent: 35       # Orange warning at this level
+
+      # Motor thermal thresholds (degrees Celsius)
+      motor_temp_warn: 60            # Yellow warning — monitor closely
+      motor_temp_alert: 65           # Orange high alert — reduce load
+
+
+    # ── SECTION 11: UI / DISPLAY ─────────────────────────────────
+    ui:
+      default_theme: "dark"          # "dark" or "light"
+      default_grid_visible: true     # 3D viewer grid on by default
+      camera_view_count: 4           # Number of camera feeds to show
+
+    daksha_ui:
+
+      # viveka_camera_ui.py - multi-camera monitor (was hardcoded 7002)
+      viveka_camera:
+        host: "0.0.0.0"
+        port: 7002
+        jpeg_quality: 80              # 1-100, higher = better image, more bandwidth
+        # WebRTC gateway the page embeds instead of the ROS grid.
+        # Empty string disables it and shows the ROS camera tiles.
+        gateway_url: "http://192.168.11.200:8090"
+        triview_bin: "/home/s1/.ihub/camera/build/triview"
+        # Camera tiles, in display order. A ROS parameter file cannot hold a
+        # list of maps, so the two halves are parallel lists - entry i of
+        # camera_names goes with entry i of camera_topics. A topic ending in
+        # 'compressed' selects CompressedImage, anything else raw Image.
+        camera_names:
+          - "WORLD - ZED RIGHT"
+          - "WORLD - ZED LEFT"
+          - "RIGHT ARM"
+          - "LEFT ARM"
+        camera_topics:
+          - "/zed/zed_node/right/color/rect/image/compressed"
+          - "/zed/zed_node/left/color/rect/image/compressed"
+          - "/right/camera/color/image_raw/compressed"
+          - "/left/camera/color/image_raw/compressed"

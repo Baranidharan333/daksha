@@ -1,9 +1,13 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>daksha_ui</name>
+  <name>vla_inference</name>
   <version>0.0.1</version>
-  <description>Daksha robot web dashboard and camera-stream viewer (Flask)</description>
+  <description>
+    VLA inference command console (Flask): takes a natural-language task from
+    the operator and publishes it for the vision-language-action engine to
+    execute. Split out of daksha_ui, where it lived as subui_app.py.
+  </description>
   <maintainer email="dev@ihub-robotics.org">iHub Robotics Team</maintainer>
   <license>MIT</license>
 
@@ -13,11 +17,6 @@
   <depend>std_msgs</depend>
 
   <exec_depend>python3-flask</exec_depend>
-  <exec_depend>python3-flask-cors</exec_depend>
-  <exec_depend>python3-yaml</exec_depend>
-  <exec_depend>python3-psutil</exec_depend>
-  <exec_depend>python3-opencv</exec_depend>
-  <exec_depend>python3-numpy</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>

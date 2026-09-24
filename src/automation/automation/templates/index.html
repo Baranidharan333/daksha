@@ -3,93 +3,413 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bringup Launch Control</title>
+<title>Application Management</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div class="brand">
-      <span class="lamp" id="lamp"></span>
-      <h1>Bringup Launch Control<small>ros2 launch {{ package }} {{ launch_file }}</small></h1>
+
+<aside class="sidebar">
+  <div class="side-brand">
+    <img src="{{ url_for('static', filename='images/ihub_logo_transparent.png') }}" alt="iHUB Robotics">
+  </div>
+
+  <nav class="side-nav">
+    <a class="nav-item active" href="#dashboard" data-target="dashboard">
+      <svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/></svg>
+      Dashboard
+    </a>
+    <a class="nav-item" href="#applications" data-target="applications">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      Applications
+    </a>
+    <a class="nav-item" href="#monitor" data-target="monitor">
+      <svg viewBox="0 0 24 24"><path d="M3 17l5-6 4 4 4-7 5 5"/><rect x="2.5" y="3.5" width="19" height="17" rx="2"/></svg>
+      System Monitor
+    </a>
+    <a class="nav-item" href="#motor" data-target="motor">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="4" rx="1"/><rect x="3" y="10" width="18" height="4" rx="1"/><rect x="3" y="16" width="18" height="4" rx="1"/></svg>
+      Motor Status
+    </a>
+    <a class="nav-item" href="#control" data-target="control">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+      Control
+    </a>
+    <a class="nav-item" href="#logs" data-target="logs">
+      <svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>
+      Logs
+    </a>
+    <a class="nav-item" href="#settings" data-target="settings">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.6 1.6 0 00-1.8-.3 1.6 1.6 0 00-1 1.5V21a2 2 0 11-4 0v-.1A1.6 1.6 0 008 19.4a1.6 1.6 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.6 1.6 0 00.3-1.8 1.6 1.6 0 00-1.5-1H2a2 2 0 110-4h.1A1.6 1.6 0 003.6 8a1.6 1.6 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.6 1.6 0 001.8.3H8a1.6 1.6 0 001-1.5V2a2 2 0 114 0v.1a1.6 1.6 0 001 1.5 1.6 1.6 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.6 1.6 0 00-.3 1.8V8a1.6 1.6 0 001.5 1H22a2 2 0 110 4h-.1a1.6 1.6 0 00-1.5 1z"/></svg>
+      Settings
+    </a>
+  </nav>
+
+  <div class="side-art">
+    <img src="{{ url_for('static', filename='images/side_robot.png') }}" alt="" aria-hidden="true">
+  </div>
+
+  <div class="side-info">
+    <div class="si-head"><span class="dot-live" id="sysDot"></span>System Info</div>
+    <div class="si-sub" id="sysState">Checking…</div>
+    <dl>
+      <div><dt>Uptime</dt><dd id="sideUptime">0.0s</dd></div>
+      <div><dt>ROS 2</dt><dd>{{ ros_distro }}</dd></div>
+      <div><dt>Package</dt><dd>{{ package }}</dd></div>
+      <div><dt>PID</dt><dd id="sidePid">—</dd></div>
+    </dl>
+  </div>
+
+  <div class="side-foot">Building<br>intelligent robots<br>for a better tomorrow</div>
+</aside>
+
+<main class="main" id="top">
+  <header class="topbar">
+    <div class="tb-brand">
+      <svg class="tb-mark" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h9M6 20v-4l6-5 4 4"/><rect x="13" y="3" width="8" height="6" rx="2"/><path d="M12 11L9 8"/></g></svg>
+      <div>
+        <b>GEN<span>2</span></b>
+        <small>Robotics Platform</small>
+      </div>
     </div>
-    <div style="display:flex; align-items:center; gap:12px">
-      <a class="icon-btn" href="{{ url_for('ports') }}" style="text-decoration:none">Ports</a>
-      <div class="state-badge" id="stateBadge">STATUS · <b id="stateText">CHECKING</b></div>
+    <div class="tb-right">
+      <span class="tb-clock" id="clock">—</span>
+      <span class="state-pill" id="statePill"><span class="dot-live"></span><b id="stateText">CHECKING</b></span>
     </div>
   </header>
 
-  <div class="lib-head">
-    <h2>System Monitor</h2>
-  </div>
-  <div class="card summary-card">
-    <div class="readout readout-6">
-      <div><div class="k"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/><path d="M6 9H3M6 15H3M21 9h-3M21 15h-3M9 6V3M15 6V3M9 21v-3M15 21v-3"/></svg>CPU</div><div class="v" id="socCpu">—</div></div>
-      <div><div class="k"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="1.5"/><path d="M8 7V4M8 20v-3M16 7V4M16 20v-3"/></svg>GPU</div><div class="v" id="socGpu">—</div></div>
-      <div><div class="k"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="8" rx="1"/><path d="M7 8v8M11 8v8M15 8v8"/></svg>RAM</div><div class="v" id="socRam">—</div></div>
-      <div><div class="k"><svg viewBox="0 0 24 24"><path d="M12 14.5V5a2 2 0 10-4 0v9.5a4 4 0 104 0z"/></svg>CPU Temp</div><div class="v" id="socCpuTemp">—</div></div>
-      <div><div class="k"><svg viewBox="0 0 24 24"><path d="M12 14.5V5a2 2 0 10-4 0v9.5a4 4 0 104 0z"/></svg>SoC Temp</div><div class="v" id="socSocTemp">—</div></div>
-      <div><div class="k"><svg viewBox="0 0 24 24" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>Power</div><div class="v" id="socPower">—</div></div>
-    </div>
-    <div class="core-chips" id="socCores"></div>
-  </div>
+  <div class="content">
 
-  <div id="motorSection" class="motor-section" style="display:none">
-    <div class="lib-head">
-      <h2>Motor Status</h2>
-    </div>
-    <div class="card summary-card">
-      <div class="readout readout-6">
-        <div><div class="k">Total Motors</div><div class="v" id="sumTotal">—</div></div>
-        <div><div class="k">Enabled</div><div class="v" id="sumEnabled">—</div></div>
-        <div><div class="k">Disabled</div><div class="v" id="sumDisabled">—</div></div>
-        <div><div class="k">Faults</div><div class="v" id="sumFaults">—</div></div>
-        <div><div class="k">Max Temp</div><div class="v" id="sumMaxTemp">—</div></div>
-        <div><div class="k">Total Recoveries</div><div class="v" id="sumRecoveries">—</div></div>
+    <div class="page-head">
+      <div>
+        <h1 id="pageTitle">Application <span>Management</span></h1>
+        <p id="pageSub">Start, stop and monitor all ROS and web applications</p>
+      </div>
+      <div class="page-actions">
+        <button class="btn-launch" id="btnLaunch" onclick="doLaunch()">
+          <svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z" fill="currentColor" stroke="none"/></svg>
+          Launch All
+        </button>
+        <button class="btn-stop" id="btnKill" onclick="doKill()" disabled>
+          <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor" stroke="none"/></svg>
+          Stop All
+        </button>
       </div>
     </div>
 
-    <div class="arm-grid">
-      <div class="card motor-card">
-        <div class="eyebrow">Right Arm</div>
-        <div id="motorBody_right" class="motor-body"><div class="empty">Waiting for data…</div></div>
+    <section class="stat-row" id="monitor" data-views="monitor">
+      <div class="stat" data-metric="cpu">
+        <span class="stat-ico ico-blue"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/><path d="M6 9H3M6 15H3M21 9h-3M21 15h-3M9 6V3M15 6V3M9 21v-3M15 21v-3"/></svg></span>
+        <div class="stat-body">
+          <div class="stat-k">CPU</div>
+          <div class="stat-v" id="socCpu">n/a</div>
+        </div>
+        <svg class="spark" id="sparkCpu" viewBox="0 0 100 34" preserveAspectRatio="none"></svg>
       </div>
-      <div class="card motor-card">
-        <div class="eyebrow">Left Arm</div>
-        <div id="motorBody_left" class="motor-body"><div class="empty">Waiting for data…</div></div>
+      <div class="stat" data-metric="gpu">
+        <span class="stat-ico ico-blue"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="1.5"/><path d="M8 7V4M8 20v-3M16 7V4M16 20v-3"/></svg></span>
+        <div class="stat-body">
+          <div class="stat-k">GPU</div>
+          <div class="stat-v" id="socGpu">n/a</div>
+        </div>
+        <svg class="spark" id="sparkGpu" viewBox="0 0 100 34" preserveAspectRatio="none"></svg>
       </div>
-    </div>
-  </div>
+      <div class="stat" data-metric="ram">
+        <span class="stat-ico ico-indigo"><svg viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="8" rx="1"/><path d="M7 8v8M11 8v8M15 8v8"/></svg></span>
+        <div class="stat-body">
+          <div class="stat-k">RAM</div>
+          <div class="stat-v" id="socRam">n/a</div>
+        </div>
+        <svg class="spark" id="sparkRam" viewBox="0 0 100 34" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="stat" data-metric="cputemp">
+        <span class="stat-ico ico-cyan"><svg viewBox="0 0 24 24"><path d="M12 14.5V5a2 2 0 10-4 0v9.5a4 4 0 104 0z"/></svg></span>
+        <div class="stat-body">
+          <div class="stat-k">CPU Temp</div>
+          <div class="stat-v" id="socCpuTemp">n/a</div>
+        </div>
+        <svg class="spark" id="sparkCpuTemp" viewBox="0 0 100 34" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="stat" data-metric="soctemp">
+        <span class="stat-ico ico-cyan"><svg viewBox="0 0 24 24"><path d="M12 14.5V5a2 2 0 10-4 0v9.5a4 4 0 104 0z"/></svg></span>
+        <div class="stat-body">
+          <div class="stat-k">SoC Temp</div>
+          <div class="stat-v" id="socSocTemp">n/a</div>
+        </div>
+        <svg class="spark" id="sparkSocTemp" viewBox="0 0 100 34" preserveAspectRatio="none"></svg>
+      </div>
+      <div class="stat" data-metric="power">
+        <span class="stat-ico ico-amber"><svg viewBox="0 0 24 24" stroke-linejoin="round"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg></span>
+        <div class="stat-body">
+          <div class="stat-k">Power</div>
+          <div class="stat-v" id="socPower">n/a</div>
+        </div>
+        <svg class="spark" id="sparkPower" viewBox="0 0 100 34" preserveAspectRatio="none"></svg>
+      </div>
+    </section>
 
-  <div class="lib-head">
-    <h2>Control</h2>
-  </div>
-  <div class="card">
-    <div class="btns">
-      <button class="b-launch" id="btnLaunch" onclick="doLaunch()"><span class="dot"></span>Launch</button>
-      <button class="b-kill" id="btnKill" onclick="doKill()" disabled><span class="sq"></span>Kill</button>
-    </div>
-    <div class="readout">
-      <div><div class="k">PID</div><div class="v" id="pid">—</div></div>
-      <div><div class="k">Uptime</div><div class="v" id="uptime">0.0s</div></div>
-      <div><div class="k">Package</div><div class="v mono">{{ package }}</div></div>
-    </div>
-  </div>
+    <div class="core-chips" id="socCores" data-views="monitor"></div>
 
-  <div class="lib-head">
-    <h2>Launch Log</h2>
-    <button class="icon-btn" onclick="clearLog()">Clear</button>
+    <section class="card robot-card" id="robotCard" data-views="dashboard">
+      <div class="card-head">
+        <span class="ch-ico ico-blue"><svg viewBox="0 0 24 24"><rect x="7" y="9" width="10" height="9" rx="2.5"/><path d="M12 9V6M12 6a2 2 0 110-.01"/><path d="M7 12H4v4M17 12h3v4"/><circle cx="10" cy="13" r="1.1" fill="currentColor" stroke="none"/><circle cx="14" cy="13" r="1.1" fill="currentColor" stroke="none"/></svg></span>
+        <h2>3D View</h2>
+        <span class="ch-note" id="robotNote">{{ desc_package if robot_model else "No robot description found" }}</span>
+        <div class="robot-tools">
+          <span class="robot-live" id="robotLive"><span class="bulb"></span><b>NO DATA</b></span>
+          <button class="ghost-btn" onclick="robotResetCamera()" title="Frame the whole robot">
+            <svg viewBox="0 0 24 24"><path d="M21 3v6h-6M3 21v-6h6"/><path d="M21 9a9 9 0 00-15-3.7L3 9M3 15a9 9 0 0015 3.7l3-3.7"/></svg>
+            Reset
+          </button>
+          <button class="ghost-btn" onclick="robotToggleGrid()" title="Show or hide the floor grid">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+            Grid
+          </button>
+        </div>
+      </div>
+      <div class="robot-stage" id="robotStage" data-available="{{ 'yes' if robot_model else 'no' }}">
+        <canvas id="robotCanvas"></canvas>
+
+        <div class="joint-tip" id="jointTip">
+          <div class="jt-head"><span id="jtName">—</span><span class="jt-motor" id="jtMotor"></span></div>
+          <dl class="jt-rows">
+            <div><dt>Status</dt><dd id="jtStatus">—</dd></div>
+            <div><dt>Position</dt><dd id="jtPos">—</dd></div>
+            <div><dt>Torque</dt><dd id="jtTorque">—</dd></div>
+            <div><dt>MOS temp</dt><dd id="jtMos">—</dd></div>
+            <div><dt>Rotor temp</dt><dd id="jtRotor">—</dd></div>
+            <div><dt>Recoveries</dt><dd id="jtRec">—</dd></div>
+          </dl>
+        </div>
+
+        <div class="robot-overlay" id="robotOverlay">
+          <span class="robot-spinner"></span>
+          <span id="robotOverlayText">Loading robot model…</span>
+        </div>
+      </div>
+      <p class="robot-hint">Hover a part of the robot to read the motor driving it.</p>
+    </section>
+
+    <section class="ctrl-row" data-views="dashboard">
+
+      <div class="card nav-card">
+        <div class="card-head">
+          <span class="ch-ico ico-indigo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7l2.5 5-2.5 5-2.5-5z"/></svg></span>
+          <h2>Navigation</h2>
+          <label class="switch arm-switch">Enable
+            <input type="checkbox" id="navArm">
+            <span class="track"><span class="knob"></span></span>
+          </label>
+        </div>
+
+        <div class="pad-wrap">
+          <div class="pad" id="navPad">
+            <span class="pad-ring"></span>
+            <span class="pad-cross"></span>
+            <span class="pad-stick" id="navStick"></span>
+          </div>
+        </div>
+
+        <dl class="kv nav-readout">
+          <div><dt>Linear</dt><dd id="navLinear">0.00 m/s</dd></div>
+          <div><dt>Angular</dt><dd id="navAngular">0.00 rad/s</dd></div>
+        </dl>
+        <p class="ctrl-note" id="navNote">Disabled — nothing is published to /cmd_vel.</p>
+      </div>
+
+      <div class="card actions-card">
+        <div class="card-head">
+          <span class="ch-ico ico-amber"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg></span>
+          <h2>Robot Actions</h2>
+          <span class="ch-note" id="modePill">MODE —</span>
+        </div>
+
+        <button class="btn-home" id="btnHome" onclick="doMoveHome()">
+          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>
+          Move Home
+        </button>
+        <p class="ctrl-note">Sends both arms to their home pose through /move_home.</p>
+
+        <div class="seg-head">Mode</div>
+        <div class="seg" id="modeSeg">
+          <button type="button" data-mode="normal" onclick="setRobotMode('normal')">Normal</button>
+          <button type="button" data-mode="teach" onclick="setRobotMode('teach')">Teach</button>
+        </div>
+        <p class="ctrl-note">Teach makes the arms backdrivable; Normal holds the commanded trajectory.</p>
+
+        <div class="seg-head">Speed limits</div>
+        <div class="lim-row">
+          <label for="limVel">Max velocity</label>
+          <input type="number" id="limVel" min="0.01" step="0.1" placeholder="—">
+          <span class="lim-unit">rad/s</span>
+        </div>
+        <div class="lim-row">
+          <label for="limAcc">Max acceleration</label>
+          <input type="number" id="limAcc" min="0.01" step="0.1" placeholder="—">
+          <span class="lim-unit">rad/s²</span>
+        </div>
+        <div class="lim-actions">
+          <button class="ghost-btn" onclick="loadSpeedLimits()">
+            <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1015-6.7M3 4v5h5"/></svg>
+            Reload
+          </button>
+          <button class="act open" onclick="setSpeedLimits()">Apply</button>
+        </div>
+      </div>
+
+      <div class="card joints-card">
+        <div class="card-head">
+          <span class="ch-ico ico-blue"><svg viewBox="0 0 24 24"><circle cx="7" cy="7" r="3"/><circle cx="17" cy="17" r="3"/><path d="M9.5 8.5l5.5 6.5"/></svg></span>
+          <h2>Joint Control</h2>
+          <label class="switch arm-switch">Enable
+            <input type="checkbox" id="jointArm" autocomplete="off">
+            <span class="track"><span class="knob"></span></span>
+          </label>
+        </div>
+        <p class="ctrl-note" id="jointNote">Disabled — sliders publish to /joint_cmd once enabled.</p>
+        <div class="joint-cols" id="jointCols">
+          <div class="empty">Loading joints…</div>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="mid-row" data-group>
+      <div class="card motor-card-wrap" id="motor" data-views="motor">
+        <div class="card-head">
+          <span class="ch-ico ico-blue"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg></span>
+          <h2>Motor Status</h2>
+          <span class="ch-note" id="motorNote">Waiting for bringup…</span>
+        </div>
+        <div class="mini-grid">
+          <div class="mini"><span class="mini-ico ico-slate"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6v6H9z"/></svg></span><div><div class="mini-k">Total Motors</div><div class="mini-v" id="sumTotal">—</div></div></div>
+          <div class="mini"><span class="mini-ico ico-green"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg></span><div><div class="mini-k">Enabled</div><div class="mini-v" id="sumEnabled">—</div></div></div>
+          <div class="mini"><span class="mini-ico ico-red"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg></span><div><div class="mini-k">Disabled</div><div class="mini-v" id="sumDisabled">—</div></div></div>
+          <div class="mini"><span class="mini-ico ico-amber"><svg viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 9v5M12 17.5v.5"/></svg></span><div><div class="mini-k">Faults</div><div class="mini-v" id="sumFaults">—</div></div></div>
+          <div class="mini"><span class="mini-ico ico-red"><svg viewBox="0 0 24 24"><path d="M12 14.5V5a2 2 0 10-4 0v9.5a4 4 0 104 0z"/></svg></span><div><div class="mini-k">Max Temp</div><div class="mini-v" id="sumMaxTemp">—</div></div></div>
+          <div class="mini"><span class="mini-ico ico-cyan"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1015-6.7M3 4v5h5"/></svg></span><div><div class="mini-k">Total Recoveries</div><div class="mini-v" id="sumRecoveries">—</div></div></div>
+        </div>
+        <div class="arm-grid">
+          <div class="arm">
+            <div class="arm-head"><span class="arm-ico"><svg viewBox="0 0 24 24"><path d="M4 20h8M7 20v-5l5-4 4 3"/><rect x="14" y="4" width="7" height="5" rx="1.5"/></svg></span><b>Right Arm</b></div>
+            <div id="motorBody_right" class="motor-body"><div class="empty">Waiting for data…</div></div>
+          </div>
+          <div class="arm">
+            <div class="arm-head"><span class="arm-ico"><svg viewBox="0 0 24 24"><path d="M20 20h-8M17 20v-5l-5-4-4 3"/><rect x="3" y="4" width="7" height="5" rx="1.5"/></svg></span><b>Left Arm</b></div>
+            <div id="motorBody_left" class="motor-body"><div class="empty">Waiting for data…</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card control-card" id="control" data-views="control">
+        <div class="card-head">
+          <span class="ch-ico ico-blue"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="10" rx="5"/><path d="M7 12h3M8.5 10.5v3"/><circle cx="16" cy="11" r="1.1" fill="currentColor" stroke="none"/><circle cx="18" cy="13.5" r="1.1" fill="currentColor" stroke="none"/></svg></span>
+          <h2>Control</h2>
+        </div>
+        <dl class="kv">
+          <div><dt><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/></svg>PID</dt><dd id="pid">—</dd></div>
+          <div><dt><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Uptime</dt><dd id="uptime">0.0s</dd></div>
+          <div><dt><svg viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/></svg>Package</dt><dd class="mono">{{ package }}</dd></div>
+        </dl>
+        <div class="control-art">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <g fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="34" y="30" width="52" height="46" rx="12"/>
+              <circle cx="50" cy="50" r="4.5" fill="currentColor" stroke="none"/>
+              <circle cx="70" cy="50" r="4.5" fill="currentColor" stroke="none"/>
+              <path d="M50 64h20M60 30V18M60 18a5 5 0 110-.01"/>
+              <path d="M34 48H22v18M86 48h12v18"/>
+              <path d="M44 76v14h32V76"/>
+            </g>
+          </svg>
+          <div class="control-art-cap"><b>GEN<span>2</span></b><small>Humanoid Robot Platform</small></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card apps-card" id="applications" data-views="applications">
+      <div class="card-head">
+        <span class="ch-ico ico-blue"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
+        <h2>Applications</h2>
+        <div class="search">
+          <input id="appSearch" type="search" placeholder="Search applications…" autocomplete="off">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>
+        </div>
+      </div>
+      <div class="table-scroll">
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th class="c-idx">#</th>
+              <th class="c-port">Port</th>
+              <th>Service Name</th>
+              <th>File / Path</th>
+              <th class="c-status">Status</th>
+              <th class="c-act">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="appRows">
+            <tr><td colspan="6" class="empty">Loading applications…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="apps-foot" id="appsFoot"></div>
+    </section>
+
+    <section class="card log-card" id="logs" data-views="logs">
+      <div class="card-head">
+        <span class="ch-ico ico-blue"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg></span>
+        <h2>Launch Log</h2>
+        <label class="switch">Auto scroll
+          <input type="checkbox" id="autoScroll" checked>
+          <span class="track"><span class="knob"></span></span>
+        </label>
+        <button class="ghost-btn" onclick="clearLog()">
+          <svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
+          Clear
+        </button>
+      </div>
+      <div id="logBody" class="logbox mono"></div>
+    </section>
+
+    <section class="card" id="settings" data-views="settings">
+      <div class="card-head">
+        <span class="ch-ico ico-blue"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M4.5 12a7.5 7.5 0 01.1-1.2l-2-1.5 2-3.5 2.4 1a7.5 7.5 0 012-1.2l.4-2.6h4l.4 2.6a7.5 7.5 0 012 1.2l2.4-1 2 3.5-2 1.5a7.5 7.5 0 010 2.4l2 1.5-2 3.5-2.4-1a7.5 7.5 0 01-2 1.2l-.4 2.6h-4l-.4-2.6a7.5 7.5 0 01-2-1.2l-2.4 1-2-3.5 2-1.5a7.5 7.5 0 01-.1-1.2z"/></svg></span>
+        <h2>Panel Settings</h2>
+        <span class="ch-note">Read-only — edit launch_control_app.py to change these</span>
+      </div>
+      <dl class="kv">
+        <div><dt>Bringup package</dt><dd class="mono">{{ package }}</dd></div>
+        <div><dt>Launch file</dt><dd class="mono">{{ launch_file }}</dd></div>
+        <div><dt>ROS 2 distro</dt><dd class="mono">{{ ros_distro }}</dd></div>
+        <div><dt>Panel port</dt><dd class="mono">{{ self_port }}</dd></div>
+        <div><dt>Kill grace period</dt><dd class="mono">{{ kill_grace }}s</dd></div>
+        <div><dt>System monitor (tegrastats)</dt><dd class="mono">{{ "available" if tegrastats else "unavailable" }}</dd></div>
+        <div><dt>Motor status (hw_interface)</dt><dd class="mono">{{ "available" if motor_status else "unavailable" }}</dd></div>
+        <div><dt>Apps with a start command</dt><dd class="mono" id="setStartable">—</dd></div>
+      </dl>
+      <p class="set-note">
+        Start and Restart in the Applications table need an entry in
+        <code>APP_COMMANDS</code> in
+        <code>automation/automation/launch_control_app.py</code>. Stop works
+        without one, since it only needs the PID holding the port.
+      </p>
+    </section>
+
   </div>
-  <div class="card logcard">
-    <div id="logBody" class="logbox mono"></div>
-  </div>
-</div>
+</main>
 
 <div class="toast" id="toast"></div>
 
+<!-- three.js r128 + the loaders the 3D view needs, served from this package so
+     the view still works on a robot with no internet access. -->
+<script src="{{ url_for('static', filename='js/vendor/three.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/vendor/OrbitControls.js') }}"></script>
+<script src="{{ url_for('static', filename='js/vendor/STLLoader.js') }}"></script>
+<script src="{{ url_for('static', filename='js/vendor/ColladaLoader.js') }}"></script>
+<script src="{{ url_for('static', filename='js/robot_viewer.js') }}"></script>
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 </body>
 </html>

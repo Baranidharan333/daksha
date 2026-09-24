@@ -1,5 +1,6 @@
 from launch import LaunchDescription
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 from launch.actions import RegisterEventHandler
 from launch.event_handlers import OnProcessStart
 from pathlib import Path
@@ -23,10 +24,19 @@ def generate_launch_description():
     )
     use_cpp_vcan_bridge = LaunchConfiguration("use_cpp_vcan_bridge")
 
+    vcan_bridge_poll_ms_arg = DeclareLaunchArgument(
+        "vcan_bridge_poll_ms",
+        default_value="0.5",
+        description="USB adapter poll interval (ms) for the C++ vcan_bridge_node. "
+                     "Lower polls more often at higher CPU/USB cost.",
+    )
+    vcan_bridge_poll_ms = LaunchConfiguration("vcan_bridge_poll_ms")
+
     vcan_bridge_node_cpp = Node(
         package="hw_interface",
         executable="vcan_bridge_node",
         output="screen",
+        parameters=[{"poll_ms": ParameterValue(vcan_bridge_poll_ms, value_type=float)}],
         condition=IfCondition(use_cpp_vcan_bridge),
     )
 
@@ -236,6 +246,7 @@ def generate_launch_description():
 
     return LaunchDescription([
         use_cpp_vcan_bridge_arg,
+        vcan_bridge_poll_ms_arg,
         vcan_bridge_node_cpp,
         vcan_bridge_node_py,
         TimerAction(

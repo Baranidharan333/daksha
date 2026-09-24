@@ -109,13 +109,48 @@ NO_SIGNAL = _placeholder()
 
 # ------------------------------------------------------------- ROS 2 -------
 def start_ros():
+    """Bring up the ROS node and return the settings it read as parameters.
+
+    Camera tiles, JPEG quality and the serving port come from
+    Clients_UI/config/daksha_ui.yaml, handed over as a ROS parameter file by
+    daksha_ui/launch/client_ui.launch.py. The module-level CAMERAS/PORT/
+    JPEG_QUALITY constants stay as the fallback for --demo and the TriView
+    gateway mode, which run without ROS at all.
+    """
+    global CAMS, JPEG_QUALITY
+
     import rclpy
+    from rclpy.exceptions import ParameterNotDeclaredException
     from rclpy.node import Node
     from rclpy.qos import qos_profile_sensor_data
     from sensor_msgs.msg import CompressedImage, Image
 
     rclpy.init()
-    node = Node("viveka_web_monitor")
+    node = Node(
+        "viveka_web_monitor",
+        automatically_declare_parameters_from_overrides=True,
+    )
+
+    def param(name, default):
+        """Parameter value, or `default` when no params file supplied it."""
+        try:
+            return node.get_parameter(name).value
+        except ParameterNotDeclaredException:
+            return default
+
+    names = list(param("daksha_ui.viveka_camera.camera_names", [n for n, _ in CAMERAS]))
+    topics = list(param("daksha_ui.viveka_camera.camera_topics", [t for _, t in CAMERAS]))
+    if len(names) != len(topics):
+        # Parallel lists are the only way a parameter file can carry a list of
+        # pairs, so a mismatched edit is a real possibility; pair what we can
+        # rather than dying or silently showing the wrong label on a tile.
+        node.get_logger().warn(
+            f"camera_names ({len(names)}) and camera_topics ({len(topics)}) "
+            f"differ in length - using the first {min(len(names), len(topics))}"
+        )
+
+    CAMS = [Cam(i, n, t) for i, (n, t) in enumerate(zip(names, topics))]
+    JPEG_QUALITY = int(param("daksha_ui.viveka_camera.jpeg_quality", JPEG_QUALITY))
 
     def make_cb(cam):
         def cb(msg):
@@ -178,6 +213,11 @@ def start_ros():
         node.get_logger().info(f"subscribed: {cam.topic}")
 
     threading.Thread(target=rclpy.spin, args=(node,), daemon=True).start()
+
+    return {
+        "host": param("daksha_ui.viveka_camera.host", "0.0.0.0"),
+        "port": param("daksha_ui.viveka_camera.port", None),
+    }
 
 
 # ------------------------------------------------------------- demo --------
@@ -709,7 +749,10 @@ def main():
                        help="subscribe to ROS camera topics instead of TriView")
     ap.add_argument("--gateway-url", default=app.config["GATEWAY_URL"],
                     help="TriView gateway URL (default: %(default)s)")
-    ap.add_argument("--port", type=int, default=PORT)
+    # Default None, not PORT: in --ros mode the port comes from the parameter
+    # file, and this has to be able to tell "user passed --port" apart from
+    # "user said nothing" so an explicit flag still wins over the config.
+    ap.add_argument("--port", type=int, default=None)
     ap.add_argument("--triview-bin", default="/home/s1/.ihub/camera/build/triview",
                     help="local TriView executable to start when the gateway is unavailable")
     # `ros2 launch`/`ros2 run` append --ros-args -r __node:=... etc. to argv;
@@ -728,23 +771,32 @@ def main():
             ap.error("--gateway-url must be an http:// or https:// URL")
         app.config["GATEWAY_URL"] = args.gateway_url
 
+    serve_host = "0.0.0.0"
+
     if args.demo:
         start_demo()
         print("VIVEKA web monitor  [DEMO MODE]")
     elif args.ros:
         try:
-            start_ros()
+            ros_cfg = start_ros()
             print("VIVEKA web monitor  [ROS 2]")
         except Exception as e:
             print("Could not start ROS 2 (", e, ")")
             print("Tip: source your ROS 2 setup, or run with --demo.")
             return
+        # An explicit --port beats the parameter file; otherwise the config wins.
+        serve_host = ros_cfg["host"]
+        if args.port is None and ros_cfg["port"] is not None:
+            args.port = int(ros_cfg["port"])
     else:
         print(f"VIVEKA web monitor  [TRIVIEW: {args.gateway_url}]")
 
+    if args.port is None:
+        args.port = PORT
+
     # Reserve the UI port before starting a gateway or opening camera devices.
     try:
-        server = make_server("0.0.0.0", args.port, app, threaded=True)
+        server = make_server(serve_host, args.port, app, threaded=True)
     except SystemExit:
         print(f"VIVEKA port {args.port} is already in use. If VIVEKA is already running, "
               f"open http://{lan_ip()}:{args.port} instead of starting another copy.")

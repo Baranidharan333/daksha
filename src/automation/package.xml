@@ -10,9 +10,17 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>rclpy</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>rcl_interfaces</depend>
 
+  <exec_depend>python3-yaml</exec_depend>
   <exec_depend>python3-flask</exec_depend>
   <exec_depend>ros2launch</exec_depend>
+  <!-- The dashboard's 3D view serves this package's robot.urdf and meshes. -->
+  <exec_depend>daksha_description_full_body</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
