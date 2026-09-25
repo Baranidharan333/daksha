@@ -253,7 +253,7 @@ def generate_launch_description():
             period=3.0,
             actions=[
                 gravity_torque_launch,
-                gesture_management_launch,
+                # gesture_management_launch,
                 # joint_analyzer_launch,
                 # client_ui_launch,
                 # vajara_launch,
@@ -278,7 +278,7 @@ def generate_launch_description():
                             ik_node,
                             # battery_info_node,
                             home_move_service_node,
-                            leader_controller_ui_node,
+                            # leader_controller_ui_node,
                             # arm_recovery_watchdog_node,
                         ],
                     )

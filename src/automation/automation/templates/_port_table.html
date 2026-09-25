@@ -13,11 +13,13 @@
       <td class="mono file-cell">{{ p.file }}</td>
       <td>
         {% if p.kind == "http" %}
-          <a class="port-link" data-port="{{ p.port }}" target="_blank" rel="noopener">Open →</a>
+          <a class="port-link" data-port="{{ p.port }}">Open →</a>
         {% elif p.kind == "tcp" %}
           <span class="kind-badge">TCP socket</span>
         {% elif p.kind == "udp" %}
           <span class="kind-badge">UDP socket</span>
+        {% elif p.kind == "process" %}
+          <span class="kind-badge">Background node</span>
         {% else %}
           <span class="kind-badge">Reserved</span>
         {% endif %}

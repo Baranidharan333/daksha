@@ -40,7 +40,7 @@ try:
     from rclpy.qos import (QoSProfile, QoSReliabilityPolicy,
                            QoSDurabilityPolicy, QoSHistoryPolicy)
     from sensor_msgs.msg import JointState
-    from std_msgs.msg import String
+    from std_msgs.msg import String, Float32
     from std_srvs.srv import Trigger
     from rcl_interfaces.srv import SetParameters, GetParameters
     from rcl_interfaces.msg import Parameter, ParameterValue, ParameterType
@@ -99,6 +99,20 @@ MODE_TOGGLER_NODE = "/mode_toggler"
 MODE_STATUS_TOPIC = "/mode_toggler/status"
 LIMITER_NODE = "/joint_command_limiter"
 LIMITER_PARAMS = ("max_velocity", "max_acceleration")
+# gen2/teach_mode_node.py's per-motor stiffness/damping, reached the same way
+# as the two nodes above -- see its normal_kp_<n>/normal_kd_<n> parameters
+# (n = 1..GAIN_NUM_MOTORS). One value per motor id, not per arm:
+# teach_mode_node sends the same kp/kd array to both LeftArmSystem and
+# RightArmSystem (its send_gains()), so this panel's Motor Status gains
+# table has 8 rows, not 16.
+GAIN_NODE = "/teach_mode_node"
+GAIN_NUM_MOTORS = 8
+GAIN_MOTOR_IDS = list(range(1, GAIN_NUM_MOTORS + 1))
+# Published by gen2/battery_info.py: a std_msgs/Float32 battery percentage
+# (0-100). Not gated behind MOTOR_STATUS_AVAILABLE -- it's a plain
+# std_msgs topic, not hw_interface's custom message, so it works even where
+# that package isn't built.
+BATTERY_TOPIC = "/battery_info"
 TELEOP_MAX_LINEAR = 0.5     # m/s at full forward deflection
 TELEOP_MAX_ANGULAR = 1.0    # rad/s at full sideways deflection
 TELEOP_PUBLISH_HZ = 20.0
@@ -131,6 +145,24 @@ ROBOT_MODEL_AVAILABLE = bool(ROBOT_URDF and os.path.isfile(ROBOT_URDF))
 # should flip. This never touches the URDF or the real hardware's positive
 # direction -- it only fixes which way the on-screen model spins.
 VIEWER_JOINT_OVERRIDES_YAML = os.path.join(APP_DIR, "config", "viewer_joint_overrides.yaml")
+
+# Applications table (see config/applications.yaml) for the main page and
+# /ports -- kept out of this file so the port list can be edited without
+# touching code.
+APPLICATIONS_YAML = os.path.join(APP_DIR, "config", "applications.yaml")
+
+
+def _load_port_table(path):
+    if not os.path.isfile(path):
+        logging.getLogger(__name__).error("Applications config not found: %s", path)
+        return []
+    try:
+        with open(path) as f:
+            doc = yaml.safe_load(f) or {}
+        return list(doc.get("applications", []))
+    except Exception:
+        logging.getLogger(__name__).exception("Could not read %s", path)
+        return []
 
 
 def _load_viewer_joint_overrides(path):
@@ -242,47 +274,40 @@ def robot_meta():
 
 # Reference data for the Applications list on the main page (and the
 # standalone /ports page) — the workspace's 8100-8199 port
-# consolidation (see port_report.pdf in this same directory). "kind" drives
-# whether the UI renders a clickable link: "http" gets one, "tcp"/"udp"
-# sockets and "reserved" (declared in config but not actually bound by any
-# script yet) are shown as plain badges instead, since a link there would
-# just fail to load.
-PORT_TABLE = [
-    {"port": 8100, "service": "Bringup Launch Control", "file": "automation/automation/launch_control_app.py", "kind": "http"},
-    {"port": 8101, "service": "VR Management UI", "file": "tele/vr_teleop/vr_teleop/main_scripts/vr_management_ui.py", "kind": "http"},
-    {"port": 8102, "service": "gen2 leader controller UI", "file": "gen2/gen2/leader_controller_ui.py", "kind": "http"},
-    {"port": 8103, "service": "ROS-TCP-Endpoint (Unity bridge)", "file": "tele/ROS-TCP-Endpoint/ros_tcp_endpoint/server.py", "kind": "tcp"},
-    {"port": 5005, "service": "Raw leader-controller socket listener", "file": "tele/gen2_leader/gen2_leader/Gen2Leader_raw.py", "kind": "udp"},
-    {"port": 8110, "service": "gesture_management — Teach & Replay Console", "file": "gesture_management/gesture_management/gesture_management_app.py", "kind": "http"},
-    {"port": 7071, "service": "Daksha Dashboard", "file": "ui/Clients_UI/daksha_ui/daksha_ui/dashboard_app.py", "kind": "http"},
-    {"port": 7001, "service": "VLA inference console", "file": "ui/vla_inference/vla_inference/vla_inference_app.py", "kind": "http"},
-    {"port": 7002, "service": "Daksha Viveka camera-stream UI", "file": "ui/Clients_UI/daksha_ui/daksha_ui/viveka_camera_ui.py", "kind": "http"},
-    {"port": 8130, "service": "joint_analyzer server", "file": "ui/analyzer/joint_analyzer/server.py", "kind": "http"},
-    {"port": 8131, "service": "joint_analyzer plot server", "file": "ui/analyzer/joint_analyzer/plot_server.py", "kind": "http"},
-    {"port": 8141, "service": "Daksha API bridge camera streamer", "file": "global/daksha_api_bridge_leader/daksha_api_bridge_leader/camera_streamer.py", "kind": "http"},
-    {"port": 8888, "service": "Data Collection Terminal", "file": "ui/Clients_UI/daksha_data_collection/daksha_data_collection/web_data_management_ui.py", "kind": "http"},
-]
+# consolidation (see port_report.pdf in this same directory and
+# config/applications.yaml, which is the actual source of this table).
+# "kind" drives whether the UI renders a clickable link: "http" gets one,
+# "tcp"/"udp" sockets and "reserved" (declared in config but not actually
+# bound by any script yet) are shown as plain badges instead, since a link
+# there would just fail to load.
+PORT_TABLE = _load_port_table(APPLICATIONS_YAML)
+_ENTRIES_BY_PORT = {entry["port"]: entry for entry in PORT_TABLE}
 
 # This panel's own port. Stopping or restarting it would kill the process
 # serving the page, so both are refused for this one row.
 SELF_PORT = 8100
 
 # Per-app process control for the Applications table. Key is the port, value
-# is the argv this panel runs to bring that service up on its own.
+# is the argv this panel runs to bring that service up on its own -- built
+# from each entry's "command" in config/applications.yaml (always a
+# `ros2 run`/`ros2 launch` argv there, never a raw `python3 script.py`, so
+# Start brings a service up the same way an operator would by hand).
 #
-# A port missing from here is status-only: its row still shows Running /
-# Not Running and the Open link, but Start and Restart stay disabled. Stop
-# works regardless, since that only needs the PID holding the port.
+# A port missing a "command" in that file is status-only here: its row still
+# shows Running / Not Running and the Open link, but Start and Restart stay
+# disabled. Stop works regardless, since that only needs the PID holding the
+# port.
 #
 # Most of these services are normally started as children of the bringup
 # launch, so a command here should match what the launch file already uses.
 # Otherwise starting one from this table gives you a second copy of a node
 # that is already running - the same duplicate-broadcaster problem that
-# endpoint.launch.py warns about for quest_tf.
-#
-# Example shape:
-#     8110: ["ros2", "run", "gesture_management", "gesture_management_app"],
+# endpoint.launch.py warns about for quest_tf (see the per-port notes in
+# config/applications.yaml).
 APP_COMMANDS = {
+    entry["port"]: entry["command"]
+    for entry in PORT_TABLE
+    if entry.get("command")
 }
 
 # Processes this panel started itself, port -> Popen. Used to reap them and
@@ -332,7 +357,7 @@ def _probe_ports_fallback():
     """Used only where `ss` is unavailable. TCP connect per port, no PIDs."""
     found = {}
     for entry in PORT_TABLE:
-        if entry["kind"] == "udp":
+        if entry["kind"] in ("udp", "process"):
             continue
         s = socket.socket()
         s.settimeout(0.15)
@@ -361,8 +386,49 @@ def listening_ports(force=False):
     return scanned
 
 
+def _process_pid(match, timeout_s=3.0):
+    """PID of the first process whose command line matches this `pgrep -f`
+    pattern, or None. Used for table rows that have no port of their own to
+    scan -- background ROS nodes like battery_info / arm_recovery_watchdog
+    (config/applications.yaml's "match" field, in place of a real "port")."""
+    try:
+        result = subprocess.run(
+            ["pgrep", "-f", match], capture_output=True, text=True, timeout=timeout_s,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return int(result.stdout.split()[0])
+    except Exception:
+        pass
+    return None
+
+
+def _scan_process_matches():
+    """The _scan_listening_ports() equivalent for "match"-tracked rows."""
+    found = {}
+    for entry in PORT_TABLE:
+        match = entry.get("match")
+        if not match:
+            continue
+        pid = _process_pid(match)
+        if pid is not None:
+            found[entry["port"]] = pid
+    return found
+
+
+def live_map(force=False):
+    """port -> owning pid for every Applications-table row, combining the
+    listening-socket scan (networked services) with the process-match scan
+    (port-less background nodes). Callers that used to read
+    listening_ports() directly for this table now read this instead, so a
+    "match" row behaves exactly like a "port" one everywhere: Running
+    status, Start's already-running check, Stop, Restart."""
+    merged = dict(listening_ports(force=force))
+    merged.update(_scan_process_matches())
+    return merged
+
+
 def app_list():
-    live = listening_ports()
+    live = live_map()
     apps = []
     for index, entry in enumerate(PORT_TABLE, start=1):
         port = entry["port"]
@@ -402,7 +468,7 @@ def start_app(port):
         return False, f"No start command configured for port {port}."
     if port == SELF_PORT:
         return False, "Refusing to start a second launch-control panel."
-    if port in listening_ports(force=True):
+    if port in live_map(force=True):
         return False, f"Port {port} is already in use."
 
     try:
@@ -432,19 +498,29 @@ def stop_app(port):
     if port == SELF_PORT:
         return False, "Refusing to stop the launch-control panel itself."
 
-    live = listening_ports(force=True)
+    # A "match"-tracked row (see live_map()) has no port to listen on, so its
+    # not-found message shouldn't talk about one.
+    owner = "the process" if _ENTRIES_BY_PORT.get(port, {}).get("match") else f"port {port}"
+
+    live = live_map(force=True)
     if port not in live:
-        return False, f"Nothing is listening on port {port}."
+        return False, f"Nothing found for {owner}."
 
     pid = live[port]
     if pid is None:
-        return False, f"Could not determine which process owns port {port}."
+        return False, f"Could not determine which process owns {owner}."
 
     try:
         pgid = os.getpgid(pid)
     except ProcessLookupError:
         return False, f"Process {pid} is already gone."
 
+    # preexec_fn=os.setsid in start_app()/start_bringup() makes this safe for
+    # anything this panel started itself. For a row this panel didn't start
+    # (e.g. a bringup-managed node found via live_map()), killpg hits
+    # whatever process group that pid actually belongs to -- if that's a
+    # shared group (the whole `ros2 launch` tree), this stops more than just
+    # this row. True today for ports 8102/8110 as well; nothing new here.
     log_event(f"[{port}] stopping pid {pid}...")
     try:
         os.killpg(pgid, signal.SIGTERM)
@@ -454,7 +530,7 @@ def stop_app(port):
     def _force_kill_if_stuck():
         deadline = time.time() + KILL_GRACE_PERIOD_S
         while time.time() < deadline:
-            if port not in listening_ports(force=True):
+            if port not in live_map(force=True):
                 return
             time.sleep(0.3)
         log_event(f"[{port}] did not stop gracefully, forcing SIGKILL", level="warn")
@@ -464,14 +540,14 @@ def stop_app(port):
             pass
 
     threading.Thread(target=_force_kill_if_stuck, daemon=True).start()
-    return True, f"Stopping port {port} (pid {pid})..."
+    return True, f"Stopping {owner} (pid {pid})..."
 
 
 def restart_app(port):
     if port not in APP_COMMANDS:
         return False, f"No start command configured for port {port}, cannot restart."
 
-    if port in listening_ports(force=True):
+    if port in live_map(force=True):
         ok, message = stop_app(port)
         if not ok:
             return False, message
@@ -480,7 +556,7 @@ def restart_app(port):
         # port just fails with EADDRINUSE and leaves the service down.
         deadline = time.time() + KILL_GRACE_PERIOD_S + 2.0
         while time.time() < deadline:
-            if port not in listening_ports(force=True):
+            if port not in live_map(force=True):
                 break
             time.sleep(0.3)
         else:
@@ -644,6 +720,28 @@ def _call_get_parameters(client, name, timeout_s=1.5):
     return None
 
 
+def _call_get_parameters_batch(client, names, timeout_s=1.5):
+    """{name: value} for every name that resolved to a number -- one
+    GetParameters call for the whole list instead of one per name, same
+    reasoning as _scan_listening_ports() batching the port table into a
+    single `ss` call. A name missing from the result means the node isn't
+    up or doesn't have that parameter."""
+    if client is None:
+        return {}
+    if not client.service_is_ready() and not client.wait_for_service(timeout_sec=min(timeout_s, 1.0)):
+        return {}
+    result, err = _await(client.call_async(GetParameters.Request(names=names)), timeout_s)
+    if err or not result.values:
+        return {}
+    out = {}
+    for name, value in zip(names, result.values):
+        if value.type == ParameterType.PARAMETER_DOUBLE:
+            out[name] = value.double_value
+        elif value.type == ParameterType.PARAMETER_INTEGER:
+            out[name] = float(value.integer_value)
+    return out
+
+
 class RobotStateNode(Node):
     """Caches the latest motor status, recovery counts and joint positions so
     the web UI can poll them over HTTP without touching rclpy.
@@ -660,6 +758,9 @@ class RobotStateNode(Node):
         self._joint_positions = {}
         self._joint_efforts = {}
         self._joint_stamp = 0.0
+        self._battery = {"percent": None, "stamp": 0.0}
+
+        self.create_subscription(Float32, BATTERY_TOPIC, self._battery_cb, 10)
 
         if MOTOR_STATUS_AVAILABLE:
             self.create_subscription(
@@ -704,6 +805,10 @@ class RobotStateNode(Node):
             SetParameters, f"{LIMITER_NODE}/set_parameters")
         self.limiter_get_client = self.create_client(
             GetParameters, f"{LIMITER_NODE}/get_parameters")
+        self.gain_set_client = self.create_client(
+            SetParameters, f"{GAIN_NODE}/set_parameters")
+        self.gain_get_client = self.create_client(
+            GetParameters, f"{GAIN_NODE}/get_parameters")
 
         self._mode = "unknown"
         # Transient-local, to match mode_toggler's own status publisher: it
@@ -771,6 +876,10 @@ class RobotStateNode(Node):
         with self._lock:
             self._recovery_counts = counts
 
+    def _battery_cb(self, msg):
+        with self._lock:
+            self._battery = {"percent": round(float(msg.data), 1), "stamp": time.time()}
+
     def _joint_cb(self, msg):
         # One dict for both arms: the two topics carry disjoint joint names,
         # so merging them is what gives the viewer a whole-robot pose.
@@ -801,6 +910,10 @@ class RobotStateNode(Node):
     def get_recovery_counts(self):
         with self._lock:
             return dict(self._recovery_counts)
+
+    def get_battery(self):
+        with self._lock:
+            return dict(self._battery)
 
     def get_joint_positions(self):
         with self._lock:
@@ -1100,6 +1213,16 @@ def api_recovery_counts():
     return jsonify({"counts": counts, "available": MOTOR_STATUS_AVAILABLE})
 
 
+@app.route("/api/battery")
+def api_battery():
+    """Latest reading off /battery_info (std_msgs/Float32, 0-100). `percent`
+    is None until the first message arrives -- battery_info.py is one of
+    bringup's currently-commented-out nodes, so that's the common case."""
+    battery = state_node.get_battery() if state_node else {"percent": None, "stamp": 0.0}
+    age_s = round(time.time() - battery["stamp"], 1) if battery["stamp"] else None
+    return jsonify({"percent": battery["percent"], "age_s": age_s})
+
+
 @app.route("/api/joint_states")
 def api_joint_states():
     """Everything the 3D view needs each tick: measured joint positions
@@ -1288,6 +1411,65 @@ def api_speed_limits():
     return jsonify({"ok": all_ok, "results": results}), (200 if all_ok else 409)
 
 
+@app.route("/api/gains", methods=["GET", "POST"])
+def api_gains():
+    """Read or set teach_mode_node's per-motor stiffness (normal_kp_<n>) and
+    damping (normal_kd_<n>) -- what the Motor Status panel's gains table
+    edits. One value per motor id (1-GAIN_NUM_MOTORS): teach_mode_node
+    applies the same kp/kd array to both arms, so there's nothing to pick
+    between left/right here."""
+    if request.method == "GET":
+        client = state_node.gain_get_client if state_node else None
+        names = [
+            f"normal_{kind}_{i}" for kind in ("kp", "kd") for i in GAIN_MOTOR_IDS
+        ]
+        values = _call_get_parameters_batch(client, names)
+        return jsonify({
+            "kp": {i: values.get(f"normal_kp_{i}") for i in GAIN_MOTOR_IDS},
+            "kd": {i: values.get(f"normal_kd_{i}") for i in GAIN_MOTOR_IDS},
+            "available": bool(values),
+        })
+
+    if state_node is None:
+        return jsonify({"ok": False, "message": "ROS 2 is not available"}), 503
+
+    data = request.get_json(silent=True) or {}
+    try:
+        motor = int(data.get("motor"))
+    except (TypeError, ValueError):
+        return jsonify({"ok": False, "message": "invalid motor"}), 400
+    if motor not in GAIN_MOTOR_IDS:
+        return jsonify({"ok": False, "message": f"motor must be 1-{GAIN_NUM_MOTORS}"}), 400
+
+    results, all_ok = {}, True
+    for kind in ("kp", "kd"):
+        if kind not in data:
+            continue
+        try:
+            value = float(data[kind])
+        except (TypeError, ValueError):
+            results[kind] = {"ok": False, "message": f"{kind} must be a number"}
+            all_ok = False
+            continue
+        if value < 0:
+            # Negative stiffness/damping doesn't mean anything physically --
+            # 0 is valid (that's what teach mode itself uses).
+            results[kind] = {"ok": False, "message": f"{kind} must be >= 0"}
+            all_ok = False
+            continue
+
+        name = f"normal_{kind}_{motor}"
+        ok, err = _call_set_parameters(state_node.gain_set_client, name, value)
+        message = f"{name} -> {value}" if ok else f"{name} set failed: {err}"
+        results[kind] = {"ok": ok, "message": message}
+        all_ok = all_ok and ok
+        log_event(f"teach_mode_node {message}", level="info" if ok else "error")
+
+    if not results:
+        return jsonify({"ok": False, "message": "nothing to set"}), 400
+    return jsonify({"ok": all_ok, "results": results, "motor": motor}), (200 if all_ok else 409)
+
+
 @app.route("/api/teleop", methods=["POST"])
 def api_teleop():
     """Latest joystick deflection, as normalized x/y in [-1, 1].
@@ -1405,6 +1587,7 @@ def main():
         log_event(
             f"Watching joint states: {LEFT_JOINT_STATE_TOPIC}, {RIGHT_JOINT_STATE_TOPIC}"
         )
+        log_event(f"Watching battery: {BATTERY_TOPIC}")
     else:
         log_event(f"ROS 2 unavailable ({ROS_IMPORT_ERROR}) — no live robot state", level="warn")
 

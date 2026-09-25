@@ -1,0 +1,137 @@
+# applications.yaml
+#
+# The Applications table shown on the launch-control panel's main page and
+# on /ports (see port_report.pdf in this package for the workspace's
+# 8100-8199 port consolidation this reflects). Each entry is one row.
+#
+# "kind" drives whether the UI renders a clickable link: "http" gets one,
+# "tcp"/"udp" sockets are shown as plain badges instead, since a link there
+# would just fail to load.
+#
+# "command", where present, is what the panel's own Start/Restart buttons run
+# for that row -- always `ros2 run`/`ros2 launch`, never a raw `python3
+# some_script.py`, so every service comes up the same way an operator would
+# bring it up by hand (correct package share dir, ROS_DOMAIN_ID, config
+# files, etc). A row with no `command` is status/Stop-only: Start and Restart
+# stay disabled for it (see launch_control_app.py's app_list()).
+#
+# One thing to know before adding or changing a command:
+#
+# Ports 7071 (Daksha Dashboard) and 7002 (Daksha Viveka camera-stream UI) are
+# both brought up by the same `ros2 launch daksha_ui client_ui.launch.py`
+# (that's also the only way the dashboard binds its configured port 7071
+# instead of dashboard_app.py's own built-in default of 7070 -- see
+# daksha_ui/daksha_ui/dashboard_app.py). Starting either row starts both;
+# starting the second one while the first is already up will fail to rebind
+# that node but leaves the other unaffected.
+#
+# Port 8141 (Daksha API bridge camera streamer / camera_streamer.py) has no
+# `command`: it is not registered as a console_script or installed executable
+# in the daksha_api_bridge_leader package (unlike its sibling nodes in that
+# package), so there is currently no `ros2 run`/`ros2 launch` invocation for
+# it. It needs an entry in that package's setup.py before a command can be
+# added here.
+
+applications:
+  - port: 8101
+    service: "VR Management UI"
+    file: "tele/vr_teleop/vr_teleop/main_scripts/vr_management_ui.py"
+    kind: http
+    command: ["ros2", "run", "vr_teleop", "vr_management_ui"]
+
+  - port: 8102
+    service: "gen2 leader controller UI"
+    file: "gen2/gen2/leader_controller_ui.py"
+    kind: http
+    command: ["ros2", "run", "gen2", "leader_controller_ui"]
+
+  - port: 8103
+    service: "ROS-TCP-Endpoint (Unity bridge)"
+    file: "tele/ROS-TCP-Endpoint/ros_tcp_endpoint/server.py"
+    kind: tcp
+    # ros_tcp_endpoint's own default_server_endpoint defaults ROS_TCP_PORT to
+    # 8103. vr_teleop also has a node of the same name (used by
+    # tele/vr_teleop/launch/endpoint.launch.py) but that one defaults to
+    # port 10000 -- this row is the ros_tcp_endpoint package specifically.
+    command: ["ros2", "run", "ros_tcp_endpoint", "default_server_endpoint"]
+
+  - port: 5005
+    service: "Raw leader-controller socket listener"
+    file: "tele/gen2_leader/gen2_leader/Gen2Leader_raw.py"
+    kind: udp
+    command: ["ros2", "run", "gen2_leader", "leader_raw"]
+
+  - port: 8110
+    service: "gesture_management — Teach & Replay Console"
+    file: "gesture_management/gesture_management/gesture_management_app.py"
+    kind: http
+    # The launch file (not a bare `ros2 run`) is what supplies
+    # gesture_management_params.yaml and the recordings_dir argument, and it
+    # also brings up replay_server alongside the console. Not started by
+    # bringup.launch.py (commented out there) -- this Start button is the
+    # only way this one comes up.
+    command: ["ros2", "launch", "gesture_management", "gesture_management.launch.py"]
+
+  - port: 7071
+    service: "Daksha Dashboard"
+    file: "ui/Clients_UI/daksha_ui/daksha_ui/dashboard_app.py"
+    kind: http
+    command: ["ros2", "launch", "daksha_ui", "client_ui.launch.py"]
+
+  - port: 7001
+    service: "VLA inference console"
+    file: "ui/vla_inference/vla_inference/vla_inference_app.py"
+    kind: http
+    command: ["ros2", "launch", "vla_inference", "vla_inference.launch.py"]
+
+  - port: 7002
+    service: "Daksha Viveka camera-stream UI"
+    file: "ui/Clients_UI/daksha_ui/daksha_ui/viveka_camera_ui.py"
+    kind: http
+    command: ["ros2", "launch", "daksha_ui", "client_ui.launch.py"]
+
+  - port: 8130
+    service: "joint_analyzer server"
+    file: "ui/analyzer/joint_analyzer/server.py"
+    kind: http
+    command: ["ros2", "run", "joint_analyzer", "server"]
+
+  - port: 8131
+    service: "joint_analyzer plot server"
+    file: "ui/analyzer/joint_analyzer/plot_server.py"
+    kind: http
+    command: ["ros2", "run", "joint_analyzer", "plot_server"]
+
+  - port: 8141
+    service: "Daksha API bridge camera streamer"
+    file: "global/daksha_api_bridge_leader/daksha_api_bridge_leader/camera_streamer.py"
+    kind: http
+    # No command: see the file header note above.
+
+  - port: 8888
+    service: "Data Collection Terminal"
+    file: "ui/Clients_UI/daksha_data_collection/daksha_data_collection/web_data_management_ui.py"
+    kind: http
+    command: ["ros2", "run", "daksha_data_collection", "web_data_management_ui"]
+
+  # The two rows below are plain background ROS nodes, not network services
+  # (both are currently commented out in gen2/launch/bringup.launch.py).
+  # They have no socket to scan, so "port" here is not a real listening
+  # port -- it only exists because every row needs one as its table key/API
+  # route id (see launch_control_app.py's api_app_action). "match" is a
+  # `pgrep -f` pattern used instead of a port scan to tell Running from Not
+  # Running (see live_map() in launch_control_app.py). Pick these two ids
+  # from a range no real service in this table uses.
+  - port: 9001
+    service: "Battery info"
+    file: "gen2/gen2/battery_info.py"
+    kind: process
+    match: "gen2/battery_info"
+    command: ["ros2", "run", "gen2", "battery_info"]
+
+  - port: 9002
+    service: "Arm recovery watchdog"
+    file: "gen2/gen2/arm_recovery_watchdog.py"
+    kind: process
+    match: "gen2/arm_recovery_watchdog"
+    command: ["ros2", "run", "gen2", "arm_recovery_watchdog"]

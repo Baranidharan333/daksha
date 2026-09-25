@@ -75,6 +75,10 @@
       </div>
     </div>
     <div class="tb-right">
+      <span class="battery-pill" id="batteryPill" title="Battery (/battery_info)">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="18" height="10" rx="2"/><path d="M22 10v4"/><rect class="battery-fill" x="4" y="9" width="0" height="6" fill="currentColor" stroke="none"/></svg>
+        <span id="batteryText">— %</span>
+      </span>
       <span class="tb-clock" id="clock">—</span>
       <span class="state-pill" id="statePill"><span class="dot-live"></span><b id="stateText">CHECKING</b></span>
     </div>
@@ -301,6 +305,18 @@
             <div id="motorBody_left" class="motor-body"><div class="empty">Waiting for data…</div></div>
           </div>
         </div>
+
+        <div class="gains-panel">
+          <div class="arm-head">
+            <b>Stiffness / Damping (normal mode)</b>
+            <span class="ch-note" id="gainsNote"></span>
+          </div>
+          <p class="gains-hint">Shared by both arms — motor N's Kp/Kd applies to left and right alike. Only takes effect on hardware while the robot is out of teach mode.</p>
+          <table class="gains-table">
+            <thead><tr><th>Motor</th><th>Kp</th><th>Kd</th><th></th></tr></thead>
+            <tbody id="gainsRows"></tbody>
+          </table>
+        </div>
       </div>
 
       <div class="card control-card" id="control" data-views="control">
@@ -345,13 +361,12 @@
               <th class="c-idx">#</th>
               <th class="c-port">Port</th>
               <th>Service Name</th>
-              <th>File / Path</th>
               <th class="c-status">Status</th>
               <th class="c-act">Actions</th>
             </tr>
           </thead>
           <tbody id="appRows">
-            <tr><td colspan="6" class="empty">Loading applications…</td></tr>
+            <tr><td colspan="5" class="empty">Loading applications…</td></tr>
           </tbody>
         </table>
       </div>

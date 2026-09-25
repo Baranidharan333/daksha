@@ -12,7 +12,14 @@ from rcl_interfaces.msg import SetParametersResult
 from hw_interface.srv import SetMotorGains
 
 
-NORMAL_KP = [
+NUM_MOTORS = 8
+
+# Defaults for the per-motor "normal_kp_<n>"/"normal_kd_<n>" ROS 2 parameters
+# declared below (n = 1..NUM_MOTORS, matching send_gains()'s motor_ids) --
+# not used directly once the node is up (self.normal_kp/self.normal_kd are),
+# so a live `ros2 param set` on any single motor overrides these without a
+# code change/restart.
+DEFAULT_NORMAL_KP = [
     300.0,
     300.0,
     300.0,
@@ -23,7 +30,7 @@ NORMAL_KP = [
     3.0,  # previous value 15 for gripper for vla
 ]
 
-NORMAL_KD = [
+DEFAULT_NORMAL_KD = [
     3.0,
     3.0,
     3.0,
@@ -71,9 +78,21 @@ class TeachModeNode(Node):
 
         self.declare_parameter("teach_mode", False)
 
+        for i in range(NUM_MOTORS):
+            self.declare_parameter(f"normal_kp_{i + 1}", DEFAULT_NORMAL_KP[i])
+            self.declare_parameter(f"normal_kd_{i + 1}", DEFAULT_NORMAL_KD[i])
+
         self.teach_mode = self.get_parameter(
             "teach_mode"
         ).value
+        self.normal_kp = [
+            self.get_parameter(f"normal_kp_{i + 1}").value
+            for i in range(NUM_MOTORS)
+        ]
+        self.normal_kd = [
+            self.get_parameter(f"normal_kd_{i + 1}").value
+            for i in range(NUM_MOTORS)
+        ]
 
         # These live on their own reentrant callback group so send_gains()
         # can block waiting on the responses without deadlocking the
@@ -186,9 +205,25 @@ class TeachModeNode(Node):
         )
 
         return self.send_gains(
-            NORMAL_KP,
-            NORMAL_KD
+            self.normal_kp,
+            self.normal_kd
         )
+
+    ############################################################
+
+    @staticmethod
+    def _motor_gain_index(name):
+        """0-based motor index for a "normal_kp_<n>"/"normal_kd_<n>"
+        parameter name, or None if it isn't one of those."""
+
+        for prefix in ("normal_kp_", "normal_kd_"):
+            if not name.startswith(prefix):
+                continue
+            suffix = name[len(prefix):]
+            if suffix.isdigit() and 1 <= int(suffix) <= NUM_MOTORS:
+                return int(suffix) - 1
+
+        return None
 
     ############################################################
 
@@ -199,26 +234,49 @@ class TeachModeNode(Node):
 
         for param in params:
 
-            if param.name != "teach_mode":
-                continue
+            if param.name == "teach_mode":
 
-            if param.value == self.teach_mode:
-                continue
+                if param.value == self.teach_mode:
+                    continue
 
-            requested = param.value
+                requested = param.value
 
-            ok = (
-                self.enable_teach_mode()
-                if requested
-                else self.disable_teach_mode()
-            )
+                ok = (
+                    self.enable_teach_mode()
+                    if requested
+                    else self.disable_teach_mode()
+                )
 
-            if not ok:
-                result.successful = False
-                result.reason = "gain update did not confirm on hardware"
-                continue
+                if not ok:
+                    result.successful = False
+                    result.reason = "gain update did not confirm on hardware"
+                    continue
 
-            self.teach_mode = requested
+                self.teach_mode = requested
+
+            else:
+
+                index = self._motor_gain_index(param.name)
+
+                if index is None:
+                    continue
+
+                new_kp = list(self.normal_kp)
+                new_kd = list(self.normal_kd)
+                (new_kp if param.name.startswith("normal_kp_") else new_kd)[index] = \
+                    float(param.value)
+
+                # Stiffness/damping only needs to reach the hardware while
+                # normal mode is actually the one in effect -- while
+                # teaching, the arm's gains are deliberately zeroed, so this
+                # just gets remembered for the next disable_teach_mode().
+                if not self.teach_mode and not self.send_gains(new_kp, new_kd):
+                    result.successful = False
+                    result.reason = "gain update did not confirm on hardware"
+                    continue
+
+                self.normal_kp = new_kp
+                self.normal_kd = new_kd
 
         return result
 

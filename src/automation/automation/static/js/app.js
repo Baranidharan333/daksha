@@ -81,7 +81,7 @@ function appRowHtml(a){
 
   let open;
   if(a.kind === "http"){
-    open = `<a class="act open" href="${url}" target="_blank" rel="noopener">Open ${ICON.open}</a>`;
+    open = `<a class="act open" href="${url}">Open ${ICON.open}</a>`;
   } else {
     open = `<span class="act-badge">${a.kind.toUpperCase()}</span>`;
   }
@@ -114,7 +114,6 @@ function appRowHtml(a){
     <td class="c-idx">${a.index}</td>
     <td class="c-port"><span class="port-pill">${a.port}</span></td>
     <td>${a.service}</td>
-    <td class="path">${a.file}</td>
     <td class="c-status">${status}</td>
     <td class="c-act"><div class="acts">${open}${restart}${toggle}</div></td>
   </tr>`;
@@ -128,7 +127,7 @@ function renderApps(apps){
 
   $("appRows").innerHTML = shown.length
     ? shown.map(appRowHtml).join("")
-    : `<tr><td colspan="6" class="empty">No application matches “${appFilter}”.</td></tr>`;
+    : `<tr><td colspan="5" class="empty">No application matches “${appFilter}”.</td></tr>`;
 
   const up = apps.filter(a => a.running).length;
   const unmanaged = apps.filter(a => !a.startable && !a.is_self).length;
@@ -250,6 +249,86 @@ async function pollMotorStatus(){
   }catch(e){}
 }
 
+/* --------------------------------------------------- stiffness/damping */
+// Shared by both arms (one Kp/Kd per motor id, not per arm -- see
+// teach_mode_node.py's send_gains()). A field the operator is mid-editing
+// is marked "dirty" and pollGains() leaves it alone until Apply (or a page
+// reload) clears that, so a 1s poll can't wipe out a half-typed value.
+const GAIN_MOTORS = [1, 2, 3, 4, 5, 6, 7, 8];
+const gainsDirty = new Set();
+
+function gainInputId(motor, kind){ return `gain_${kind}_${motor}`; }
+
+function markGainDirty(motor, kind){
+  gainsDirty.add(gainInputId(motor, kind));
+  $(gainInputId(motor, kind)).classList.add("dirty");
+}
+
+function gainsRowHtml(motor){
+  const kp = gainInputId(motor, "kp"), kd = gainInputId(motor, "kd");
+  return `<tr>
+    <td class="num"><b>${motor}</b></td>
+    <td><input type="number" step="0.1" min="0" class="gain-input" id="${kp}"
+        oninput="markGainDirty(${motor},'kp')"></td>
+    <td><input type="number" step="0.1" min="0" class="gain-input" id="${kd}"
+        oninput="markGainDirty(${motor},'kd')"></td>
+    <td><button class="gain-apply" title="Apply to motor ${motor}" onclick="applyGain(${motor})">${ICON.restart}</button></td>
+  </tr>`;
+}
+
+function initGainsTable(){
+  const body = $("gainsRows");
+  if(!body) return;
+  body.innerHTML = GAIN_MOTORS.map(gainsRowHtml).join("");
+}
+
+async function pollGains(){
+  if(!bringupRunning) return;
+  try{
+    const r = await fetch("/api/gains");
+    const d = await r.json();
+    $("gainsNote").textContent = d.available ? "" : "teach_mode_node not running";
+    for(const motor of GAIN_MOTORS){
+      for(const kind of ["kp", "kd"]){
+        const id = gainInputId(motor, kind);
+        if(gainsDirty.has(id)) continue;
+        const value = d[kind][motor];
+        $(id).value = (value === null || value === undefined) ? "" : value;
+      }
+    }
+  }catch(e){}
+}
+
+async function applyGain(motor){
+  const kpEl = $(gainInputId(motor, "kp")), kdEl = $(gainInputId(motor, "kd"));
+  const body = {motor};
+  const kp = parseFloat(kpEl.value), kd = parseFloat(kdEl.value);
+  if(Number.isFinite(kp)) body.kp = kp;
+  if(Number.isFinite(kd)) body.kd = kd;
+  if(!("kp" in body) && !("kd" in body)){
+    toast("Enter a Kp or Kd value first", true);
+    return;
+  }
+  try{
+    const r = await fetch("/api/gains", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(body),
+    });
+    const d = await r.json();
+    const msgs = Object.values(d.results || {}).map(x => x.message);
+    toast(msgs.join(" · ") || d.message || `Motor ${motor} gains updated`, !d.ok);
+    if(d.ok){
+      gainsDirty.delete(gainInputId(motor, "kp"));
+      gainsDirty.delete(gainInputId(motor, "kd"));
+      kpEl.classList.remove("dirty");
+      kdEl.classList.remove("dirty");
+    }
+  }catch(e){
+    toast("Could not set gains: " + e.message, true);
+  }
+}
+
 /* ---------------------------------------------------------- soc stats */
 // One rolling history per tile, drawn as the sparkline behind the value.
 const HISTORY = 40;
@@ -318,6 +397,34 @@ async function pollSocStats(){
     const d = await r.json();
     renderSocStats(d.stats, d.available);
   }catch(e){}
+}
+
+/* --------------------------------------------------------------- battery */
+// Stale after this long with no new /battery_info message -- battery_info.py
+// isn't started by bringup by default, so "no data yet" is the common case
+// and must read differently from "was reporting, then stopped".
+const BATTERY_STALE_AFTER_S = 5.0;
+
+function renderBattery(percent, ageS){
+  const pill = $("batteryPill");
+  const fill = pill.querySelector(".battery-fill");
+  const stale = percent === null || ageS === null || ageS > BATTERY_STALE_AFTER_S;
+
+  $("batteryText").textContent = stale ? "— %" : `${percent.toFixed(0)} %`;
+  fill.setAttribute("width", stale ? 0 : Math.max(0, Math.min(100, percent)) / 100 * 14);
+  pill.classList.toggle("low", !stale && percent <= 15);
+  pill.classList.toggle("mid", !stale && percent > 15 && percent <= 30);
+  pill.title = stale ? "Battery (/battery_info) — no data" : `Battery (/battery_info) — ${percent.toFixed(0)}%`;
+}
+
+async function pollBattery(){
+  try{
+    const r = await fetch("/api/battery");
+    const d = await r.json();
+    renderBattery(d.percent, d.age_s);
+  }catch(e){
+    renderBattery(null, null);
+  }
 }
 
 /* ------------------------------------------------------------- 3D view */
@@ -912,7 +1019,10 @@ poll(); setInterval(poll, 1000);
 pollApps(); setInterval(pollApps, 3000);
 pollLogs(); setInterval(pollLogs, 1000);
 pollMotorStatus(); setInterval(pollMotorStatus, 1000);
+initGainsTable();
+pollGains(); setInterval(pollGains, 1000);
 pollSocStats(); setInterval(pollSocStats, 1000);
+pollBattery(); setInterval(pollBattery, 1000);
 // 10 Hz: fast enough that an arm moving at teleop speed looks continuous,
 // and the payload is ~16 floats.
 pollJointStates(); setInterval(pollJointStates, 100);
