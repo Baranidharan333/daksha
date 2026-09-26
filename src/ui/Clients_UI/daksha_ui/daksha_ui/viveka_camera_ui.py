@@ -7,17 +7,10 @@ web page (2x2 layout) on the device's IP, with the VIVEKA control-room theme
 and the scanning/lock overlay. Open the printed URL from any device on the
 same network.
 
-    TRIVIEW GATEWAY:      python3 viveka_camera_ui.py
-    ROBOT (with ROS 2):   python3 viveka_camera_ui.py --ros
+    ROBOT (with ROS 2):   python3 viveka_camera_ui.py
     ANY LAPTOP (no ROS):  python3 viveka_camera_ui.py --demo
 
-Then browse to   http://<device-ip>:7002
-
-By default this page displays only the three WebRTC camera feeds from
-http://192.168.11.200:8090, served by
-/home/s1/.ihub/camera/build/triview. The local gateway starts automatically
-when needed and stops with this UI if this UI started it.
-Override its address with --gateway-url or VIVEKA_GATEWAY_URL.
+Then browse to   http://<device-ip>:70002
 
 This script supports BOTH Raw (`sensor_msgs/Image`) and Compressed 
 (`sensor_msgs/CompressedImage`) topics automatically. If your topic name ends with
@@ -28,11 +21,6 @@ Requires:  flask, opencv-python, numpy   (+ rclpy on the robot)
 """
 
 import sys
-import os
-import subprocess
-from pathlib import Path
-from urllib.parse import urlsplit
-from urllib.request import build_opener, ProxyHandler
 import json
 import logging
 import time
@@ -44,18 +32,17 @@ from collections import deque
 import numpy as np
 import cv2
 from flask import Flask, Response
-from werkzeug.serving import make_server
 
 # --------------------------------------------------------------- cameras ---
 # (display name, ROS 2 topic)   <-- edit to match your robot
 # If the topic ends in 'compressed', it subscribes to CompressedImage, else raw Image
 CAMERAS = [
-    ("WORLD · ZED RIGHT", "/zed/zed_node/right/color/rect/image/compressed"),
-    ("WORLD · ZED LEFT", "/zed/zed_node/left/color/rect/image/compressed"),
-    ("RIGHT ARM", "/right/camera/color/image_raw/compressed"),
-    ("LEFT ARM", "/left/camera/color/image_raw/compressed"),
+    ("ZED · RIGHT", "/zed/zed_node/right/color/rect/image"),
+    ("ZED · LEFT", "/zed/zed_node/left/color/rect/image"),
+    ("RIGHT ARM", "/right/camera/color/image_rect_raw"),
+    ("LEFT ARM", "/left/camera/color/image_rect_raw"),
 ]
-PORT = 7002
+PORT = 70002
 JPEG_QUALITY = 80
 
 
@@ -109,48 +96,13 @@ NO_SIGNAL = _placeholder()
 
 # ------------------------------------------------------------- ROS 2 -------
 def start_ros():
-    """Bring up the ROS node and return the settings it read as parameters.
-
-    Camera tiles, JPEG quality and the serving port come from
-    Clients_UI/config/daksha_ui.yaml, handed over as a ROS parameter file by
-    daksha_ui/launch/client_ui.launch.py. The module-level CAMERAS/PORT/
-    JPEG_QUALITY constants stay as the fallback for --demo and the TriView
-    gateway mode, which run without ROS at all.
-    """
-    global CAMS, JPEG_QUALITY
-
     import rclpy
-    from rclpy.exceptions import ParameterNotDeclaredException
     from rclpy.node import Node
     from rclpy.qos import qos_profile_sensor_data
     from sensor_msgs.msg import CompressedImage, Image
 
     rclpy.init()
-    node = Node(
-        "viveka_web_monitor",
-        automatically_declare_parameters_from_overrides=True,
-    )
-
-    def param(name, default):
-        """Parameter value, or `default` when no params file supplied it."""
-        try:
-            return node.get_parameter(name).value
-        except ParameterNotDeclaredException:
-            return default
-
-    names = list(param("daksha_ui.viveka_camera.camera_names", [n for n, _ in CAMERAS]))
-    topics = list(param("daksha_ui.viveka_camera.camera_topics", [t for _, t in CAMERAS]))
-    if len(names) != len(topics):
-        # Parallel lists are the only way a parameter file can carry a list of
-        # pairs, so a mismatched edit is a real possibility; pair what we can
-        # rather than dying or silently showing the wrong label on a tile.
-        node.get_logger().warn(
-            f"camera_names ({len(names)}) and camera_topics ({len(topics)}) "
-            f"differ in length - using the first {min(len(names), len(topics))}"
-        )
-
-    CAMS = [Cam(i, n, t) for i, (n, t) in enumerate(zip(names, topics))]
-    JPEG_QUALITY = int(param("daksha_ui.viveka_camera.jpeg_quality", JPEG_QUALITY))
+    node = Node("viveka_web_monitor")
 
     def make_cb(cam):
         def cb(msg):
@@ -214,11 +166,6 @@ def start_ros():
 
     threading.Thread(target=rclpy.spin, args=(node,), daemon=True).start()
 
-    return {
-        "host": param("daksha_ui.viveka_camera.host", "0.0.0.0"),
-        "port": param("daksha_ui.viveka_camera.port", None),
-    }
-
 
 # ------------------------------------------------------------- demo --------
 def start_demo():
@@ -255,141 +202,10 @@ def start_demo():
 logging.getLogger("werkzeug").setLevel(logging.WARNING)
 
 app = Flask(__name__)
-app.config["GATEWAY_URL"] = os.environ.get(
-    "VIVEKA_GATEWAY_URL", "http://192.168.11.200:8090"
-)
-
-GATEWAY_PAGE = """<!doctype html>
-<html lang="en"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cameras</title>
-<style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#000}
-main{height:100dvh;display:grid;grid-template-columns:1fr 1fr;
-grid-template-rows:1fr 1fr;gap:4px;padding:4px}
-.feed{position:relative;min-width:0;min-height:0;background:#080808}
-.feed{overflow:hidden;container-type:size}
-/* The gateway letterboxes the side-by-side ZED image into 16:9.
-   Enlarge each half and crop the top/bottom padding from that stream. */
-.stereo-view{height:100%;width:min(100%,calc(100cqh * var(--stereo-ratio,1.777778)));margin:auto;overflow:hidden}
-.stereo-view video{position:relative;top:-50%;width:200%;height:200%;max-width:none}
-.stereo-right video{transform:translateX(-50%)}
-video{display:block;width:100%;height:100%;object-fit:contain}
-.state{position:absolute;inset:0;display:grid;place-items:center;
-color:#aaa;font:14px sans-serif;pointer-events:none}
-.state:empty{display:none}
-
-</style></head><body><main aria-label="Live cameras">
-<section class="feed stereo-left"><div class="stereo-view"><video autoplay muted playsinline aria-label="Stereo left"></video></div><span class="state"></span></section>
-<section class="feed stereo-right"><div class="stereo-view"><video autoplay muted playsinline aria-label="Stereo right"></video></div><span class="state"></span></section>
-<section class="feed"><video autoplay muted playsinline aria-label="Camera 2"></video><span class="state"></span></section>
-<section class="feed"><video autoplay muted playsinline aria-label="Camera 3"></video><span class="state"></span></section>
-</main><script>
-const gateway = %%GATEWAY_JSON%%;
-let stopped = false;
-const cleanups = [];
-document.querySelectorAll('.feed:not(.stereo-right)').forEach((feed, id) => {
-  // Both stereo views share one gateway stream and signaling connection.
-  const feeds = id === 0 ? [feed, document.querySelector('.stereo-right')] : [feed];
-  const videos = feeds.map(panel => panel.querySelector('video'));
-  const setState = text => feeds.forEach(panel => panel.querySelector('.state').textContent = text);
-  let current, retry;
-  feeds.forEach(panel => panel.addEventListener('dblclick', () => panel.requestFullscreen?.().catch(() => {})));
-  if (id === 0) videos.forEach(video => video.addEventListener('loadedmetadata', () => {
-    feeds.forEach(panel => panel.style.setProperty('--stereo-ratio', video.videoWidth / video.videoHeight));
-  }));
-  function close() {
-    if (!current) return;
-    const old = current;
-    current = null;
-    clearTimeout(old.timeout);
-    old.ws.onclose = old.ws.onerror = old.ws.onmessage = null;
-    old.pc.onconnectionstatechange = old.pc.onicecandidate = old.pc.ontrack = null;
-    old.ws.close(); old.pc.close();
-    videos.forEach(video => {video.srcObject = null;});
-  }
-  function connect() {
-    if (stopped) return;
-    setState('Connecting…');
-    const url = new URL(gateway);
-    url.protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
-    url.pathname = url.pathname.replace(/\/$/, '') + '/ws/' + id;
-    url.search = ''; url.hash = '';
-    const pc = new RTCPeerConnection({iceServers: []});
-    const ws = new WebSocket(url);
-    const connection = {pc, ws, pending: [], chain: Promise.resolve()};
-    current = connection;
-    const active = () => current === connection && !stopped;
-    function fail() {
-      if (!active()) return;
-      close();
-      setState('Reconnecting…');
-      clearTimeout(retry);
-      retry = setTimeout(connect, 2500);
-    }
-    connection.timeout = setTimeout(fail, 15000);
-    videos.forEach(video => {
-    video.onplaying = () => {
-      if (active()) {clearTimeout(connection.timeout); setState('');}
-    };
-    video.onwaiting = () => {if (active()) setState('Connecting…');};
-    video.onerror = fail;
-    });
-    pc.ontrack = ({streams, track, receiver}) => {
-      if (!active()) return;
-      try {
-        if ('jitterBufferTarget' in receiver) receiver.jitterBufferTarget = 0;
-        else if ('playoutDelayHint' in receiver) receiver.playoutDelayHint = 0;
-      } catch (_) {}
-      const stream = streams[0] || new MediaStream([track]);
-      videos.forEach(video => {video.srcObject = stream; video.play().catch(fail);});
-    };
-    pc.onicecandidate = ({candidate}) => {
-      if (active() && candidate && ws.readyState === WebSocket.OPEN)
-        ws.send(JSON.stringify({type:'ice', ...candidate.toJSON()}));
-    };
-    pc.onconnectionstatechange = () => {
-      if (['failed','closed','disconnected'].includes(pc.connectionState)) fail();
-    };
-    ws.onmessage = ({data}) => {
-      connection.chain = connection.chain.then(async () => {
-        if (!active()) return;
-        const message = JSON.parse(data);
-        if (message.type === 'offer') {
-          await pc.setRemoteDescription({type:'offer', sdp:message.sdp});
-          if (!active()) return;
-          while (connection.pending.length) {
-            await pc.addIceCandidate(connection.pending.shift());
-            if (!active()) return;
-          }
-          const answer = await pc.createAnswer();
-          if (!active()) return;
-          await pc.setLocalDescription(answer);
-          if (active() && ws.readyState === WebSocket.OPEN)
-            ws.send(JSON.stringify({type:'answer', sdp:answer.sdp}));
-        } else if (message.type === 'ice') {
-          const candidate = {candidate:message.candidate, sdpMLineIndex:message.sdpMLineIndex};
-          if (pc.remoteDescription) await pc.addIceCandidate(candidate);
-          else connection.pending.push(candidate);
-        } else if (message.type === 'error') fail();
-      }).catch(fail);
-    };
-    ws.onerror = ws.onclose = fail;
-  }
-  cleanups.push(() => {clearTimeout(retry); close();});
-  connect();
-});
-window.addEventListener('pagehide', () => {stopped = true; cleanups.forEach(close => close());});
-window.addEventListener('pageshow', event => {if (event.persisted) location.reload();});
-</script></body></html>"""
 
 
 @app.route("/")
 def index():
-    if app.config["GATEWAY_URL"]:
-        return Response(GATEWAY_PAGE.replace(
-            "%%GATEWAY_JSON%%", json.dumps(app.config["GATEWAY_URL"]).replace("<", "\\u003c")
-        ), mimetype="text/html")
     cams = [{"n": c.idx, "name": c.name, "topic": c.topic,
              "src": f"/stream/{c.idx}"} for c in CAMS]
     html = PAGE.replace("%%CAMS%%", json.dumps(cams)).replace("%%MODE%%", "live")
@@ -537,12 +353,29 @@ body{
   padding:0 0 24px}
 </style></head>
 <body>
+<script>
+async function ihubEmergencyStop(){
+  if(!confirm('EMERGENCY STOP\n\nKill the ROS 2 bringup now?')) return;
+  var btn=document.getElementById('ihubEstop');
+  var prev=btn.textContent; btn.disabled=true; btn.textContent='STOPPING…';
+  try{
+    var res=await fetch('http://'+location.hostname+':8100/api/kill',{method:'POST'});
+    var data={}; try{ data=await res.json(); }catch(e){}
+    alert(data.message || (res.ok?'Bringup stopped.':'E-STOP request failed.'));
+  }catch(e){
+    alert('E-STOP request failed: '+e);
+  }finally{
+    btn.disabled=false; btn.textContent=prev;
+  }
+}
+</script>
   <div class="topbar">
     <div class="brand">
       <div class="mark"></div>
       <div><h1>VIVEKA</h1><div class="sub">3-SYSTEM VLA RUNTIME</div></div>
     </div>
     <div class="status">
+      <button id="ihubEstop" onclick="ihubEmergencyStop()" title="Kill ROS 2 bringup" style="background:#d81f2f;color:#fff;border:2px solid rgba(255,255,255,.5);border-radius:8px;padding:8px 14px;font:700 12px/1.2 system-ui,-apple-system,sans-serif;letter-spacing:.04em;cursor:pointer;box-shadow:0 2px 10px rgba(216,31,47,.45);white-space:nowrap;">&#9211; E-STOP</button>
       <div class="chip"><span class="dot"></span>POLICY LOADED</div>
       <div class="sysrow">
         <div class="sys"><i></i>S1</div>
@@ -686,75 +519,11 @@ else{ // static preview
 
 
 # ------------------------------------------------------------- main --------
-def gateway_running(url):
-    try:
-        opener = build_opener(ProxyHandler({}))
-        with opener.open(url.rstrip("/") + "/api/status", timeout=2) as response:
-            status = json.load(response)
-        return isinstance(status.get("cameras"), list) and "gateway" in status
-    except (OSError, ValueError):
-        return False
-
-
-def stop_gateway(process):
-    if process is not None and process.poll() is None:
-        process.terminate()
-        try:
-            process.wait(timeout=8)
-        except subprocess.TimeoutExpired:
-            process.kill()
-            process.wait()
-
-
-def ensure_gateway(url, binary):
-    if gateway_running(url):
-        print(f"Using running TriView gateway: {url}", flush=True)
-        return None
-    address = urlsplit(url)
-    # Only start a process when the requested gateway belongs to this machine.
-    try:
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as probe:
-            probe.bind((socket.gethostbyname(address.hostname), 0))
-    except OSError as error:
-        raise RuntimeError(f"Gateway is unreachable: {url}. Start it on its host.") from error
-    if address.scheme != "http" or address.path not in ("", "/"):
-        raise RuntimeError("Automatic gateway startup requires a local http://host:port URL.")
-    binary = Path(binary).expanduser().resolve()
-    if not binary.is_file():
-        raise RuntimeError(f"TriView executable not found: {binary}")
-    env = dict(os.environ, STREAM_HOST="0.0.0.0", STREAM_PORT=str(address.port or 80))
-    print(f"Starting TriView: {binary}", flush=True)
-    process = subprocess.Popen([str(binary)], cwd=binary.parent.parent,
-                               env=env, start_new_session=True)
-    try:
-        deadline = time.monotonic() + 30
-        while time.monotonic() < deadline:
-            if process.poll() is not None:
-                raise RuntimeError(f"TriView exited with code {process.returncode}.")
-            if gateway_running(url):
-                return process
-            time.sleep(0.25)
-        raise RuntimeError(f"TriView did not become available at {url} within 30 seconds.")
-    except BaseException:
-        stop_gateway(process)
-        raise
-
-
 def main():
     ap = argparse.ArgumentParser(description="VIVEKA multi-camera web monitor")
-    modes = ap.add_mutually_exclusive_group()
-    modes.add_argument("--demo", action="store_true",
+    ap.add_argument("--demo", action="store_true",
                     help="run without ROS using synthetic feeds")
-    modes.add_argument("--ros", action="store_true",
-                       help="subscribe to ROS camera topics instead of TriView")
-    ap.add_argument("--gateway-url", default=app.config["GATEWAY_URL"],
-                    help="TriView gateway URL (default: %(default)s)")
-    # Default None, not PORT: in --ros mode the port comes from the parameter
-    # file, and this has to be able to tell "user passed --port" apart from
-    # "user said nothing" so an explicit flag still wins over the config.
-    ap.add_argument("--port", type=int, default=None)
-    ap.add_argument("--triview-bin", default="/home/s1/.ihub/camera/build/triview",
-                    help="local TriView executable to start when the gateway is unavailable")
+    ap.add_argument("--port", type=int, default=PORT)
     # `ros2 launch`/`ros2 run` append --ros-args -r __node:=... etc. to argv;
     # strip those before argparse sees them, or it errors out on launch.
     try:
@@ -763,63 +532,25 @@ def main():
     except Exception:
         argv = sys.argv[1:]
     args = ap.parse_args(argv)
-    if args.demo or args.ros:
-        app.config["GATEWAY_URL"] = None
-    else:
-        gateway = urlsplit(args.gateway_url)
-        if gateway.scheme not in ("http", "https") or not gateway.hostname:
-            ap.error("--gateway-url must be an http:// or https:// URL")
-        app.config["GATEWAY_URL"] = args.gateway_url
-
-    serve_host = "0.0.0.0"
 
     if args.demo:
         start_demo()
         print("VIVEKA web monitor  [DEMO MODE]")
-    elif args.ros:
+    else:
         try:
-            ros_cfg = start_ros()
+            start_ros()
             print("VIVEKA web monitor  [ROS 2]")
         except Exception as e:
             print("Could not start ROS 2 (", e, ")")
             print("Tip: source your ROS 2 setup, or run with --demo.")
             return
-        # An explicit --port beats the parameter file; otherwise the config wins.
-        serve_host = ros_cfg["host"]
-        if args.port is None and ros_cfg["port"] is not None:
-            args.port = int(ros_cfg["port"])
-    else:
-        print(f"VIVEKA web monitor  [TRIVIEW: {args.gateway_url}]")
 
-    if args.port is None:
-        args.port = PORT
-
-    # Reserve the UI port before starting a gateway or opening camera devices.
-    try:
-        server = make_server(serve_host, args.port, app, threaded=True)
-    except SystemExit:
-        print(f"VIVEKA port {args.port} is already in use. If VIVEKA is already running, "
-              f"open http://{lan_ip()}:{args.port} instead of starting another copy.")
-        return 1
-    process = None
-    try:
-        if not args.demo and not args.ros:
-            process = ensure_gateway(args.gateway_url, args.triview_bin)
-        ip = lan_ip()
-        print(f"  open: http://{ip}:{args.port} (or http://localhost:{args.port})", flush=True)
-        if not args.demo and not args.ros:
-            print(f"  camera LAN: http://{urlsplit(args.gateway_url).hostname}:{args.port}", flush=True)
-        server.serve_forever()
-    except KeyboardInterrupt:
-        pass
-    except (OSError, RuntimeError, ValueError) as error:
-        print(f"Could not start VIVEKA: {error}", file=sys.stderr)
-        return 1
-    finally:
-        server.server_close()
-        stop_gateway(process)
-    return 0
+    ip = lan_ip()
+    print(f"  open:  http://{ip}:{args.port}    (and http://{socket.gethostname()}:{args.port})")
+    for c in CAMS:
+        print(f"   [{c.idx}] {c.name:12s} {c.topic}")
+    app.run(host="0.0.0.0", port=args.port, threaded=True, use_reloader=False)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

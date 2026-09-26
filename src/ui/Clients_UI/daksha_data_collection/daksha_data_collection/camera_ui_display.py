@@ -16,23 +16,22 @@ from sensor_msgs.msg import CompressedImage, Image
 
 
 DEFAULT_CAMERA_TOPICS = {
-    "Left Wrist Camera": "/left/camera/color/image_raw/compressed",
-    "Right Wrist Camera": "/right/camera/color/image_raw/compressed",
-    "Primary Binocular Vision (Left)": "/zed/zed_node/left/color/rect/image/compressed",
-    "Primary Binocular Vision (Right)": "/zed/zed_node/right/color/rect/image/compressed"
+    "World Camera": "/world/camera/color/image_raw/compressed",
+    "Left Gripper Camera": "/left/camera/color/image_raw/compressed",
+    "Right Gripper Camera": "/right/camera/color/image_raw/compressed"
 }
 
 
 class CameraDisplayNode(Node):
     """ROS 2 node that subscribes to camera topics and stores latest frames"""
     
-    def __init__(self, camera_topics: Optional[dict] = None, context=None):
+    def __init__(self, camera_topics: Optional[dict] = None, context=None, node_name: str = 'camera_display_node'):
         node_kwargs = {}
         if context is not None:
             node_kwargs['context'] = context
-        super().__init__('camera_display_node', **node_kwargs)
+        super().__init__(node_name, **node_kwargs)
         
-        # Camera topic subscriptions - defaults to standard 4 Daksha camera topics
+        # Camera topic subscriptions - defaults to the 3-camera operator layout.
         self.camera_topics = dict(camera_topics) if (camera_topics is not None and len(camera_topics) > 0) else dict(DEFAULT_CAMERA_TOPICS)
         
         self.camera_frames = {}

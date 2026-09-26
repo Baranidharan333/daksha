@@ -15,6 +15,20 @@ let launching = false;
 let killing = false;
 let bringupRunning = false;
 
+// Camera-grid state -- declared here (not down by the camera code itself)
+// because showView() calls stopCameraStreaming() on the very first paint
+// (see the initial showView(...) call below), which reads camPollInterval.
+// A `let` further down the file would still be in its temporal dead zone
+// at that point and throw "Cannot access before initialization", which
+// aborts all remaining top-level script execution -- including every
+// poll()/pollApps()/pollLogs()/... call -- leaving the whole dashboard
+// stuck on its static placeholder text forever.
+let camPollInterval = null;
+let camLastFrameAt = {};
+let cameraRegistry = [];    // [{id, display_name, topic}, ...] -- every known camera
+let selectedCameraIds = []; // ordered ids currently displayed in the grid
+let camDragId = null;
+
 async function doLaunch(){
   launching = true;
   $("btnLaunch").disabled = true;
@@ -158,6 +172,14 @@ async function pollLogs(){
   try{
     const r = await fetch(`/api/logs?since=${lastLogId}`);
     const d = await r.json();
+    // The panel's log ids reset to 0 whenever its process restarts. If the
+    // server's latest id is behind what this tab last saw, `since` is stale
+    // from a previous process and would filter out every entry the new one
+    // has logged -- resync to the start instead of going silent forever.
+    if(typeof d.latest === "number" && d.latest < lastLogId){
+      lastLogId = 0;
+      return pollLogs();
+    }
     if(!d.logs.length) return;
     const box = $("logBody");
     const atBottom = box.scrollTop + box.clientHeight >= box.scrollHeight - 4;
@@ -964,6 +986,7 @@ const VIEWS = {
   applications: ["Application", "Management", "Start, stop and monitor all ROS and web applications"],
   monitor:      ["System",      "Monitor",    "CPU, GPU, memory, temperature and power from tegrastats"],
   motor:        ["Motor",       "Status",     "Per-motor state, temperature and recovery counts for both arms"],
+  cameras:      ["Live",        "Cameras",    "Multi-camera vision monitor, streamed live from the robot's camera topics"],
   control:      ["Bringup",     "Control",    "Launch and stop the ROS 2 bringup for this robot"],
   logs:         ["Launch",      "Log",        "Combined output from the bringup and any app started here"],
   settings:     ["Panel",       "Settings",   "How this launch-control panel is configured"],
@@ -998,6 +1021,15 @@ function showView(view){
   if(robotCard && !robotCard.classList.contains("is-hidden")){
     initRobotViewer();
     if(robotViewer) robotViewer.resize();
+  }
+
+  // Cameras only stream while their card is on screen — polling from a
+  // hidden view would waste bandwidth decoding frames nobody sees.
+  const camerasCard = $("cameras");
+  if(camerasCard && !camerasCard.classList.contains("is-hidden")){
+    loadCameraConfig().then(startCameraStreaming);
+  } else {
+    stopCameraStreaming();
   }
 }
 
@@ -1036,3 +1068,231 @@ loadSpeedLimits(); setInterval(loadSpeedLimits, 15000);
 // The deadman on the server zeroes the base after 500ms of silence, so the
 // stick has to keep talking while it is held down.
 setInterval(() => { if(navArmed && navPointer !== null) navSend(); }, 100);
+
+/* --------------------------------------------------------- camera grid */
+// Cameras are discovered from the backend (CAMERA_REGISTRY in
+// launch_control_app.py), not hardcoded here — the operator picks which
+// ones to display via the drag-and-drop config panel and can save that
+// layout (persisted server-side to config/camera_layout.json).
+// (camPollInterval/camLastFrameAt/cameraRegistry/selectedCameraIds/camDragId
+// are declared near the top of this file -- see the comment there.)
+
+function escHtml(str){
+  return String(str)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function camById(id){
+  return cameraRegistry.find(c => c.id === id);
+}
+
+function toggleCameraConfigPanel(){
+  const panel = $("camConfigPanel");
+  if(!panel) return;
+  const show = panel.style.display === "none";
+  panel.style.display = show ? "block" : "none";
+  $("camConfigToggleBtn")?.classList.toggle("active", show);
+}
+
+async function loadCameraConfig(){
+  try{
+    const res = await fetch("/api/camera_config");
+    const data = await res.json();
+    if(data && data.ok){
+      cameraRegistry = data.available || [];
+      selectedCameraIds = data.selected || cameraRegistry.map(c => c.id);
+    }
+  }catch(e){
+    console.warn("[Camera Config] load failed", e);
+  }
+  renderCameraConfigLists();
+  renderCameraGrid();
+  initCameraCards();
+}
+
+async function saveCameraConfig(){
+  try{
+    const res = await fetch("/api/camera_config", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({selected: selectedCameraIds}),
+    });
+    const data = await res.json();
+    toast(data.ok ? "Camera layout saved" : (data.error || "Failed to save camera layout"), !data.ok);
+  }catch(e){
+    toast("Failed to reach server to save camera layout", true);
+  }
+}
+
+function renderCameraConfigLists(){
+  const availableList = $("camAvailableList");
+  const selectedList = $("camSelectedList");
+  if(!availableList || !selectedList) return;
+
+  const availableIds = cameraRegistry.map(c => c.id).filter(id => !selectedCameraIds.includes(id));
+
+  const chip = cam => `
+    <div class="cam-drop-item" draggable="true" ondragstart="camDragStart(event, '${cam.id}')" ondragend="camDragEnd(event)">
+      <div>
+        <span class="cam-drop-item-name">${escHtml(cam.display_name)}</span>
+        <span class="cam-drop-item-topic">${escHtml(cam.topic)}</span>
+      </div>
+      <span class="cam-drop-item-handle">⠿</span>
+    </div>`;
+
+  availableList.innerHTML = availableIds.length
+    ? availableIds.map(id => camById(id)).filter(Boolean).map(chip).join("")
+    : '<span class="cam-config-hint">All known cameras are displayed.</span>';
+
+  selectedList.innerHTML = selectedCameraIds.length
+    ? selectedCameraIds.map(id => camById(id)).filter(Boolean).map(chip).join("")
+    : '<span class="cam-config-hint">Drag a camera here to display it.</span>';
+}
+
+function camDragStart(event, id){
+  camDragId = id;
+  event.dataTransfer.effectAllowed = "move";
+  event.target.classList.add("dragging");
+}
+
+function camDragEnd(event){
+  event.target.classList.remove("dragging");
+  document.querySelectorAll(".cam-drop-list").forEach(el => el.classList.remove("cam-drag-over"));
+}
+
+function camDragOver(event){
+  event.preventDefault();
+  event.currentTarget.classList.add("cam-drag-over");
+}
+
+function camDrop(event, target){
+  event.preventDefault();
+  event.currentTarget.classList.remove("cam-drag-over");
+  if(!camDragId) return;
+
+  selectedCameraIds = selectedCameraIds.filter(id => id !== camDragId);
+  if(target === "selected") selectedCameraIds.push(camDragId);
+  camDragId = null;
+
+  renderCameraConfigLists();
+  renderCameraGrid();
+  initCameraCards();
+  fetchCameraFrames();
+}
+
+function renderCameraGrid(){
+  const grid = $("camDynamicGrid");
+  if(!grid) return;
+  const cams = selectedCameraIds.map(id => camById(id)).filter(Boolean);
+  // World is the operator's main situational-awareness view, so it always
+  // takes the full top row regardless of where it sits in the saved
+  // display order -- the wrist cameras are close-up detail underneath it.
+  const ordered = [...cams].sort((a, b) =>
+    (a.id === "world" ? -1 : 0) - (b.id === "world" ? -1 : 0));
+  grid.innerHTML = ordered.map((cam, i) => `
+    <div class="cam-card${cam.id === "world" ? " cam-card-wide" : ""}">
+      <div class="cam-card-header">
+        <span>CAM ${i + 1}: ${escHtml(cam.display_name)}</span>
+        <span class="cam-status-tag" id="cam-tag-${cam.id}">OFFLINE</span>
+      </div>
+      <img class="cam-img-viewport" id="cam-img-${cam.id}" style="display:none;">
+      <div class="cam-offline-placeholder" id="cam-off-${cam.id}">
+        <span>${escHtml(cam.display_name)} Offline</span>
+        <span style="font-size:0.75rem;">${escHtml(cam.topic)}</span>
+      </div>
+    </div>`).join("");
+}
+
+function refreshCameraStreams(){
+  const btn = document.querySelector(".cam-action-btn[onclick=\"refreshCameraStreams()\"]");
+  const icon = btn ? btn.querySelector("svg") : null;
+  if(icon) icon.classList.add("spin");
+
+  toast("Re-syncing camera vision streams…");
+  stopCameraStreaming();
+  initCameraCards();
+
+  setTimeout(() => {
+    startCameraStreaming();
+    if(icon) icon.classList.remove("spin");
+    toast("Camera streams re-synced");
+  }, 200);
+}
+
+function stopCameraStreaming(){
+  if(camPollInterval){
+    clearInterval(camPollInterval);
+    camPollInterval = null;
+  }
+}
+
+function startCameraStreaming(){
+  stopCameraStreaming();
+  initCameraCards();
+  // Poll camera frames at ~15 FPS.
+  camPollInterval = setInterval(fetchCameraFrames, 70);
+  fetchCameraFrames();
+}
+
+async function fetchCameraFrames(){
+  const camerasCard = $("cameras");
+  if(!camerasCard || camerasCard.classList.contains("is-hidden")){
+    stopCameraStreaming();
+    return;
+  }
+
+  try{
+    const res = await fetch("/api/camera_frames");
+    const data = await res.json();
+    const now = Date.now();
+
+    if(data && data.ok && data.frames){
+      selectedCameraIds.map(id => camById(id)).filter(Boolean).forEach(cfg => {
+        const frameData = data.frames[cfg.id];
+        const img = $(`cam-img-${cfg.id}`);
+        const off = $(`cam-off-${cfg.id}`);
+        const tag = $(`cam-tag-${cfg.id}`);
+
+        if(frameData){
+          camLastFrameAt[cfg.id] = now;
+          if(img){ img.src = frameData; img.style.display = "block"; }
+          if(off) off.style.display = "none";
+          if(tag){
+            tag.textContent = "LIVE";
+            tag.style.background = "rgba(34, 197, 94, 0.18)";
+            tag.style.color = "#4ade80";
+            tag.style.borderColor = "rgba(34, 197, 94, 0.3)";
+          }
+        } else if(now - (camLastFrameAt[cfg.id] || 0) > 2500){
+          if(img) img.style.display = "none";
+          if(off) off.style.display = "flex";
+          if(tag){
+            tag.textContent = "OFFLINE";
+            tag.style.background = "";
+            tag.style.color = "";
+            tag.style.borderColor = "";
+          }
+        }
+      });
+    }
+  }catch(err){
+    console.warn("[Camera Stream] Poll error:", err);
+  }
+}
+
+function initCameraCards(){
+  selectedCameraIds.map(id => camById(id)).filter(Boolean).forEach(cfg => {
+    const img = $(`cam-img-${cfg.id}`);
+    const off = $(`cam-off-${cfg.id}`);
+    const tag = $(`cam-tag-${cfg.id}`);
+    if(img){ img.removeAttribute("src"); img.style.display = "none"; }
+    if(off) off.style.display = "flex";
+    if(tag){
+      tag.textContent = "OFFLINE";
+      tag.style.background = "";
+      tag.style.color = "";
+      tag.style.borderColor = "";
+    }
+  });
+}

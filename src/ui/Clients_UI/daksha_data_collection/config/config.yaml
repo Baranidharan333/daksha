@@ -1,28 +1,23 @@
-domain_id: 33
+domain_id: 55
 recording:
-  domain_id: 33
+  domain_id: 55
   record_hz: 30.0
   episode_len: 500
   max_episodes: 1
   inter_episode_delay: 1.0
   fps: 30
-  # Sign applied to the leader gripper's raw reading when building `action`
-  # (see _remap_action in ros2_topic_recorder.py). -1.0 confirmed against
-  # this rig's real gen2_leader mirror_signs bridge; applied uniformly to
-  # both arms. Flip here only if the gripper sensor is ever re-zeroed with
-  # the opposite convention.
-  leader_gripper_sign: -1.0
+  # Sign applied to the leader-right/leader-left gripper reading when
+  # building the action vector's gripper channel. Has been observed to flip
+  # between recording sessions (stable within a session) -- if a session's
+  # action gripper channel moves opposite to observation.state's, flip the
+  # matching value here (must be 1.0 or -1.0). See ros2_topic_recorder.py.
+  leader_right_gripper_sign: -1.0
+  leader_left_gripper_sign: -1.0
 dataset:
-  dataset_name: Box_pick_and_place
+  dataset_name: final_test
   task: pick_object
   prompt: Pick up the red block
-  # Absolute path so recordings land in the same place regardless of the
-  # process's CWD or whether this runs from source or the colcon-installed
-  # copy — a __file__-relative guess can't tell those apart reliably.
-  # Points at the same directory the LeRobot training UI (examples/daksha/ui)
-  # reads datasets from (DAKSHA_DATASET_ROOT in start_ui.sh), so a recorded
-  # episode is immediately trainable with no manual copy step.
-  root_dir: /home/s1/Desktop/datasets
+  root_dir: /home/phy_ai/Desktop/dataset
 topics:
   leader_topic_left: /leader/left_joint_states
   leader_topic_right: /leader/right_joint_states
@@ -30,13 +25,18 @@ topics:
   follower_topic_right: /RightArmSystem_ordered_joint_states
   follower_cmd_topic_left: /joint_cmd
   follower_cmd_topic_right: /joint_cmd
+  # /joint_cmd's real subscriber (joint_command_limiter) is
+  # sensor_msgs/msg/JointState -- confirmed via `ros2 topic info /joint_cmd
+  # -v`, where every other live publisher on this topic
+  # (joint_cmd_publisher_from_joint_sates_node, home_move_service,
+  # daksha_dashboard) is also JointState. Float64MultiArray here silently
+  # fails to match any subscriber (DDS won't connect endpoints with
+  # different types), so replayed commands never reach the controller.
+  follower_cmd_msg_type: joint_state
   leader_cmd_topic_left: ''
   leader_cmd_topic_right: ''
   camera_topics: &id001
-    left_wrist: /left/camera/color/image_raw/compressed
-    right_wrist: /right/camera/color/image_raw/compressed
-    binocular_left: /zed/zed_node/left/color/rect/image/compressed
-    binocular_right: /zed/zed_node/right/color/rect/image/compressed
+    world: /world/camera/color/image_raw/compressed
 recording_topics:
   leader_topic_left: /leader/left_joint_states
   leader_topic_right: /leader/right_joint_states
@@ -44,7 +44,7 @@ recording_topics:
   follower_topic_right: /RightArmSystem_ordered_joint_states
   follower_cmd_topic_left: /joint_cmd
   follower_cmd_topic_right: /joint_cmd
+  follower_cmd_msg_type: joint_state
   leader_cmd_topic_left: ''
   leader_cmd_topic_right: ''
   camera_topics: *id001
-

@@ -44,13 +44,15 @@ class V3DatasetRecorder:
         }
 
         # meta/stats.json rebuild re-reads and re-stacks every episode's
-        # full parquet data from disk, and used to run synchronously here
-        # *and* on every single save_episode() call -- so it got slower as a
-        # dataset grew, and resuming a large existing dataset alone
-        # (resume_existing() -> this constructor) could already exceed a
-        # caller's service-call timeout before a single episode was
-        # recorded. Video encoding and meta/info.json stay synchronous
-        # (bounded per-episode cost); only the unbounded stats rebuild is
+        # full parquet data from disk (measured ~8s on a real 192-episode
+        # dataset), and used to run synchronously here *and* on every single
+        # save_episode() call -- so it got slower as a dataset grew, and
+        # resuming a large existing dataset alone (resume_existing() ->
+        # this constructor) could already exceed a caller's service-call
+        # timeout before a single episode was recorded. video encoding and
+        # meta/info.json stay synchronous (bounded per-episode cost, and
+        # ros2_topic_recorder.py's post-save validation needs the video file
+        # and info.json immediately); only the unbounded stats rebuild is
         # deferred, onto a single serialized worker so concurrent rebuilds
         # never race each other on disk.
         self._save_queue: "queue.Queue[Any]" = queue.Queue()

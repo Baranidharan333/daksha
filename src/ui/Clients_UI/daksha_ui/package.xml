@@ -3,7 +3,7 @@
 <package format="3">
   <name>daksha_ui</name>
   <version>0.0.1</version>
-  <description>Daksha robot web dashboard and camera-stream viewer (Flask)</description>
+  <description>Daksha robot web dashboard, sub-UI, and camera-stream viewer (Flask)</description>
   <maintainer email="dev@ihub-robotics.org">iHub Robotics Team</maintainer>
   <license>MIT</license>
 

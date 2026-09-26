@@ -6,7 +6,10 @@ import json
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Dict, Optional
+
+# Keep the recorder on the same isolated ROS graph as the web UI and replay.
+os.environ['ROS_DOMAIN_ID'] = '55'
 
 import cv2
 import numpy as np
@@ -69,8 +72,9 @@ def _load_validate_dataset_module():
     folder, not a ROS package (no package.xml/CMakeLists, nothing installed
     to any share/ dir) — shared as-is with the standalone validation_ui.py.
     Only resolvable via a source-relative walk-up from this file's real
-    location: works when this file resolves back to the source tree (true
-    for --symlink-install), has no path back to it at all for a real,
+    location, same as project.config.yaml's old cross-package resolution:
+    works when this file resolves back to the source tree (true for
+    --symlink-install), has no path back to it at all for a real,
     non-symlink install. Returns None (never raises) if it can't be found or
     imported, so a missing/broken validator degrades to "no live check"
     rather than taking the whole recorder node down.
@@ -100,61 +104,24 @@ except ImportError:
 
 ROS2_TOPIC_CONFIG = "ros2_topics.json"
 
-# This rig's real leader->follower bridge (gen2_leader package,
-# main_with_service_mirror_wifi.py, "Mirror" teleop mode) cross-maps each
-# leader arm's raw reading onto the OPPOSITE follower arm and multiplies by
-# this fixed per-joint sign array before publishing /joint_cmd. Verified by
-# comparing a live /leader/left_joint_states sample against the
-# simultaneous /joint_cmd right-arm segment: every index matched exactly
-# except joint_1 and joint_3 (index 0, 2), which were sign-flipped -- e.g.
-# leader_left [-0.19481556, -0.02147573, -0.24697091, -0.00920388,
-# 0.37122335, -0.01073787, -0.00613592, -0.0] vs joint_cmd right-segment
-# [0.19481556, -0.02147573, 0.24697091, -0.00920388, 0.37122335,
-# -0.01073787, -0.00613592, 0.0]. This one array is applied uniformly in
-# both cross-body directions (leader_right->follower_left and
-# leader_left->follower_right) -- there is no per-arm or per-joint-5
-# asymmetry on this rig (unlike the different bi_arm_daksha rig this logic
-# was originally ported from). Order is [joint_1..joint_7, gripper],
-# matching this rig's fixed 8-DOF-per-arm joint layout (see
-# follower_*_joint_names in ros2_topics.json). If a rig's arm dim doesn't
-# match this length, _remap_action() falls back to raw (uncorrected) leader
-# readings rather than misapplying these signs.
-JOINT_SIGN_CORRECTION = np.array([-1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0], dtype=np.float32)
+# Empirically fit on this rig (bi_arm_daksha/ros2_topic_recorder.py, 30
+# episodes / 5922 rows): a leader arm's raw reading tracks its *cross-body*
+# follower's observation.state (leader_right <-> follower_left,
+# leader_left <-> follower_right) with these per-joint signs and <0.3 deg
+# offset (offset treated as noise, not applied). joint_1 and joint_3 have a
+# genuine mirrored axis convention between arms; the rest do not. Order is
+# [joint_1..joint_7, gripper], matching this rig's fixed 8-DOF-per-arm joint
+# layout (see follower_*_joint_names in ros2_topics.json).
+JOINT_SIGN_CORRECTION = np.array([-1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0], dtype=np.float32)
 
-# Static leader/follower zero-calibration offset, in radians, added to
-# `action` (post sign-remap, [follower_left(8), follower_right(8)] order) so
-# a leader held at rest maps onto the follower's true rest pose instead of a
-# constant per-joint bias. Confirmed constant at rest (not motion-dependent
-# tracking lag) on 2026-09-12 from a live at-rest sample:
-#   index : action(rad)  observation.state(rad)  offset = action - obs
-#   0 (L joint_1): 0.055223 - 0.077434  = -0.022211
-#   3 (L joint_4): -0.001534 - 0.021172 = -0.022706
-#   9 (R joint_2): 0.084369 - 0.037576  = +0.046793
-#   11 (R joint_4): -0.006136 - (-0.036969) = +0.030833
-#   12 (R joint_5): -0.015340 - 0.017744 = -0.033084
-#   14 (R joint_7): 0.001534 - 0.050546  = -0.049012
-# Every other index measured under 1 deg of at-rest offset and is left
-# uncorrected. Re-derive (hold both arms still, compare recorded action vs
-# observation.state) if the rig is ever recalibrated or these joints drift.
-#
-# Re-checked later the same day (2026-09-12) against a fresh at-rest sample
-# with the above offsets already applied; indices 9 and 14 still showed
-# >1 deg of residual bias and two more indices had drifted past 1 deg, so
-# their offsets are additive corrections (new = old + residual):
-#   index : action(rad)  observation.state(rad)  residual = action - obs
-#   1 (L joint_2): -0.033748 - 0.017031  = -2.909 deg -> offset -0.050778 (new)
-#   8 (R joint_1): -0.021476 - (-0.002480) = -1.088 deg -> offset -0.018996 (new)
-#   9 (R joint_2): 0.037576 - 0.005148 = +1.858 deg -> offset 0.046793 + 0.032428 = 0.079221
-#   14 (R joint_7): 0.050546 - 0.071734 = -1.214 deg -> offset -0.049012 + -0.021188 = -0.070200
-ACTION_CALIBRATION_OFFSET = np.zeros(16, dtype=np.float32)
-ACTION_CALIBRATION_OFFSET[0] = -0.022211
-ACTION_CALIBRATION_OFFSET[1] = -0.050778
-ACTION_CALIBRATION_OFFSET[3] = -0.022706
-ACTION_CALIBRATION_OFFSET[8] = -0.018996
-ACTION_CALIBRATION_OFFSET[9] = 0.079221
-ACTION_CALIBRATION_OFFSET[11] = 0.030833
-ACTION_CALIBRATION_OFFSET[12] = -0.033084
-ACTION_CALIBRATION_OFFSET[14] = -0.070200
+# joint_5 (index 4) is NOT symmetric like joint_1/joint_3 -- verified against
+# real teleop motion (see bi_arm_daksha/ros2_topic_recorder.py for the full
+# derivation): it needs a different sign per leader arm, applied as a
+# post-copy override rather than folding into JOINT_SIGN_CORRECTION, which
+# would fix one arm's joint_5 by breaking the other's.
+JOINT5_INDEX = 4
+LEADER_RIGHT_JOINT5_SIGN = -1.0
+LEADER_LEFT_JOINT5_SIGN = 1.0
 
 
 def _joint_array(values) -> np.ndarray:
@@ -246,20 +213,17 @@ class Ros2V3TopicRecorder(Node):
             record_cfg.get("include_follower_state_duplicate", False)
         )
 
-        # Gripper sign is baked into JOINT_SIGN_CORRECTION[-1] (= -1.0,
-        # confirmed against this rig's real /joint_cmd), but stays
-        # config-overridable (uniform across both arms -- the real bridge's
-        # mirror_signs applies one array symmetrically in both cross-body
-        # directions, with no per-arm asymmetry) in case the gripper sensor
-        # is ever re-zeroed/reconnected with the opposite convention.
-        # Reloaded on every /recorder/start in case config.yaml changed.
-        self.leader_gripper_sign = float(record_cfg.get("leader_gripper_sign", JOINT_SIGN_CORRECTION[-1]))
+        # Gripper sign is not a fixed hardware constant like the other 6
+        # joints in JOINT_SIGN_CORRECTION -- it has been observed to flip
+        # between recording sessions (e.g. after the leader gripper sensor
+        # is reconnected/re-zeroed), while staying stable within a session.
+        # So it's config-driven rather than hardcoded; reloaded on every
+        # /recorder/start in case the operator edited config.yaml between
+        # sessions. If a session's action gripper channel moves opposite to
+        # observation.state's, flip the matching sign in config.yaml.
+        self.leader_right_gripper_sign = float(record_cfg.get("leader_right_gripper_sign", -1.0))
+        self.leader_left_gripper_sign = float(record_cfg.get("leader_left_gripper_sign", -1.0))
         self._rebuild_action_signs()
-        # Fallback only, in case _calibrate_action_offset() hasn't run yet
-        # (e.g. logged before the first episode starts). Real value is
-        # captured fresh at the start of every episode -- see
-        # _calibrate_action_offset() for why a static table doesn't work.
-        self.action_calibration_offset = ACTION_CALIBRATION_OFFSET.copy()
 
         self.camera_topics: Dict[str, str] = topics_cfg.get("camera_topics", {})
         self.leader_left_topic = topics_cfg.get("leader_topic_left", "/leader/left_joint_states")
@@ -271,7 +235,6 @@ class Ros2V3TopicRecorder(Node):
         self.follower_cmd_topic = topics_cfg.get("joint_cmd_topic", topics_cfg.get("follower_cmd_topic", ""))
         if not self.follower_cmd_topic and self.follower_cmd_left_topic == self.follower_cmd_right_topic and self.follower_cmd_left_topic:
             self.follower_cmd_topic = self.follower_cmd_left_topic
-        self.follower_cmd_msg_type = self._infer_follower_cmd_msg_type(topics_cfg)
 
         # --- State ---
         # Initialize as None so we block recording until actual topics are publishing.
@@ -388,6 +351,31 @@ class Ros2V3TopicRecorder(Node):
         self.latest_follower_right = msg
         self._update_joint_name_reference()
 
+    def _set_joint_subscription(self, sub_attr: str, topic_attr: str, new_topic: str, callback) -> None:
+        """(Re)point a leader/follower joint subscription at `new_topic`.
+
+        Camera subscriptions already get recreated on every /recorder/start
+        call when their topic changes (see _create_camera_subscription in
+        the reload block below); joint subscriptions used to be wired up
+        once in __init__ and never touched again, so picking a different
+        leader/follower topic in the UI silently kept recording from the
+        old one. This makes joint topics reconfigurable the same way.
+        """
+        if new_topic == getattr(self, topic_attr, "") and getattr(self, sub_attr) is not None:
+            return
+        old_sub = getattr(self, sub_attr)
+        if old_sub is not None:
+            self.destroy_subscription(old_sub)
+        setattr(self, topic_attr, new_topic)
+        setattr(
+            self, sub_attr,
+            self.create_subscription(JointState, new_topic, callback, 10) if new_topic else None,
+        )
+        # Drop the stale message from the old topic -- otherwise
+        # _all_topics_ready() would treat leftover data from a topic we're
+        # no longer subscribed to as proof the new one is already live.
+        setattr(self, "latest_" + sub_attr[len("_sub_"):], None)
+
     # ── Services ───────────────────────────────────────────────────────────
 
     def _handle_start(self, request, response):
@@ -407,21 +395,17 @@ class Ros2V3TopicRecorder(Node):
             
             record_cfg = self.config.get("recording", {})
             self.fps = int(record_cfg.get("fps", self.fps))
-            self.leader_gripper_sign = float(
-                record_cfg.get("leader_gripper_sign", self.leader_gripper_sign)
+            self.leader_right_gripper_sign = float(
+                record_cfg.get("leader_right_gripper_sign", self.leader_right_gripper_sign)
+            )
+            self.leader_left_gripper_sign = float(
+                record_cfg.get("leader_left_gripper_sign", self.leader_left_gripper_sign)
             )
             self._rebuild_action_signs()
 
             # Reload and update camera + joint topics dynamically!
             topics_cfg = self.config.get("recording_topics", self.config.get("topics", {}))
-            # `or self.camera_topics`: an empty dict here almost always means
-            # a caller (e.g. the web UI before "Load Topics"/camera list has
-            # populated) sent nothing rather than "intentionally remove every
-            # camera" -- see the matching guard in web_data_management_ui.py.
-            # Silently accepting it would let recording start with zero
-            # cameras subscribed (see _handle_start's readiness check and the
-            # camera-count guard below).
-            new_camera_topics = topics_cfg.get("camera_topics", {}) or self.camera_topics
+            new_camera_topics = topics_cfg.get("camera_topics", {})
 
             # 1. Remove cameras that are no longer present
             for old_key in list(self.camera_topics.keys()):
@@ -462,11 +446,6 @@ class Ros2V3TopicRecorder(Node):
             )
             self.follower_cmd_left_topic = topics_cfg.get("follower_cmd_topic_left") or self.follower_cmd_left_topic
             self.follower_cmd_right_topic = topics_cfg.get("follower_cmd_topic_right") or self.follower_cmd_right_topic
-            new_follower_cmd_topic = topics_cfg.get("joint_cmd_topic", topics_cfg.get("follower_cmd_topic", ""))
-            if not new_follower_cmd_topic and self.follower_cmd_left_topic == self.follower_cmd_right_topic and self.follower_cmd_left_topic:
-                new_follower_cmd_topic = self.follower_cmd_left_topic
-            self.follower_cmd_topic = new_follower_cmd_topic
-            self.follower_cmd_msg_type = self._infer_follower_cmd_msg_type(topics_cfg)
 
             # Rebuild topics_to_check with basic joint/cmd topics
             if self.leader_left_topic: self.topics_to_check.append(self.leader_left_topic)
@@ -533,31 +512,6 @@ class Ros2V3TopicRecorder(Node):
         response.success = True
         response.message = "Recording stopped."
         return response
-
-    def _set_joint_subscription(self, sub_attr: str, topic_attr: str, new_topic: str, callback) -> None:
-        """(Re)point a leader/follower joint subscription at `new_topic`.
-
-        Camera subscriptions already get recreated on every /recorder/start
-        call when their topic changes (see _create_camera_subscription in
-        the reload block below); joint subscriptions used to be wired up
-        once in __init__ and never touched again, so picking a different
-        leader/follower topic in the UI silently kept recording from the
-        old one. This makes joint topics reconfigurable the same way.
-        """
-        if new_topic == getattr(self, topic_attr, "") and getattr(self, sub_attr) is not None:
-            return
-        old_sub = getattr(self, sub_attr)
-        if old_sub is not None:
-            self.destroy_subscription(old_sub)
-        setattr(self, topic_attr, new_topic)
-        setattr(
-            self, sub_attr,
-            self.create_subscription(JointState, new_topic, callback, 10) if new_topic else None,
-        )
-        # Drop the stale message from the old topic -- otherwise
-        # _all_topics_ready() would treat leftover data from a topic we're
-        # no longer subscribed to as proof the new one is already live.
-        setattr(self, "latest_" + sub_attr[len("_sub_"):], None)
 
     # ── Camera subscriptions ───────────────────────────────────────────────
 
@@ -658,8 +612,8 @@ class Ros2V3TopicRecorder(Node):
             self._write_topic_config()
 
     def _combined_joint_names(self, left_names: list[str], right_names: list[str]) -> list[str]:
-        """Stored as left-then-right to match recording order (see
-        _record_step's leader_state/follower_state concatenation)."""
+        """Stored as left-then-right to match recording order (matches the
+        reference bi_arm_daksha recorder's LEFT_JOINT_NAMES + RIGHT_JOINT_NAMES)."""
         return [f"left/{n}" for n in left_names] + [f"right/{n}" for n in right_names]
 
     def _leader_joint_names(self) -> list[str]:
@@ -678,8 +632,8 @@ class Ros2V3TopicRecorder(Node):
         payload = {
             "repo_id": self.repo_id,
             "fps": self.fps,
-            # Nested {"left":.., "right":..} shape so ros2_topic_replay.py
-            # doesn't have to guess an ordering from a comma-joined string.
+            # Nested {"left":.., "right":..} shape, matching the reference
+            # bi_arm_daksha recorder's ros2_topics.json.
             "leader_state_topic": {"left": self.leader_left_topic, "right": self.leader_right_topic},
             "follower_state_topic": {"left": self.follower_left_topic, "right": self.follower_right_topic},
             "follower_cmd_topic": {"left": self.follower_cmd_left_topic, "right": self.follower_cmd_right_topic},
@@ -691,9 +645,9 @@ class Ros2V3TopicRecorder(Node):
                 "follower_right": self.reference_follower_right_joint_names,
             },
             # This recorder always concatenates state/action vectors
-            # left-arm-first then right-arm (see _combined_joint_names and
-            # _record_step) -- spelled out explicitly so
-            # ros2_topic_replay.py doesn't have to infer it.
+            # left-arm-first then right-arm (see _combined_joint_names),
+            # matching the reference bi_arm_daksha recorder -- spelled out
+            # explicitly so ros2_topic_replay.py doesn't have to infer it.
             "state_concat_order": ["left", "right"],
             # Kept for ros2_topic_replay.py, which looks these up as flat
             # top-level keys.
@@ -701,7 +655,7 @@ class Ros2V3TopicRecorder(Node):
             "leader_right_topic": self.leader_right_topic,
             "follower_left_topic": self.follower_left_topic,
             "follower_right_topic": self.follower_right_topic,
-            "follower_cmd_msg_type": self.follower_cmd_msg_type,
+            "follower_cmd_msg_type": "joint_state",
             "leader_state_joint_names": self._leader_joint_names(),
             "follower_state_joint_names": self._follower_joint_names(),
             # `action` is remapped into follower left/right order (see
@@ -714,7 +668,8 @@ class Ros2V3TopicRecorder(Node):
             "follower_right_joint_names": self.reference_follower_right_joint_names,
             "action_convention": "follower_left_right_sign_corrected",
             "leader_state_convention": "raw_leader_device_order",
-            "leader_gripper_sign": self.leader_gripper_sign,
+            "leader_right_gripper_sign": self.leader_right_gripper_sign,
+            "leader_left_gripper_sign": self.leader_left_gripper_sign,
         }
         _write_ros2_topic_config(self.root_dir, payload)
 
@@ -752,41 +707,26 @@ class Ros2V3TopicRecorder(Node):
             )
         return _joint_array(positions)
 
-    def _infer_follower_cmd_msg_type(self, topics_cfg: dict) -> str:
-        """Mirror ros2_topic_replay.py's _refresh_command_publisher type
-        inference, so the metadata this recorder writes into
-        ros2_topics.json (follower_cmd_msg_type) reflects what replay will
-        actually publish for the same config, instead of a hardcoded
-        constant that doesn't match (this used to always say
-        'float64_multi_array' even when the real topic was /joint_cmd,
-        which replay infers as 'joint_state')."""
-        msg_type = str(topics_cfg.get("follower_cmd_msg_type", "")).strip().lower()
-        if msg_type:
-            return "joint_state" if msg_type == "jointstate" else msg_type
-        reference_topic = self.follower_cmd_topic if self.follower_cmd_topic else self.follower_cmd_left_topic
-        if reference_topic.endswith("/joint_trajectory"):
-            return "joint_trajectory"
-        elif reference_topic.endswith("/commands"):
-            return "float64_multi_array"
-        return "joint_state"  # default for joint_cmd
-
     def _rebuild_action_signs(self) -> None:
-        """(Re)build the sign vector used by _remap_action. The real
-        gen2_leader bridge applies one mirror_signs array uniformly in both
-        cross-body directions (no per-arm asymmetry), so a single vector
-        covers both leader_right->follower_left and leader_left
-        ->follower_right. Call whenever leader_gripper_sign changes."""
-        self.action_sign = JOINT_SIGN_CORRECTION.copy()
-        self.action_sign[-1] = self.leader_gripper_sign
+        """(Re)build the per-arm sign vectors used by _remap_action to turn a
+        leader arm's raw reading into its cross-body follower's action
+        target. Call whenever leader_{right,left}_gripper_sign changes."""
+        self.action_sign_right = JOINT_SIGN_CORRECTION.copy()
+        self.action_sign_right[-1] = self.leader_right_gripper_sign
+        self.action_sign_right[JOINT5_INDEX] = LEADER_RIGHT_JOINT5_SIGN
 
-    def _sign_corrected_action(
-        self, leader_left_vec: np.ndarray, leader_right_vec: np.ndarray
-    ) -> Optional[np.ndarray]:
-        """Cross-body sign remap only (leader_right -> follower_left target,
-        leader_left -> follower_right target), matching this rig's
-        left-then-right storage order -- no zero-calibration offset applied.
-        Returns None if the arm dim doesn't match this rig's fixed layout
-        (caller falls back to raw, uncorrected leader readings)."""
+        self.action_sign_left = JOINT_SIGN_CORRECTION.copy()
+        self.action_sign_left[-1] = self.leader_left_gripper_sign
+        self.action_sign_left[JOINT5_INDEX] = LEADER_LEFT_JOINT5_SIGN
+
+    def _remap_action(self, leader_left_vec: np.ndarray, leader_right_vec: np.ndarray) -> np.ndarray:
+        """Remap raw leader readings into the follower's own left/right +
+        sign convention (leader_right -> follower_left target, leader_left
+        -> follower_right target), matching this rig's left-then-right
+        storage order (and the reference bi_arm_daksha recorder's action
+        construction exactly) so action lines up index-for-index with
+        observation.state, and so replaying `action` onto
+        follower_cmd_left/right drives the correct arm."""
         if (
             leader_left_vec.shape[0] != JOINT_SIGN_CORRECTION.shape[0]
             or leader_right_vec.shape[0] != JOINT_SIGN_CORRECTION.shape[0]
@@ -796,75 +736,14 @@ class Ros2V3TopicRecorder(Node):
                 f"Leader arm dim != {JOINT_SIGN_CORRECTION.shape[0]}; recording action as "
                 "raw leader readings without cross-arm sign correction.",
             )
-            return None
-        return np.concatenate(
-            [self.action_sign * leader_right_vec, self.action_sign * leader_left_vec]
-        ).astype(np.float32)
-
-    def _calibrate_action_offset(self) -> None:
-        """Re-measure the leader/follower zero-calibration offset fresh from
-        the current (assumed at-rest, since this runs right as an episode
-        starts) sample, instead of relying on the static
-        ACTION_CALIBRATION_OFFSET table.
-
-        That table was measured once (2026-09-12) and had already gone
-        stale within the same day -- two joints needed re-correction and
-        two more had newly drifted past 1 deg, all within hours. A fixed
-        constant can't track an offset that moves that fast (leader
-        encoder/backlash drift, and/or the follower never quite settling to
-        a repeatable rest pose). Re-measuring at the start of every episode
-        self-corrects for whatever the drift is *right now* instead of
-        replaying a stale snapshot from a previous session.
-        """
-        leader_right_vec = self._ordered_joint_vector(
-            self.latest_leader_right, self.reference_leader_right_joint_names, "leader_right"
-        )
-        leader_left_vec = self._ordered_joint_vector(
-            self.latest_leader_left, self.reference_leader_left_joint_names, "leader_left"
-        )
-        follower_right_vec = self._ordered_joint_vector(
-            self.latest_follower_right, self.reference_follower_right_joint_names, "follower_right"
-        )
-        follower_left_vec = self._ordered_joint_vector(
-            self.latest_follower_left, self.reference_follower_left_joint_names, "follower_left"
-        )
-
-        raw_action = self._sign_corrected_action(leader_left_vec, leader_right_vec)
-        follower_state = np.concatenate([follower_left_vec, follower_right_vec]).astype(np.float32)
-
-        if raw_action is None or raw_action.shape[0] != follower_state.shape[0]:
-            self.get_logger().warn(
-                "Skipping session zero-calibration (dim mismatch); using previous/default offset."
-            )
-            return
-
-        self.action_calibration_offset = (raw_action - follower_state).astype(np.float32)
-        offsets_str = ", ".join(f"{v:+.4f}" for v in self.action_calibration_offset)
-        self.get_logger().info(f"Session zero-calibration captured: [{offsets_str}]")
-
-    def _remap_action(self, leader_left_vec: np.ndarray, leader_right_vec: np.ndarray) -> np.ndarray:
-        """Remap raw leader readings into the follower's own left/right +
-        sign convention, then apply this session's zero-calibration offset
-        (see _calibrate_action_offset) so action lines up index-for-index
-        with observation.state, and replaying `action` onto
-        follower_cmd_left/right drives the correct arm."""
-        remapped = self._sign_corrected_action(leader_left_vec, leader_right_vec)
-        if remapped is None:
             return np.concatenate([leader_left_vec, leader_right_vec]).astype(np.float32)
-        if remapped.shape[0] == self.action_calibration_offset.shape[0]:
-            remapped = remapped - self.action_calibration_offset
-        return remapped
+        return np.concatenate(
+            [self.action_sign_right * leader_right_vec, self.action_sign_left * leader_left_vec]
+        ).astype(np.float32)
 
     # ── Topic readiness ────────────────────────────────────────────────────
 
     def _all_topics_ready(self) -> bool:
-        # An empty camera_topics dict must never read as "ready" -- with no
-        # cameras configured, all(...) over an empty iterable is vacuously
-        # True, which would let recording start (and silently complete a
-        # full episode) with zero camera frames captured. See the
-        # camera_topics reload guards in _handle_start / config.py for how
-        # an empty dict can end up here in the first place.
-        if not self.camera_topics: return False
         if self.latest_leader_left is None: return False
         if self.latest_leader_right is None: return False
         if self.latest_follower_left is None: return False
@@ -873,7 +752,6 @@ class Ros2V3TopicRecorder(Node):
 
     def _missing_inputs(self) -> list[str]:
         missing = []
-        if not self.camera_topics: missing.append("cameras:none_configured")
         if self.latest_leader_left is None: missing.append(f"leader_left:{self.leader_left_topic}")
         if self.latest_leader_right is None: missing.append(f"leader_right:{self.leader_right_topic}")
         if self.latest_follower_left is None: missing.append(f"follower_left:{self.follower_left_topic}")
@@ -955,7 +833,6 @@ class Ros2V3TopicRecorder(Node):
 
     def _start_episode(self) -> None:
         self._ensure_recorder()
-        self._calibrate_action_offset()
         self.step_count = 0
         self.record_timer = self.create_timer(1.0 / self.record_hz, self._record_step)
         self.get_logger().info(
@@ -1008,14 +885,17 @@ class Ros2V3TopicRecorder(Node):
             self.latest_follower_left, self.reference_follower_left_joint_names, "follower_left"
         )
 
-        # Concatenate left-then-right (matches _combined_joint_names / the
-        # state_concat_order written to ros2_topics.json). observation.state
-        # is recorded as-is from the follower's own joint state topics --
-        # no per-joint correction; only `action` (the leader->follower
-        # command) needs the cross-body sign remap, per this rig's real
-        # gen2_leader bridge (see JOINT_SIGN_CORRECTION above).
+        # follower_left's joint_5 sensor reads inverted relative to the rest
+        # of the rig's sign convention (see JOINT5_INDEX above); correct it
+        # on the observation side, same as bi_arm_daksha's recorder.
+        follower_left_corrected = follower_left_vec.copy()
+        if follower_left_corrected.shape[0] > JOINT5_INDEX:
+            follower_left_corrected[JOINT5_INDEX] = -follower_left_corrected[JOINT5_INDEX]
+
+        # Concatenate left-then-right (matches the reference bi_arm_daksha
+        # recorder's ordering exactly, stored in ros2_topics.json)
         leader_state = np.concatenate([leader_left_vec, leader_right_vec]).astype(np.float32)
-        follower_state = np.concatenate([follower_left_vec, follower_right_vec]).astype(np.float32)
+        follower_state = np.concatenate([follower_left_corrected, follower_right_vec]).astype(np.float32)
         action = self._remap_action(leader_left_vec, leader_right_vec)
 
         self.recorder.add_step(
@@ -1202,4 +1082,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

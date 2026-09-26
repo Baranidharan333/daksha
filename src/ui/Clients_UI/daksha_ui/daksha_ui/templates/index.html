@@ -697,6 +697,23 @@
 </head>
 <body class="dark-mode">
 
+<script>
+async function ihubEmergencyStop(){
+  if(!confirm('EMERGENCY STOP\n\nKill the ROS 2 bringup now?')) return;
+  var btn=document.getElementById('ihubEstop');
+  var prev=btn.textContent; btn.disabled=true; btn.textContent='STOPPING…';
+  try{
+    var res=await fetch('http://'+location.hostname+':8100/api/kill',{method:'POST'});
+    var data={}; try{ data=await res.json(); }catch(e){}
+    alert(data.message || (res.ok?'Bringup stopped.':'E-STOP request failed.'));
+  }catch(e){
+    alert('E-STOP request failed: '+e);
+  }finally{
+    btn.disabled=false; btn.textContent=prev;
+  }
+}
+</script>
+
 <!-- ══════════════════════════════════════════════════════ HEADER -->
 <header class="header" id="app-header">
   <div class="header-left">
@@ -726,6 +743,7 @@
   </nav>
 
   <div class="header-right" style="display: flex; align-items: center; gap: 10px;">
+    <button id="ihubEstop" onclick="ihubEmergencyStop()" title="Kill ROS 2 bringup" style="background:#d81f2f;color:#fff;border:2px solid rgba(255,255,255,.5);border-radius:8px;padding:8px 14px;font:700 12px/1.2 system-ui,-apple-system,sans-serif;letter-spacing:.04em;cursor:pointer;box-shadow:0 2px 10px rgba(216,31,47,.45);white-space:nowrap;">&#9211; E-STOP</button>
     <div class="status-pill" id="mode-toggle-pill" onclick="toggleRobotMode()" style="cursor:pointer" title="Click to switch between Teach (backdrivable) and Normal (holds trajectory) mode">
       <span class="pulse-dot" id="mode-dot"></span>
       <span id="mode-status-text">Mode: —</span>

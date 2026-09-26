@@ -1,0 +1,30 @@
+# camera_topics.yaml
+#
+# The cameras available in the Cameras panel's live-view grid (see
+# camera_layout.json, next to this file, for which of these the operator has
+# chosen to actually display, and in what order). This isn't a generic topic
+# picker -- it's the fixed set of cameras the robot actually has wired up, so
+# edit this file to add, rename or remove a camera row instead of touching
+# launch_control_app.py.
+#
+# id           -- stable identifier. Keep it once saved -- camera_layout.json
+#                 and the frontend both reference cameras by id, so renaming
+#                 one here orphans any saved layout entry for it.
+# display_name -- shown in the UI.
+# topic        -- the sensor_msgs/CompressedImage topic this camera publishes
+#                 on. This is <namespace>/<node name> from
+#                 src/camera/camera_launch/config/cameras.yaml, not a fixed
+#                 pattern -- world is namespace "camera" + name "world"
+#                 (topic /camera/world/...), while left/right are namespace
+#                 "left"/"right" + name "camera" (topic /left|right/camera/...).
+#                 Confirmed against a live `ros2 topic list`, not assumed.
+cameras:
+  - id: left_wrist
+    display_name: Left Wrist Camera
+    topic: /left/camera/color/image_raw/compressed
+  - id: right_wrist
+    display_name: Right Wrist Camera
+    topic: /right/camera/color/image_raw/compressed
+  - id: world
+    display_name: World Camera
+    topic: /camera/world/color/image_raw/compressed

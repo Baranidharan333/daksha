@@ -1,7 +1,7 @@
 # iHub Giga Factory — Clients UI Platform
 
 Unified industrial web control platform for the **Daksha Bimanual Humanoid Robot**:
-a 3D dashboard + camera/sub-UI stack (`daksha_ui`) and an autonomous dataset
+a 3D dashboard + camera stack (`daksha_ui`) and an autonomous dataset
 recorder (`daksha_data_collection`), both proper ROS 2 packages built and
 launched the normal way — no bespoke shell scripts, no nested workspaces.
 
@@ -24,13 +24,11 @@ Clients_UI/
 │       ├── ros2_topic_recorder.py
 │       ├── ros2_topic_replay.py
 │       └── web_data_management_ui.py
-└── daksha_ui/                              # Daksha 3D dashboard + sub-UI + camera stream
-    ├── launch/client_ui.launch.py          # dashboard + sub-UI + camera viewer, all three
+└── daksha_ui/                              # Daksha 3D dashboard + camera stream
+    ├── launch/client_ui.launch.py          # dashboard + camera viewer
     └── daksha_ui/
         ├── dashboard_app.py                 # main 3D WebGL dashboard (Flask)
-        └── subui/
-            ├── subui_app.py                 # secondary control sub-UI (Flask)
-            └── viveka_camera_ui.py           # camera-stream viewer (Flask)
+        └── viveka_camera_ui.py              # camera-stream viewer (Flask)
 ```
 
 Each of `daksha_msgs`, `daksha_data_collection`, and `daksha_ui` is an ordinary
@@ -61,16 +59,16 @@ network:
   data_collection_port: 8888      # web_data_management_ui.py
 ```
 
-`subui_app.py` and `viveka_camera_ui.py` currently bind fixed ports (`7001`
-and `7002` respectively) rather than reading them from config — check those
-two files directly if you need the exact current values.
+`viveka_camera_ui.py` currently binds a fixed port (`70002`) rather than
+reading it from config — check that file directly if you need the exact
+current value.
 
 ---
 
 ## Build
 
 ```bash
-cd /home/s1/.ihub/.barani/gen2_full
+cd ~/.barani/gen2_full
 source /opt/ros/humble/setup.bash
 colcon build --packages-select daksha_description_full_body daksha_msgs daksha_data_collection daksha_ui
 source install/setup.bash
@@ -88,7 +86,7 @@ ros2 launch daksha_data_collection data_collection.launch.py
 
 Brings up the topic recorder, replay node, and the web console together.
 
-### Client UI stack (dashboard + sub-UI + camera viewer)
+### Client UI stack (dashboard + camera viewer)
 
 ```bash
 ros2 launch daksha_ui client_ui.launch.py

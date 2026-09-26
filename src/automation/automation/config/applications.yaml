@@ -114,20 +114,7 @@ applications:
     kind: http
     command: ["ros2", "run", "daksha_data_collection", "web_data_management_ui"]
 
-  # The two rows below are plain background ROS nodes, not network services
-  # (both are currently commented out in gen2/launch/bringup.launch.py).
-  # They have no socket to scan, so "port" here is not a real listening
-  # port -- it only exists because every row needs one as its table key/API
-  # route id (see launch_control_app.py's api_app_action). "match" is a
-  # `pgrep -f` pattern used instead of a port scan to tell Running from Not
-  # Running (see live_map() in launch_control_app.py). Pick these two ids
-  # from a range no real service in this table uses.
-  - port: 9001
-    service: "Battery info"
-    file: "gen2/gen2/battery_info.py"
-    kind: process
-    match: "gen2/battery_info"
-    command: ["ros2", "run", "gen2", "battery_info"]
+
 
   - port: 9002
     service: "Arm recovery watchdog"

@@ -7,41 +7,17 @@ import os
 import yaml
 
 def get_config_path() -> Path:
-    # config/data_collection.yaml is this package's own configuration, and is
-    # self-contained: it carries the ros/camera_topics/joint_topics sections
-    # this package reads as well as recording/dataset. config/config.yaml is
-    # the older plain-YAML file, kept as a fallback.
-    pkg_cfg = Path(__file__).parent.parent / "config" / "config.yaml"
-    candidates = [
-        Path(__file__).parent.parent / "config" / "data_collection.yaml",
-        pkg_cfg,
-    ]
-    for candidate in candidates:
-        if candidate.exists():
-            return candidate
-    return pkg_cfg
-
-def _read_yaml(config_path: Path) -> Dict[str, Any]:
-    """One config file, with the ROS 2 parameter envelope stripped if present.
-
-    These are ROS 2 parameter files, so their real content sits under
-    `/**: ros__parameters:`. This package is not a ROS node and reads them
-    directly, so it unwraps them here. The package's own config/config.yaml
-    fallback is plain YAML and passes through untouched.
-    """
-    with open(config_path, 'r') as f:
-        document = yaml.safe_load(f) or {}
-    node = document.get('/**')
-    if isinstance(node, dict) and isinstance(node.get('ros__parameters'), dict):
-        return node['ros__parameters']
-    return document
-
+    # daksha_data_collection's own config, separate from daksha_ui's
+    # config/project.config.yaml — each package owns its config, no
+    # cross-package file.
+    return Path(__file__).parent.parent / "config" / "config.yaml"
 
 def load_yaml_config(path: str | Path | None = None) -> Dict[str, Any]:
     config_path = Path(path) if path else get_config_path()
     if not config_path.exists():
         raise FileNotFoundError(f"Config file not found at {config_path}")
-    return _read_yaml(config_path)
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f) or {}
 
 
 VCodec = Literal[

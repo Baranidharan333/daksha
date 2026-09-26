@@ -5,9 +5,11 @@ import argparse
 import json
 import os
 import sys
-import threading
 from pathlib import Path
 from typing import Any, Dict, Optional
+
+# Keep the replay service on the same isolated ROS graph as the web UI and recorder.
+os.environ['ROS_DOMAIN_ID'] = '55'
 
 import cv2
 import numpy as np
@@ -116,7 +118,6 @@ class Ros2V3TopicReplay(Node):
     def __init__(self, config_path: str) -> None:
         super().__init__("custom_v3_topic_replay")
 
-        self.config_path = config_path
         with open(config_path, "r") as f:
             self.config = yaml.safe_load(f)
 
@@ -141,6 +142,41 @@ class Ros2V3TopicReplay(Node):
         self.follower_left_topic = topics_cfg.get("follower_topic_left", "/LeftArmSystem_ordered_joint_states")
         self.follower_right_topic = topics_cfg.get("follower_topic_right", "/RightArmSystem_ordered_joint_states")
 
+        # Command Topics Handling (unified vs left/right)
+        self.follower_cmd_topic = topics_cfg.get("joint_cmd_topic", topics_cfg.get("follower_cmd_topic", ""))
+        self.follower_cmd_left_topic = topics_cfg.get("follower_cmd_topic_left", "/left_arm_controller/commands")
+        self.follower_cmd_right_topic = topics_cfg.get("follower_cmd_topic_right", "/right_arm_controller/commands")
+        
+        # If left and right command topics are the same, treat as a unified command topic
+        if not self.follower_cmd_topic and self.follower_cmd_left_topic == self.follower_cmd_right_topic and self.follower_cmd_left_topic:
+            self.follower_cmd_topic = self.follower_cmd_left_topic
+            
+        self.use_unified_cmd_topic = bool(self.follower_cmd_topic)
+
+        # Do not prefix command topics with /replay; publish directly to configured command topics
+        pass
+
+        # Message Type Inference
+        self.follower_cmd_msg_type = str(topics_cfg.get("follower_cmd_msg_type", "")).strip().lower()
+        if not self.follower_cmd_msg_type:
+            if self.use_unified_cmd_topic:
+                if self.follower_cmd_topic.endswith("/joint_trajectory"):
+                    self.follower_cmd_msg_type = "joint_trajectory"
+                elif self.follower_cmd_topic.endswith("/commands"):
+                    self.follower_cmd_msg_type = "float64_multi_array"
+                else:
+                    self.follower_cmd_msg_type = "joint_state"  # default for joint_cmd
+            else:
+                if self.follower_cmd_left_topic.endswith("/joint_trajectory"):
+                    self.follower_cmd_msg_type = "joint_trajectory"
+                elif self.follower_cmd_left_topic.endswith("/commands"):
+                    self.follower_cmd_msg_type = "float64_multi_array"
+                else:
+                    self.follower_cmd_msg_type = "joint_state"
+                    
+        if self.follower_cmd_msg_type == "jointstate":
+            self.follower_cmd_msg_type = "joint_state"
+
         # Controller joint names (overridable from config, defaults to daksha names)
         yaml_joint_names = topics_cfg.get("joint_names", [])
         self.right_controller_joint_names = [n for n in yaml_joint_names if "right" in n.lower()] or DEFAULT_RIGHT_CONTROLLER_JOINT_NAMES
@@ -150,17 +186,16 @@ class Ros2V3TopicReplay(Node):
         self.follower_left_state_pub = self.create_publisher(JointState, self.follower_left_topic, 10)
         self.follower_right_state_pub = self.create_publisher(JointState, self.follower_right_topic, 10)
 
-        # Command topic(s) + message type: set up once here, refreshed on
-        # every /replay/start by _refresh_command_publisher() (see there for
-        # why -- this used to be __init__-only and never noticed a topic
-        # changed in config.yaml after the node started).
-        self.follower_cmd_pub = None
-        self.follower_left_cmd_pub = None
-        self.follower_right_cmd_pub = None
-        self.use_unified_cmd_topic = False
-        self.follower_cmd_topic = ""
-        self.follower_cmd_msg_type = ""
-        self._refresh_command_publisher(topics_cfg, log_result=True)
+        cmd_msg_type = (
+            JointTrajectory if self.follower_cmd_msg_type == "joint_trajectory"
+            else JointState if self.follower_cmd_msg_type == "joint_state"
+            else Float64MultiArray
+        )
+        if self.use_unified_cmd_topic:
+            self.follower_cmd_pub = self.create_publisher(cmd_msg_type, self.follower_cmd_topic, 10)
+        else:
+            self.follower_left_cmd_pub = self.create_publisher(cmd_msg_type, self.follower_cmd_left_topic, 10)
+            self.follower_right_cmd_pub = self.create_publisher(cmd_msg_type, self.follower_cmd_right_topic, 10)
 
         reliable_qos = QoSProfile(depth=10)
         reliable_qos.reliability = QoSReliabilityPolicy.RELIABLE
@@ -178,17 +213,6 @@ class Ros2V3TopicReplay(Node):
         self.is_playing = False
         self._topic_cfg: Dict[str, Any] = {}
 
-        # Episode loading happens on a background thread (see _handle_start)
-        # -- decoding every frame of every camera for a whole episode
-        # synchronously inside the service callback used to block this
-        # node's single-threaded executor entirely for as long as loading
-        # took (tens of seconds on this rig's embedded hardware for a
-        # several-hundred-step episode), during which even /replay/stop
-        # could not be serviced.
-        self._loading = False
-        self._load_cancel = threading.Event()
-        self._load_thread: Optional[threading.Thread] = None
-
         # Services
         self.srv_start = self.create_service(StartReplay, "/replay/start", self._handle_start)
         self.srv_stop  = self.create_service(Trigger, "/replay/stop", self._handle_stop)
@@ -200,6 +224,9 @@ class Ros2V3TopicReplay(Node):
         self.status_timer = self.create_timer(1.0, self._publish_status)
 
         self.get_logger().info(f"Replay node ready. Dataset: {self.root_dir}")
+        self.get_logger().info(f"Using unified cmd topic? {self.use_unified_cmd_topic}")
+        if self.use_unified_cmd_topic:
+            self.get_logger().info(f"Unified Topic: {self.follower_cmd_topic} ({self.follower_cmd_msg_type})")
 
     # ── Status Publisher ──────────────────────────────────────────────────
 
@@ -207,7 +234,6 @@ class Ros2V3TopicReplay(Node):
         try:
             status = {
                 "is_playing": self.is_playing,
-                "is_loading": self._loading,
                 "dataset_name": self.dataset_name,
                 "episode_index": self.episode_index,
                 "speed": self.speed,
@@ -220,91 +246,6 @@ class Ros2V3TopicReplay(Node):
         except Exception as e:
             self.get_logger().error(f"Error publishing replay status: {e}")
 
-    # ── Command publisher (re)configuration ─────────────────────────────────
-
-    def _refresh_command_publisher(self, topics_cfg: Dict[str, Any], log_result: bool = False) -> None:
-        """(Re)build the follower command publisher(s) from `topics_cfg`.
-
-        ros2_topic_recorder.py reloads config.yaml and re-points its
-        subscriptions on every /recorder/start (see _set_joint_subscription)
-        specifically because topics used to be wired up once in __init__ and
-        never touched again, so picking a different topic in the UI after
-        the node had already started silently kept using the old one. This
-        node had the exact same bug for its command publisher: if the
-        operator changed follower_cmd_topic_left/right or joint_cmd_topic
-        (e.g. back to the unified /joint_cmd, which is what the real
-        arm/joint_cmd.py control loop actually consumes) after
-        ros2_topic_replay had already started, replay kept publishing to
-        whatever topic was configured at startup -- often this file's
-        hardcoded per-arm defaults (/left_arm_controller/commands,
-        /right_arm_controller/commands), which nothing downstream consumes.
-        """
-        follower_cmd_topic = topics_cfg.get("joint_cmd_topic", topics_cfg.get("follower_cmd_topic", ""))
-        follower_cmd_left_topic = topics_cfg.get("follower_cmd_topic_left", "/left_arm_controller/commands")
-        follower_cmd_right_topic = topics_cfg.get("follower_cmd_topic_right", "/right_arm_controller/commands")
-
-        # If left and right command topics are the same, treat as a unified command topic
-        if not follower_cmd_topic and follower_cmd_left_topic == follower_cmd_right_topic and follower_cmd_left_topic:
-            follower_cmd_topic = follower_cmd_left_topic
-
-        use_unified_cmd_topic = bool(follower_cmd_topic)
-
-        follower_cmd_msg_type = str(topics_cfg.get("follower_cmd_msg_type", "")).strip().lower()
-        if not follower_cmd_msg_type:
-            reference_topic = follower_cmd_topic if use_unified_cmd_topic else follower_cmd_left_topic
-            if reference_topic.endswith("/joint_trajectory"):
-                follower_cmd_msg_type = "joint_trajectory"
-            elif reference_topic.endswith("/commands"):
-                follower_cmd_msg_type = "float64_multi_array"
-            else:
-                follower_cmd_msg_type = "joint_state"  # default for joint_cmd
-        if follower_cmd_msg_type == "jointstate":
-            follower_cmd_msg_type = "joint_state"
-
-        unchanged = (
-            use_unified_cmd_topic == self.use_unified_cmd_topic
-            and follower_cmd_msg_type == self.follower_cmd_msg_type
-            and (
-                (use_unified_cmd_topic and follower_cmd_topic == self.follower_cmd_topic)
-                or (not use_unified_cmd_topic
-                    and follower_cmd_left_topic == self.follower_cmd_left_topic
-                    and follower_cmd_right_topic == self.follower_cmd_right_topic)
-            )
-        )
-        self.follower_cmd_left_topic = follower_cmd_left_topic
-        self.follower_cmd_right_topic = follower_cmd_right_topic
-        if unchanged and (self.follower_cmd_pub or self.follower_left_cmd_pub):
-            return
-
-        for pub_attr in ("follower_cmd_pub", "follower_left_cmd_pub", "follower_right_cmd_pub"):
-            old_pub = getattr(self, pub_attr, None)
-            if old_pub is not None:
-                self.destroy_publisher(old_pub)
-                setattr(self, pub_attr, None)
-
-        self.follower_cmd_topic = follower_cmd_topic
-        self.use_unified_cmd_topic = use_unified_cmd_topic
-        self.follower_cmd_msg_type = follower_cmd_msg_type
-        cmd_msg_type = (
-            JointTrajectory if follower_cmd_msg_type == "joint_trajectory"
-            else JointState if follower_cmd_msg_type == "joint_state"
-            else Float64MultiArray
-        )
-        if use_unified_cmd_topic:
-            self.follower_cmd_pub = self.create_publisher(cmd_msg_type, follower_cmd_topic, 10)
-        else:
-            self.follower_left_cmd_pub = self.create_publisher(cmd_msg_type, follower_cmd_left_topic, 10)
-            self.follower_right_cmd_pub = self.create_publisher(cmd_msg_type, follower_cmd_right_topic, 10)
-
-        if log_result:
-            self.get_logger().info(f"Using unified cmd topic? {use_unified_cmd_topic}")
-            if use_unified_cmd_topic:
-                self.get_logger().info(f"Unified Topic: {follower_cmd_topic} ({follower_cmd_msg_type})")
-            else:
-                self.get_logger().info(
-                    f"Left/right cmd topics: {follower_cmd_left_topic}, {follower_cmd_right_topic} ({follower_cmd_msg_type})"
-                )
-
     # ── Service handlers ──────────────────────────────────────────────────
 
     def _handle_start(self, request, response):
@@ -312,20 +253,6 @@ class Ros2V3TopicReplay(Node):
             response.success = False
             response.message = "Replay already running."
             return response
-        if self._loading:
-            response.success = False
-            response.message = "Still finishing the previous load/stop; try again in a moment."
-            return response
-
-        # Reload configuration YAML file to catch topic changes made after
-        # this node started (see _refresh_command_publisher).
-        try:
-            with open(self.config_path, "r") as f:
-                self.config = yaml.safe_load(f) or {}
-            topics_cfg = self.config.get("replay_topics", self.config.get("topics", {}))
-            self._refresh_command_publisher(topics_cfg, log_result=True)
-        except Exception as e:
-            self.get_logger().error(f"Failed to reload config.yaml in replay start handler: {e}")
 
         if request.dataset_name:
             self.dataset_name = request.dataset_name
@@ -336,51 +263,27 @@ class Ros2V3TopicReplay(Node):
         if request.speed > 0.0:
             self.speed = float(request.speed)
 
-        # Loading decodes every frame of every camera for the whole episode
-        # up front (see _load_episode/V3DatasetReplay.iter_episode) -- doing
-        # that synchronously here used to block this node's single-threaded
-        # executor for as long as it took (tens of seconds on this rig's
-        # embedded hardware for a several-hundred-step episode), during
-        # which /replay/start's own caller would time out waiting for a
-        # response, and /replay/stop couldn't even be serviced to cancel
-        # it. Loading on a background thread keeps the node responsive and
-        # gives /replay/stop something to actually cancel.
-        self._loading = True
-        self._load_cancel.clear()
-        self._load_thread = threading.Thread(
-            target=self._load_and_start, args=(self.episode_index,), daemon=True
-        )
-        self._load_thread.start()
+        try:
+            self._load_episode(self.episode_index)
+        except Exception as e:
+            response.success = False
+            response.message = f"Failed to load episode: {e}"
+            return response
+
+        if not self.frames:
+            response.success = False
+            response.message = "No frames in episode."
+            return response
+
+        self.is_playing = True
+        self.current_step = 0
+        self._schedule_next_step(0.0)
 
         response.success = True
-        response.message = f"Loading episode {self.episode_index}; playback will begin once ready."
+        response.message = f"Replay started."
         return response
 
-    def _load_and_start(self, episode_index: int) -> None:
-        """Runs on a background thread -- see _handle_start."""
-        try:
-            try:
-                self._load_episode(episode_index, cancel_event=self._load_cancel)
-            except Exception as e:
-                self.get_logger().error(f"Failed to load episode {episode_index}: {e}")
-                return
-            if self._load_cancel.is_set():
-                self.get_logger().info(f"Load of episode {episode_index} cancelled.")
-                self.frames = []
-                return
-            if not self.frames:
-                self.get_logger().warn(f"No frames in episode {episode_index}.")
-                return
-            self.is_playing = True
-            self.current_step = 0
-            self._schedule_next_step(0.0)
-        finally:
-            self._loading = False
-
     def _handle_stop(self, request, response):
-        # Set even when nothing is currently loading -- harmless, and
-        # covers the case where a load is in flight (see _load_and_start).
-        self._load_cancel.set()
         self.is_playing = False
         if self.timer is not None:
             self.timer.cancel()
@@ -392,12 +295,12 @@ class Ros2V3TopicReplay(Node):
 
     # ── Episode loading ───────────────────────────────────────────────────
 
-    def _load_episode(self, episode_index: int, cancel_event: Optional[threading.Event] = None) -> None:
+    def _load_episode(self, episode_index: int) -> None:
         self._topic_cfg = _load_topic_config(self.root_dir)
         replay = V3DatasetReplay(
             ReplayConfig(repo_id=self.repo_id, root=self.root_dir, episodes=[episode_index], download_videos=False, video_backend=self.video_backend)
         )
-        self.frames = list(replay.iter_episode(episode_index, cancel_event=cancel_event))
+        self.frames = list(replay.iter_episode(episode_index))
 
         first_row = self.frames[0].item if self.frames else {}
         leader_state_vec = _to_vector(first_row.get("observation.leader_state", []))

@@ -56,6 +56,15 @@ def generate_launch_description():
             )
         )
     )
+    start_all_cameras_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory("camera_launch"),
+                "launch",
+                "start_all_cameras.launch.py",
+            )
+        )
+    )
     gesture_management_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(
@@ -253,6 +262,7 @@ def generate_launch_description():
             period=3.0,
             actions=[
                 gravity_torque_launch,
+                start_all_cameras_launch,
                 # gesture_management_launch,
                 # joint_analyzer_launch,
                 # client_ui_launch,
@@ -276,7 +286,7 @@ def generate_launch_description():
                             mode_toggler_node,
                             # vr_management_ui_node,
                             ik_node,
-                            # battery_info_node,
+                            battery_info_node,
                             home_move_service_node,
                             # leader_controller_ui_node,
                             # arm_recovery_watchdog_node,

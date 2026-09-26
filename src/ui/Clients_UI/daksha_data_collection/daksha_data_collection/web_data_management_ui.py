@@ -1,6 +1,9 @@
 import os
-os.environ['ROS_DOMAIN_ID'] = os.environ.get('ROS_DOMAIN_ID', '33')
+# This data-collection UI, its camera subscriptions, and its recorder client
+# are intentionally isolated on the robot's domain 55.
+os.environ['ROS_DOMAIN_ID'] = '55'
 import json
+import socket
 import threading
 import time
 import subprocess
@@ -62,39 +65,18 @@ DATASET_BASE_DIR = str(Path(__file__).resolve().parent.parent / "datasets")
 # ── Per-Session State ─────────────────────────────────────────────────────────
 SESSION_TIMEOUT = 3600  # seconds of inactivity before a session is discarded
 
-_DEFAULT_DOMAIN_ID = None
-
-def _resolve_default_domain_id() -> int:
-    """Read ros.domain_id from config.yaml (the single source of truth also
-    used by the Daksha dashboard) once and cache it, falling back to this
-    process's own ROS_DOMAIN_ID env var. A new browser session with no
-    explicit domain selection binds its camera node to this value, so it
-    MUST match the domain the robot's cameras/arms actually bring up on
-    (see ~/.bashrc / start_robot.sh) or every fresh session sees no frames."""
-    global _DEFAULT_DOMAIN_ID
-    if _DEFAULT_DOMAIN_ID is not None:
-        return _DEFAULT_DOMAIN_ID
-    try:
-        with open(_get_default_config_path()) as f:
-            cfg = yaml.safe_load(f) or {}
-        _DEFAULT_DOMAIN_ID = int(cfg.get('domain_id', cfg.get('recording', {}).get('domain_id', 0)))
-    except Exception:
-        _DEFAULT_DOMAIN_ID = int(os.environ.get('ROS_DOMAIN_ID', 33))
-    return _DEFAULT_DOMAIN_ID
-
 class SessionState:
     """Lightweight per-browser-session state container."""
     def __init__(self, session_id: str):
         self.session_id   = session_id
-        self.domain_id    = _resolve_default_domain_id()  # ROS Domain ID (matches this robot's actual bringup)
+        self.domain_id    = 55          # Data Collection ROS domain for every operator
 
         self.loaded_topics: list = []
         # camera_names maps camera-label -> ros-topic for THIS session
         self.camera_names: dict = {
-            "Left Wrist Camera": "/left/camera/color/image_raw",
-            "Right Wrist Camera": "/right/camera/color/image_raw",
-            "Primary Binocular Vision (Left)": "/zed/zed_node/left/color/rect/image",
-            "Primary Binocular Vision (Right)": "/zed/zed_node/right/color/rect/image"
+            "World Camera": "/world/camera/color/image_raw/compressed",
+            "Left Gripper Camera": "/left/camera/color/image_raw/compressed",
+            "Right Gripper Camera": "/right/camera/color/image_raw/compressed"
         }
         self.last_active  = time.time()
 
@@ -169,14 +151,19 @@ def _get_or_create_domain_cam_node(domain_id: int) -> 'CameraDisplayNode':
             except Exception:
                 pass
 
-        cam_node = CameraDisplayNode({}, context=ctx)
+        # Give each per-domain node its own unique ROS node name -- reusing
+        # 'camera_display_node' here collides with the global instance
+        # main() creates whenever a session's domain_id matches the
+        # server's own startup domain (e.g. both on ROS_DOMAIN_ID), which
+        # otherwise shows up as a duplicate-node-name warning in the graph.
+        cam_node = CameraDisplayNode({}, context=ctx, node_name=f'camera_display_node_domain{domain_id}')
 
-        # Auto-register default 4 cameras on node startup so feeds are subscribed immediately
+        # The operator layout has one world view above the two gripper views.
+        # Keep this list in sync with initFixedCameraLayout() in the web UI.
         default_cams = [
-            ("Left Wrist Camera", "/left/camera/color/image_raw/compressed"),
-            ("Right Wrist Camera", "/right/camera/color/image_raw/compressed"),
-            ("Primary Binocular Vision (Left)", "/zed/zed_node/left/color/rect/image/compressed"),
-            ("Primary Binocular Vision (Right)", "/zed/zed_node/right/color/rect/image/compressed")
+            ("World Camera", "/world/camera/color/image_raw/compressed"),
+            ("Left Gripper Camera", "/left/camera/color/image_raw/compressed"),
+            ("Right Gripper Camera", "/right/camera/color/image_raw/compressed")
         ]
         for name, topic in default_cams:
             cam_node._subscription_queue.put({'action': 'register', 'name': name, 'topic': topic})
@@ -202,7 +189,7 @@ HTML_TEMPLATE = """<!doctype html>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>iHub Robotics — Data Collection Terminal</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <script>
     (function() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -214,145 +201,140 @@ HTML_TEMPLATE = """<!doctype html>
     })();
   </script>
   <style>
-    /* Dark Cyber Theme for Operator Terminal */
+    /* Gesture Management theme (Space Grotesk / IBM Plex Mono, blue-accented
+       light palette) applied here to match — see gesture_management's
+       static/css/style.css for the source palette. .light-mode is kept as a
+       toggle target (still synced from the main Dashboard's theme, below)
+       but now resolves to the same palette as the default, so the toggle no
+       longer changes the visual theme. */
     :root {
-      --bg-color: #000000;
-      --panel-bg: #0a0a0a;
-      --panel-border: rgba(255, 255, 255, 0.14);
-      --text-main: #ffffff;
-      --text-muted: #a1a1aa;
-      --primary: #ffffff;
-      --primary-hover: #ededed;
-      --danger: #ef4444;
-      --danger-hover: #dc2626;
-      --success: #10b981;
-      --border: rgba(255, 255, 255, 0.14);
+      --bg-color: #eef3fb;
+      --panel-bg: #ffffff;
+      --panel-border: #dbe5f1;
+      --text-main: #16263b;
+      --text-muted: #5b6b80;
+      --primary: #1f6feb;
+      --primary-hover: #0b53c4;
+      --danger: #e5484d;
+      --danger-hover: #c53a3f;
+      --success: #16a34a;
+      --border: #dbe5f1;
       --radius: 12px;
-      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.9);
-      --shadow-lg: 0 20px 30px -10px rgba(0, 0, 0, 0.95);
+      --shadow: 0 10px 25px -5px rgba(16, 33, 61, 0.08);
+      --shadow-lg: 0 20px 30px -10px rgba(16, 33, 61, 0.10);
     }
     :root.light-mode, html.light-mode, body.light-mode {
-      --bg-color: #f8fafc;
+      --bg-color: #eef3fb;
       --panel-bg: #ffffff;
-      --panel-border: rgba(203, 213, 225, 0.8);
-      --text-main: #1e293b;
-      --text-muted: #475569;
-      --primary: #0284c7;
-      --primary-hover: #0369a1;
-      --danger: #dc2626;
-      --danger-hover: #b91c1c;
-      --success: #059669;
-      --border: rgba(203, 213, 225, 0.8);
+      --panel-border: #dbe5f1;
+      --text-main: #16263b;
+      --text-muted: #5b6b80;
+      --primary: #1f6feb;
+      --primary-hover: #0b53c4;
+      --danger: #e5484d;
+      --danger-hover: #c53a3f;
+      --success: #16a34a;
+      --border: #dbe5f1;
       --radius: 12px;
-      --shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04);
-      --shadow-lg: 0 20px 30px -10px rgba(15, 23, 42, 0.06);
+      --shadow: 0 10px 25px -5px rgba(16, 33, 61, 0.08);
+      --shadow-lg: 0 20px 30px -10px rgba(16, 33, 61, 0.10);
     }
     .light-mode body {
-      background-color: #f8fafc !important;
-      color: #1e293b !important;
+      background-color: #eef3fb !important;
+      color: #16263b !important;
     }
     .light-mode .header-panel, .light-mode .panel {
       background: #ffffff !important;
-      border-color: #cbd5e1 !important;
-      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04) !important;
+      border-color: #dbe5f1 !important;
+      box-shadow: 0 4px 20px -2px rgba(16, 33, 61, 0.05) !important;
     }
     .light-mode .header-panel {
-      border-left: 4px solid #0284c7 !important;
+      border-left: 4px solid #1f6feb !important;
     }
     .light-mode h1, .light-mode h2 {
-      color: #0f766e !important;
+      color: #0b53c4 !important;
     }
     .light-mode label {
-      color: #475569 !important;
+      color: #5b6b80 !important;
     }
     .light-mode input, .light-mode select {
-      background: #f8fafc !important;
-      color: #1e293b !important;
-      border: 1px solid #cbd5e1 !important;
+      background: #fbfdff !important;
+      color: #16263b !important;
+      border: 1px solid #dbe5f1 !important;
     }
     .light-mode input:focus, .light-mode select:focus {
-      border-color: #0284c7 !important;
-      box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15) !important;
+      border-color: #1f6feb !important;
+      box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.12) !important;
       background: #ffffff !important;
     }
     .light-mode button {
-      background: linear-gradient(135deg, #0284c7, #0369a1) !important;
-      color: #ffffff !important;
-      border: 1px solid #0284c7 !important;
-      box-shadow: 0 2px 8px rgba(2, 132, 199, 0.2) !important;
-      border-radius: 9999px !important;
+      background: #ffffff !important;
+      color: #16263b !important;
+      border: 1px solid #dbe5f1 !important;
+      box-shadow: 0 1px 2px rgba(16, 33, 61, 0.06) !important;
+      border-radius: 9px !important;
     }
     .light-mode button:hover {
-      background: linear-gradient(135deg, #0369a1, #075985) !important;
-      border-color: #0369a1 !important;
-      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3) !important;
+      background: #ffffff !important;
+      border-color: #93a3b8 !important;
+      box-shadow: 0 1px 2px rgba(16, 33, 61, 0.06) !important;
     }
     .light-mode .btn-success {
-      background: linear-gradient(135deg, #059669, #047857) !important;
+      background: #16a34a !important;
       color: #ffffff !important;
-      border: 1px solid #047857 !important;
-      box-shadow: 0 2px 8px rgba(5, 150, 105, 0.2) !important;
+      border: 1px solid #16a34a !important;
+      box-shadow: 0 2px 8px rgba(22, 163, 74, 0.2) !important;
     }
     .light-mode .btn-success:hover {
-      background: linear-gradient(135deg, #047857, #065f46) !important;
-      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3) !important;
+      background: #128a3e !important;
+      border-color: #128a3e !important;
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3) !important;
     }
     .light-mode .btn-danger {
-      background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+      background: #e5484d !important;
       color: #ffffff !important;
-      border: 1px solid #b91c1c !important;
-      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2) !important;
+      border: 1px solid #e5484d !important;
+      box-shadow: 0 2px 8px rgba(229, 72, 77, 0.2) !important;
     }
     .light-mode .btn-danger:hover {
-      background: linear-gradient(135deg, #b91c1c, #991b1b) !important;
-      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+      background: #c53a3f !important;
+      border-color: #c53a3f !important;
+      box-shadow: 0 4px 12px rgba(229, 72, 77, 0.3) !important;
     }
     .light-mode .btn-outline {
       background: #ffffff !important;
-      border: 1px solid #e2e8f0 !important;
-      color: #0f172a !important;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+      border: 1px solid #dbe5f1 !important;
+      color: #16263b !important;
+      box-shadow: 0 1px 2px rgba(16, 33, 61, 0.05) !important;
     }
     .light-mode .btn-outline:hover {
-      background: #f8fafc !important;
-      border-color: #cbd5e1 !important;
-      color: #0284c7 !important;
+      background: #f7faff !important;
+      border-color: #93a3b8 !important;
+      color: #1f6feb !important;
     }
     .light-mode .camera-box {
-      background: #f1f5f9 !important;
-      border-color: #e2e8f0 !important;
-      color: #0f172a !important;
-    }
-    .light-mode .camera-box .cam-label {
-      background: linear-gradient(transparent, rgba(241, 245, 249, 0.95)) !important;
-      color: #0f172a !important;
+      border-color: #dbe5f1 !important;
     }
     .light-mode .motor-stat {
-      background: #f8fafc !important;
-      border-color: #e2e8f0 !important;
-      color: #0f172a !important;
+      background: #f7faff !important;
+      border-color: #dbe5f1 !important;
+      color: #16263b !important;
     }
     .light-mode details.dev-drawer {
-      background: #f8fafc !important;
-      border-color: #e2e8f0 !important;
+      background: #f7faff !important;
+      border-color: #dbe5f1 !important;
     }
     .light-mode details.dev-drawer summary {
-      color: #0284c7 !important;
-    }
-    .light-mode div[style*="background: rgba(56, 189, 248"] {
-      background: #f0f9ff !important;
-      border-color: #bae6fd !important;
-    }
-    .light-mode div[style*="background: rgba(15, 23, 42"] {
-      background: #f8fafc !important;
-      border-color: #e2e8f0 !important;
+      color: #1f6feb !important;
     }
     *, *::before, *::after {
       box-sizing: border-box !important;
     }
     body {
-      font-family: 'Outfit', sans-serif;
-      background: var(--bg-color);
+      font-family: "Space Grotesk", system-ui, sans-serif;
+      background:
+        radial-gradient(900px 480px at 88% -8%, rgba(31,111,235,.10), transparent 62%),
+        linear-gradient(180deg,#f6f9ff,#eef3fb);
       color: var(--text-main);
       margin: 0; padding: 18px;
       display: flex; flex-direction: column; height: 100vh;
@@ -379,7 +361,7 @@ HTML_TEMPLATE = """<!doctype html>
       border-radius: var(--radius); border: 1px solid var(--border);
       border-left: 4px solid var(--primary);
     }
-    .header-panel h1 { margin: 0; color: #f8fafc; font-size: 1.4rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+    .header-panel h1 { margin: 0; color: var(--primary-hover); font-size: 1.4rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
     .domain-loader { display: flex; gap: 10px; align-items: center; }
 
     /* Panels */
@@ -405,63 +387,65 @@ HTML_TEMPLATE = """<!doctype html>
     .form-group label { display: block; font-size: 0.78rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
     input, select {
       width: 100%; padding: 10px 12px;
-      border: 1px solid var(--border); border-radius: 8px;
-      font-family: 'Outfit', sans-serif; font-size: 0.9rem;
-      background: rgba(15, 23, 42, 0.8); color: #f8fafc; transition: all 0.2s;
+      border: 1px solid var(--border); border-radius: 9px;
+      font-family: "IBM Plex Mono", monospace; font-size: 0.9rem;
+      background: #fbfdff; color: var(--text-main); transition: all 0.2s;
     }
-    input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2); background: #0f172a;}
+    input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(31, 111, 235, 0.12); background: #ffffff;}
 
     /* Buttons */
     button {
-      padding: 10px 18px; border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 9999px; font-weight: 600; cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-      background: #18181b; color: #ffffff; font-family: 'Outfit', sans-serif; font-size: 0.88rem; letter-spacing: 0.02em;
+      padding: 10px 18px; border: 1px solid var(--border); border-radius: 9px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+      background: #ffffff; color: var(--text-main); font-family: "Space Grotesk", sans-serif; font-size: 0.88rem; letter-spacing: 0.02em;
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      box-shadow: 0 1px 2px rgba(16, 33, 61, 0.06);
     }
-    button:hover { background: #27272a; border-color: rgba(255, 255, 255, 0.3); color: #ffffff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.6); }
-    button:active { transform: translateY(0); }
-    
+    button:hover { background: #ffffff; border-color: #93a3b8; color: var(--text-main); box-shadow: 0 1px 2px rgba(16, 33, 61, 0.06); }
+    button:active { transform: translateY(1px); }
+
     .btn-success {
-      background: linear-gradient(135deg, rgba(6, 95, 70, 0.7), rgba(4, 120, 87, 0.8));
-      color: #ffffff; border: 1px solid rgba(16, 185, 129, 0.4);
-      box-shadow: 0 2px 8px rgba(5, 150, 105, 0.2);
+      background: var(--success);
+      color: #ffffff; border: 1px solid var(--success);
+      box-shadow: 0 2px 8px rgba(22, 163, 74, 0.2);
     }
     .btn-success:hover {
-      background: linear-gradient(135deg, rgba(4, 120, 87, 0.95), rgba(5, 150, 105, 1));
-      color: #ffffff; border-color: rgba(52, 211, 153, 0.6);
-      box-shadow: 0 4px 14px rgba(5, 150, 105, 0.4);
+      background: #128a3e;
+      color: #ffffff; border-color: #128a3e;
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
     }
-    
+
     .btn-danger {
-      background: linear-gradient(135deg, rgba(153, 27, 27, 0.7), rgba(185, 28, 28, 0.8));
-      color: #ffffff; border: 1px solid rgba(239, 68, 68, 0.4);
-      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+      background: var(--danger);
+      color: #ffffff; border: 1px solid var(--danger);
+      box-shadow: 0 2px 8px rgba(229, 72, 77, 0.2);
     }
     .btn-danger:hover {
-      background: linear-gradient(135deg, rgba(185, 28, 28, 0.95), rgba(220, 38, 38, 1));
-      color: #ffffff; border-color: rgba(248, 113, 113, 0.6);
-      box-shadow: 0 4px 14px rgba(220, 38, 38, 0.4);
+      background: var(--danger-hover);
+      color: #ffffff; border-color: var(--danger-hover);
+      box-shadow: 0 4px 12px rgba(229, 72, 77, 0.3);
     }
-    
-    .btn-outline { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.16); color: #e4e4e7; }
-    .btn-outline:hover { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.3); color: #ffffff; }
+
+    .btn-outline { background: #ffffff; border: 1px solid var(--border); color: var(--text-main); }
+    .btn-outline:hover { background: #f7faff; border-color: #93a3b8; color: var(--primary); }
 
     /* Topic Selectors */
     .topics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;}
 
-    /* Cameras */
+    /* Cameras (kept dark — video letterboxing reads better dark regardless
+       of the surrounding theme, same as any video player) */
     .camera-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
+    .camera-box.camera-world { grid-column: 1 / -1; }
 
     .camera-box { background: #070b14; aspect-ratio: 16/9; width: 100%; height: auto; border-radius: 10px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.85rem; border: 1px solid var(--border); }
     .camera-box img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .camera-box .cam-label { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.85)); padding: 10px 8px 6px; text-align: center; font-weight: 600; font-size: 0.8rem;}
     .camera-box .cam-waiting { position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #64748b; font-size: 0.75rem; gap: 6px; pointer-events: none; }
-    .cam-waiting-dot { width: 8px; height: 8px; border-radius: 50%; background: #38bdf8; animation: camPulse 1.5s infinite; }
+    .cam-waiting-dot { width: 8px; height: 8px; border-radius: 50%; background: #1f6feb; animation: camPulse 1.5s infinite; }
     @keyframes camPulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
 
     /* Motor Stats */
-    .motor-stat { display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(15, 23, 42, 0.6); border-radius: 6px; margin-bottom: 6px; border: 1px solid var(--border); font-size: 0.82rem; }
-    .motor-stat .temp { font-weight: 700; color: var(--primary); font-family: 'JetBrains Mono', monospace; }
+    .motor-stat { display: flex; justify-content: space-between; padding: 8px 12px; background: var(--panel-2, #f7faff); border-radius: 6px; margin-bottom: 6px; border: 1px solid var(--border); font-size: 0.82rem; }
+    .motor-stat .temp { font-weight: 700; color: var(--primary); font-family: "IBM Plex Mono", monospace; }
     .motor-stat .temp.high { color: var(--danger); }
 
     /* Toast Notification */
@@ -472,7 +456,7 @@ HTML_TEMPLATE = """<!doctype html>
 
     /* Custom Collapsible Drawer */
     details.dev-drawer {
-      background: rgba(15, 23, 42, 0.4);
+      background: #f7faff;
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 10px 14px;
@@ -480,7 +464,7 @@ HTML_TEMPLATE = """<!doctype html>
       transition: all 0.2s ease;
     }
     details.dev-drawer[open] {
-      background: rgba(15, 23, 42, 0.7);
+      background: #f0f5ff;
     }
     details.dev-drawer summary {
       cursor: pointer;
@@ -509,7 +493,7 @@ HTML_TEMPLATE = """<!doctype html>
       width: 22px;
       height: 22px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(31, 111, 235, 0.08);
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -517,20 +501,36 @@ HTML_TEMPLATE = """<!doctype html>
     }
     details.dev-drawer[open] summary .drawer-arrow {
       transform: rotate(180deg);
-      background: rgba(56, 189, 248, 0.25);
+      background: rgba(31, 111, 235, 0.2);
     }
     .light-mode details.dev-drawer summary .drawer-arrow {
-      background: rgba(2, 132, 199, 0.1);
-      color: #0284c7;
+      background: rgba(31, 111, 235, 0.1);
+      color: #1f6feb;
     }
     @keyframes estopPulse {
-      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-      70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+      0% { box-shadow: 0 0 0 0 rgba(229, 72, 77, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(229, 72, 77, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(229, 72, 77, 0); }
     }
   </style>
 </head>
 <body>
+<script>
+async function ihubEmergencyStop(){
+  if(!confirm('EMERGENCY STOP\n\nKill the ROS 2 bringup now?')) return;
+  var btn=document.getElementById('ihubEstop');
+  var prev=btn.textContent; btn.disabled=true; btn.textContent='STOPPING…';
+  try{
+    var res=await fetch('http://'+location.hostname+':8100/api/kill',{method:'POST'});
+    var data={}; try{ data=await res.json(); }catch(e){}
+    alert(data.message || (res.ok?'Bringup stopped.':'E-STOP request failed.'));
+  }catch(e){
+    alert('E-STOP request failed: '+e);
+  }finally{
+    btn.disabled=false; btn.textContent=prev;
+  }
+}
+</script>
   <div class="app-container">
     <div class="header-panel">
       <h1>
@@ -538,7 +538,8 @@ HTML_TEMPLATE = """<!doctype html>
         Data Collection Operator Terminal
       </h1>
       <div style="display: flex; align-items: center; gap: 14px;">
-        <input type="hidden" id="domain_id" value="33" />
+        <button id="ihubEstop" onclick="ihubEmergencyStop()" title="Kill ROS 2 bringup" style="background:#d81f2f;color:#fff;border:2px solid rgba(255,255,255,.5);border-radius:8px;padding:8px 14px;font:700 12px/1.2 system-ui,-apple-system,sans-serif;letter-spacing:.04em;cursor:pointer;box-shadow:0 2px 10px rgba(216,31,47,.45);white-space:nowrap;">&#9211; E-STOP</button>
+        <input type="hidden" id="domain_id" value="55" />
         <div id="mode-toggle-badge" onclick="toggleRobotMode()" title="Click to switch between Teach (backdrivable) and Normal (holds trajectory) mode" style="cursor: pointer; font-size: 0.78rem; background: rgba(16, 185, 129, 0.1); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.25); padding: 5px 14px; border-radius: 20px; font-weight: 700; letter-spacing: 0.05em; display: inline-flex; align-items: center; gap: 8px;">
           <span id="mode-dot" style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block; box-shadow: 0 0 8px #10b981;"></span>
           <span id="mode-badge-text">MODE: —</span>
@@ -556,33 +557,32 @@ HTML_TEMPLATE = """<!doctype html>
       <h2>1. Task & Recording Setup</h2>
       <div class="form-group">
         <label>Dataset Identifier</label>
-        <input type="text" id="dataset_name" placeholder="e.g. box_pick_and_place" oninput="syncDatasetNames()" />
+        <input type="text" id="dataset_name" value="" placeholder="Example: pick_and_place_v1" oninput="syncDatasetNames()" autocomplete="off" />
       </div>
-
+      
       <div class="form-group">
         <label>Task 1 Name</label>
-        <input type="text" id="task1_name" placeholder="e.g. pick_object" oninput="updateTaskLabels()" />
+        <input type="text" id="task1_name" value="" placeholder="Example: pick_object" oninput="updateTaskLabels()" autocomplete="off" />
       </div>
       <div class="form-group">
         <label>Prompt 1 Instruction</label>
-        <input type="text" id="prompt1_used" placeholder="e.g. Pick up the targeted block" />
+        <input type="text" id="prompt1_used" value="" placeholder="Example: Pick up the target object" autocomplete="off" />
       </div>
-
+      
       <div class="form-group">
         <label>Task 2 Name</label>
-        <input type="text" id="task2_name" placeholder="e.g. place_object" oninput="updateTaskLabels()" />
+        <input type="text" id="task2_name" value="" placeholder="Example: place_object" oninput="updateTaskLabels()" autocomplete="off" />
       </div>
       <div class="form-group">
         <label>Prompt 2 Instruction</label>
-        <input type="text" id="prompt2_used" placeholder="e.g. Place the block into destination bin" />
+        <input type="text" id="prompt2_used" value="" placeholder="Example: Place the object in the destination" autocomplete="off" />
       </div>
-
-      <div style="margin-top: 10px; padding: 14px; background: rgba(56, 189, 248, 0.05); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 10px;">
+      <div style="margin-top: 10px; padding: 14px; background: #eaf2ff; border: 1px solid rgba(31, 111, 235, 0.2); border-radius: 10px;">
         <label style="font-size:0.8rem; font-weight:700; color:var(--primary); display:block; margin-bottom:8px;">ACTIVE RECORD CONTROL</label>
         <div style="display:flex; gap:8px; margin-bottom: 10px;">
           <select id="active_record_task" style="flex:1;">
-            <option value="1">Task 1: pick_object</option>
-            <option value="2">Task 2: place_object</option>
+            <option value="1">Task: Task 1</option>
+            <option value="2">Task: Task 2</option>
           </select>
         </div>
         <div style="display:flex; gap:10px;">
@@ -595,12 +595,14 @@ HTML_TEMPLATE = """<!doctype html>
             Stop Record
           </button>
         </div>
-        <div style="margin-top: 10px; text-align: center; font-size: 1.05rem; font-weight: bold; color: var(--primary); font-family: 'JetBrains Mono', monospace;" id="live_steps_display">
+        <div style="margin-top: 10px; text-align: center; font-size: 1.05rem; font-weight: bold; color: var(--primary); font-family: 'IBM Plex Mono', monospace;" id="live_steps_display">
           Steps: 0 / 0
         </div>
-        <div id="validation-blocked-panel" style="display:none; margin-top: 10px; padding: 10px; border: 1px solid var(--danger, #ef4444); border-radius: 8px; background: rgba(239,68,68,0.08);">
-          <div id="validation-blocked-message" style="font-size: 0.9rem; margin-bottom: 8px;"></div>
-          <button class="btn-danger" onclick="acknowledgeValidation()" style="width:100%;">Acknowledge & Resume</button>
+        <div id="validation-banner" style="display:none; margin-top:10px; padding:10px 12px; border-radius:8px; font-size:0.85rem;">
+          <div id="validation-banner-text" style="margin-bottom:8px;"></div>
+          <button id="validation-ack-btn" class="btn-danger" onclick="acknowledgeValidation()" style="width:100%;">
+            Acknowledge &amp; Continue Recording
+          </button>
         </div>
       </div>
 
@@ -623,7 +625,7 @@ HTML_TEMPLATE = """<!doctype html>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="6" width="18" height="12" rx="2"/><line x1="23" y1="11" x2="23" y2="13"/></svg>
               Battery Level
             </span>
-            <span id="data-battery-val" style="font-weight: 800; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: var(--primary);">87.0%</span>
+            <span id="data-battery-val" style="font-weight: 800; font-family: 'IBM Plex Mono', monospace; font-size: 0.95rem; color: var(--primary);">87.0%</span>
           </div>
           <div style="width: 100%; height: 8px; background: rgba(100, 116, 139, 0.2); border-radius: 4px; overflow: hidden;">
             <div id="data-battery-fill" style="width: 87%; height: 100%; background: linear-gradient(90deg, #059669, #10b981); transition: width 0.3s ease;"></div>
@@ -645,14 +647,14 @@ HTML_TEMPLATE = """<!doctype html>
       </div>
     </div>
     
-    <!-- CENTER PANEL: Live Camera Feeds (4-Camera Grid) -->
+    <!-- CENTER PANEL: one World view on top, two Gripper views below -->
     <div class="panel center-panel">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-        <h2 style="margin: 0; border: none; padding: 0;">Live Robot Vision Streams (4-Camera Grid)</h2>
+        <h2 style="margin: 0; border: none; padding: 0;">Live Robot Vision Streams</h2>
       </div>
       
       <div class="camera-grid" id="camera-grid">
-        <!-- 4 Fixed Camera Feeds rendered automatically on launch -->
+        <!-- World Camera above; Left/Right Gripper Cameras below. -->
       </div>
     </div>
 
@@ -671,17 +673,17 @@ HTML_TEMPLATE = """<!doctype html>
           <button class="btn-outline" onclick="loadDatasetStats()" style="padding: 3px 10px; font-size: 0.72rem; border-radius: 9999px;">Sync Stats</button>
         </div>
         <div style="display:flex; gap:8px; margin-bottom:10px;">
-          <input type="text" id="stats_query_dataset" placeholder="e.g. box_pick_and_place" style="flex:1; font-weight:700;" oninput="syncDatasetNames()" />
+          <input type="text" id="stats_query_dataset" value="" placeholder="Dataset Name" style="flex:1; font-weight:700;" oninput="syncDatasetNames()" autocomplete="off" />
         </div>
         <div id="dataset-stats-display" style="font-size: 0.8rem; color: var(--text-muted);">
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
             <div style="background: rgba(2, 132, 199, 0.08); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(2, 132, 199, 0.2); text-align: center;">
               <div style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Total Episodes</div>
-              <div style="font-size: 1.25rem; font-weight: 800; color: var(--primary); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">0</div>
+              <div style="font-size: 1.25rem; font-weight: 800; color: var(--primary); font-family: 'IBM Plex Mono', monospace; margin-top: 2px;">0</div>
             </div>
             <div style="background: rgba(2, 132, 199, 0.08); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(2, 132, 199, 0.2); text-align: center;">
               <div style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Total Frames</div>
-              <div style="font-size: 1.25rem; font-weight: 800; color: var(--primary); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">0</div>
+              <div style="font-size: 1.25rem; font-weight: 800; color: var(--primary); font-family: 'IBM Plex Mono', monospace; margin-top: 2px;">0</div>
             </div>
           </div>
           <div style="font-size: 0.75rem; color: var(--text-muted);">Tasks (0): None</div>
@@ -692,15 +694,15 @@ HTML_TEMPLATE = """<!doctype html>
       <div style="margin-bottom: 16px; padding: 14px; background: rgba(2, 132, 199, 0.03); border: 1px solid var(--border); border-radius: 10px;">
         <label style="font-size:0.8rem; font-weight:700; color:var(--primary); display:block; margin-bottom:8px;">REPLAY CONTROL</label>
         <div style="display:flex; gap:8px; margin-bottom:8px;">
-          <input type="text" id="replay_dataset" placeholder="e.g. box_pick_and_place" style="flex:1;" />
+          <input type="text" id="replay_dataset" value="" placeholder="Dataset" style="flex:1;" autocomplete="off" />
           <select id="replay_task" style="width: 100px;">
             <option value="1">Task 1</option>
             <option value="2">Task 2</option>
           </select>
         </div>
         <div style="display:flex; gap:8px; margin-bottom:10px;">
-          <input type="number" id="replay_episode" min="1" placeholder="e.g. 1" style="flex:1;" />
-          <input type="number" id="replay_speed" step="0.1" placeholder="e.g. 1.0" style="width: 80px;" />
+          <input type="number" id="replay_episode" value="1" min="1" placeholder="Episode #" style="flex:1;" />
+          <input type="number" id="replay_speed" value="1.0" step="0.1" placeholder="Speed" style="width: 80px;" />
         </div>
         <div style="display:flex; gap:8px;">
           <button onclick="startReplay()" style="flex:1; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
@@ -718,8 +720,8 @@ HTML_TEMPLATE = """<!doctype html>
       <div style="padding: 14px; background: rgba(239, 68, 68, 0.04); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 10px;">
         <label style="font-size:0.8rem; font-weight:700; color:var(--danger); display:block; margin-bottom:8px;">DELETE EPISODE</label>
         <div style="display:flex; gap:8px; margin-bottom:8px;">
-          <input type="text" id="delete_dataset" placeholder="e.g. box_pick_and_place" style="flex:1;" />
-          <input type="number" id="delete_episode" min="1" placeholder="Episode #" style="width: 80px;" />
+          <input type="text" id="delete_dataset" value="" placeholder="Dataset" style="flex:1;" autocomplete="off" />
+          <input type="number" id="delete_episode" value="1" min="1" style="width: 80px;" />
         </div>
         <button class="btn-danger" onclick="deleteEpisode()" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 6px;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
@@ -734,7 +736,7 @@ HTML_TEMPLATE = """<!doctype html>
         <summary>
           <span style="display: inline-flex; align-items: center; gap: 8px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>
-            Advanced Developer Configurations (Recording Hz, Episode Len, Max Episodes)
+            Advanced Developer Configurations (Recording Hz, Episode Length, Max Episodes)
           </span>
           <span class="drawer-arrow">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
@@ -743,8 +745,8 @@ HTML_TEMPLATE = """<!doctype html>
         
         <div style="display:grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 14px;">
           <div><label style="font-size:0.75rem; color:var(--text-muted);">Recording Hz</label><input type="number" id="record_hz" value="30" /></div>
+          <div><label style="font-size:0.75rem; color:var(--text-muted);">Episode Length (steps)</label><input type="number" id="episode_len" value="500" min="1" step="1" /></div>
           <div><label style="font-size:0.75rem; color:var(--text-muted);">Max Episodes</label><input type="number" id="max_episodes" value="1" /></div>
-          <div><label style="font-size:0.75rem; color:var(--text-muted);">Episode Length</label><input type="number" id="episode_len" value="500" /></div>
           <div><label style="font-size:0.75rem; color:var(--text-muted);">Interdelay (s)</label><input type="number" id="interdelay" value="2.0" step="0.1" /></div>
           <div><label style="font-size:0.75rem; color:var(--text-muted);">Video FPS</label><input type="number" id="fps" value="30" min="1" step="1" /></div>
         </div>
@@ -803,7 +805,7 @@ HTML_TEMPLATE = """<!doctype html>
       }, 3500);
     }
 
-    let loadedDomainId = 33;
+    let loadedDomainId = 55;
     
     function validateDomainId(checkLoaded = false, silent = true) {
       return true;
@@ -1176,10 +1178,9 @@ HTML_TEMPLATE = """<!doctype html>
     // Cameras are intentionally NOT auto-added on startup; user adds them manually.
     async function autoAddDefaultCameras() {
       const defaultCams = {
-        'left_wrist': '/left_arm/left/color/image_raw/compressed',
-        'right_wrist': '/right_arm/right/color/image_raw/compressed',
-        'zed_left': '/zed/zed_node/left/color/raw/image/compressed',
-        'zed_right': '/zed/zed_node/right/color/raw/image/compressed'
+        'world': '/world/camera/color/image_raw/compressed',
+        'wrist_right': '/right/camera/color/image_raw/compressed',
+        'wrist_left': '/left/camera/color/image_raw/compressed'
       };
 
       const domainId = loadedDomainId;
@@ -1296,6 +1297,7 @@ HTML_TEMPLATE = """<!doctype html>
         box = document.createElement('div');
         box.id = 'cam-box-' + name;
         box.className = 'camera-box';
+        if (name === 'World Camera') box.classList.add('camera-world');
         box.innerHTML = `
           <img id="cam-img-${name}" src="" style="display:none; width:100%; height:100%; object-fit:cover;"/>
           <div class="cam-waiting" id="cam-wait-${name}">
@@ -1407,26 +1409,40 @@ HTML_TEMPLATE = """<!doctype html>
     async function startRecord() {
       if (!validateDomainId(true)) return;
       const activeTaskIdx = document.getElementById('active_record_task').value;
-      const taskName = document.getElementById('task' + activeTaskIdx + '_name').value;
-      const promptUsed = document.getElementById('prompt' + activeTaskIdx + '_used').value;
-      const datasetName = document.getElementById('dataset_name').value;
-
-      if (!datasetName) { showToast('Please provide a dataset identifier', true); return; }
-      if (!taskName) { showToast('Please provide a task name', true); return; }
-      if (!promptUsed) { showToast('Please provide a prompt instruction', true); return; }
+      const datasetName = document.getElementById('dataset_name').value.trim();
+      const taskName = document.getElementById('task' + activeTaskIdx + '_name').value.trim();
+      const promptUsed = document.getElementById('prompt' + activeTaskIdx + '_used').value.trim();
+      if (!datasetName || !taskName || !promptUsed) {
+        showToast('Enter a dataset name, selected task name, and selected task prompt before recording.', true);
+        return;
+      }
 
       const getVal = (id) => { const el = document.getElementById(id); return el ? el.value : ''; };
       const topics = {
-        leader_topic_left: getVal('topic_leader_left'),
-        leader_topic_right: getVal('topic_leader_right'),
-        follower_topic_left: getVal('topic_follower_left'),
-        follower_topic_right: getVal('topic_follower_right'),
-        follower_cmd_topic_left: getVal('topic_cmd_left'),
-        follower_cmd_topic_right: getVal('topic_cmd_right'),
         leader_cmd_topic_left: "",
         leader_cmd_topic_right: "",
-        camera_topics: {}
+        // Always record the three cameras presented in the operator layout.
+        // Extra cameras added in the developer drawer are appended below.
+        camera_topics: {
+          "world": "/world/camera/color/image_raw/compressed",
+          "wrist_right": "/right/camera/color/image_raw/compressed",
+          "wrist_left": "/left/camera/color/image_raw/compressed"
+        }
       };
+      // Only override the recorder's already-configured leader/follower/cmd
+      // topics when a value is actually present (there is currently no
+      // topic-selector UI wired up, so getVal always returns '' here) --
+      // sending an explicit empty string would blank out the recorder's
+      // good existing topic names instead of leaving them alone, since
+      // dict.get(key, default) on the backend only falls back to default
+      // when the key is ABSENT, not when its value is an empty string.
+      const setIfPresent = (key, id) => { const v = getVal(id); if (v) topics[key] = v; };
+      setIfPresent('leader_topic_left', 'topic_leader_left');
+      setIfPresent('leader_topic_right', 'topic_leader_right');
+      setIfPresent('follower_topic_left', 'topic_follower_left');
+      setIfPresent('follower_topic_right', 'topic_follower_right');
+      setIfPresent('follower_cmd_topic_left', 'topic_cmd_left');
+      setIfPresent('follower_cmd_topic_right', 'topic_cmd_right');
 
 
       for(let i=1; i<=cameraCount; i++) {
@@ -1441,12 +1457,12 @@ HTML_TEMPLATE = """<!doctype html>
         dataset_name: datasetName,
         task: taskName,
         prompt: promptUsed,
-        record_hz: parseFloat(getVal('record_hz') || "30"),
-        episode_length: parseInt(getVal('episode_len') || "500"),
-        max_episodes: parseInt(getVal('max_episodes') || "1"),
-        domain_id: parseInt(getVal('domain_id') || "0"),
-        interdelay: parseFloat(getVal('interdelay') || "2.0"),
-        fps: parseInt(getVal('fps') || "30"),
+        record_hz: parseFloat(document.getElementById('record_hz').value),
+        episode_length: parseInt(document.getElementById('episode_len').value),
+        max_episodes: parseInt(document.getElementById('max_episodes').value || "1"),
+        domain_id: parseInt(document.getElementById('domain_id').value || "0"),
+        interdelay: parseFloat(document.getElementById('interdelay').value),
+        fps: parseInt(document.getElementById('fps').value || "10"),
         topics: topics
       };
       showToast('Starting recording...');
@@ -1486,11 +1502,6 @@ HTML_TEMPLATE = """<!doctype html>
       const activeTaskIdx = document.getElementById('replay_task').value;
       const taskName = document.getElementById('task' + activeTaskIdx + '_name').value;
       const promptUsed = document.getElementById('prompt' + activeTaskIdx + '_used').value;
-
-      if (!document.getElementById('replay_dataset').value) {
-        showToast('Please provide a dataset name', true);
-        return;
-      }
       // User enters Episode 1, 2, 3... We convert to 0-based index for the backend
       const episodeDisplay = parseInt(document.getElementById('replay_episode').value);
       const episode = episodeDisplay - 1;  // convert to 0-based
@@ -1505,7 +1516,7 @@ HTML_TEMPLATE = """<!doctype html>
       }
 
       const payload = {
-          speed: parseFloat(document.getElementById('replay_speed').value || "1.0"),
+          speed: parseFloat(document.getElementById('replay_speed').value),
           dataset_name: document.getElementById('replay_dataset').value,
           episode_index: episode,
           record_hz: parseFloat(document.getElementById('record_hz').value),
@@ -1586,24 +1597,16 @@ HTML_TEMPLATE = """<!doctype html>
     }
 
     function syncDatasetNames() {
-      const sourceName = document.getElementById('dataset_name').value.trim();
-      const fallbackName = sourceName || 'box_pick_and_place';
-      const ids = ['stats_query_dataset', 'replay_dataset', 'delete_dataset'];
-
-      ids.forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.value = sourceName || el.value || '';
-        el.placeholder = `e.g. ${fallbackName}`;
-      });
-
+      const name = document.getElementById('dataset_name').value;
+      document.getElementById('stats_query_dataset').value = name;
+      document.getElementById('replay_dataset').value = name;
+      document.getElementById('delete_dataset').value = name;
       // Do NOT auto-load dataset stats here — only load when explicitly requested
       // or after a recording completes. This prevents cross-session data leakage.
     }
 
     async function loadDatasetStats() {
-      const datasetName = document.getElementById('stats_query_dataset').value.trim()
-        || document.getElementById('dataset_name').value.trim();
+      const datasetName = document.getElementById('stats_query_dataset').value;
       if (!datasetName) {
         showToast('Please specify a dataset to query', true);
         return;
@@ -1652,11 +1655,11 @@ HTML_TEMPLATE = """<!doctype html>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
               <div style="background: rgba(2, 132, 199, 0.08); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(2, 132, 199, 0.2); text-align: center;">
                 <div style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em;">Total Episodes</div>
-                <div style="font-size: 1.3rem; font-weight: 800; color: var(--primary); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${data.episode_count}</div>
+                <div style="font-size: 1.3rem; font-weight: 800; color: var(--primary); font-family: 'IBM Plex Mono', monospace; margin-top: 2px;">${data.episode_count}</div>
               </div>
               <div style="background: rgba(2, 132, 199, 0.08); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(2, 132, 199, 0.2); text-align: center;">
                 <div style="font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em;">Total Frames</div>
-                <div style="font-size: 1.3rem; font-weight: 800; color: var(--primary); font-family: 'JetBrains Mono', monospace; margin-top: 2px;">${data.total_frames}</div>
+                <div style="font-size: 1.3rem; font-weight: 800; color: var(--primary); font-family: 'IBM Plex Mono', monospace; margin-top: 2px;">${data.total_frames}</div>
               </div>
             </div>
             <div style="padding: 8px 10px; background: rgba(0, 0, 0, 0.03); border-radius: 6px; border: 1px solid var(--border);">
@@ -1697,6 +1700,8 @@ HTML_TEMPLATE = """<!doctype html>
         // If the server is running on a different domain than this session, hide status.
         if (data.server_domain !== undefined && data.server_domain !== loadedDomainId) return;
 
+        updateValidationBanner(data.last_episode_validation, data.validation_blocked);
+
         if (data.replay_active) {
           const overlays = document.querySelectorAll('.replay-mode-overlay');
           overlays.forEach(overlay => overlay.style.display = 'none');
@@ -1723,10 +1728,12 @@ HTML_TEMPLATE = """<!doctype html>
           if (display) {
             display.innerText = `Steps: ${data.step_count} / ${data.max_steps}`;
           }
-
-          updateValidationPanel(data);
+        } else if (data.validation_blocked) {
+          // Paused between episodes waiting on the validation banner's
+          // Acknowledge button -- not a real stop, so don't run the
+          // stopped-and-saved cleanup below (it would contradict the
+          // failed-validation banner shown above).
         } else {
-          updateValidationPanel(data);
           if (_statusRecordingStarted) {
             _statusRecordingStarted = false;
             _statusPollerActive = false;
@@ -1743,32 +1750,6 @@ HTML_TEMPLATE = """<!doctype html>
       } catch (e) {}
     }
 
-    function updateValidationPanel(data) {
-      const panel = document.getElementById('validation-blocked-panel');
-      const msgEl = document.getElementById('validation-blocked-message');
-      if (!panel || !msgEl) return;
-      if (data.validation_blocked) {
-        const info = data.last_episode_validation;
-        const issues = (info && info.issues) ? info.issues.map(i => i.message || i.code).join('; ') : '';
-        msgEl.innerText = `⚠️ Episode ${info ? info.episode : ''} failed validation${issues ? ': ' + issues : ''}. Recording is paused.`;
-        panel.style.display = 'block';
-      } else {
-        panel.style.display = 'none';
-      }
-    }
-
-    async function acknowledgeValidation() {
-      try {
-        const res = await fetch('/api/record/acknowledge_validation', { method: 'POST', body: JSON.stringify({}) });
-        const data = await res.json();
-        if (data.ok) {
-          showToast(data.message || 'Acknowledged. Resuming.');
-          document.getElementById('validation-blocked-panel').style.display = 'none';
-        } else {
-          showToast('Acknowledge failed: ' + (data.error || 'Unknown'), true);
-        }
-      } catch (e) { showToast('Network error: ' + e, true); }
-    }
 
     // Run this continuous checker every 100ms for high responsiveness
     setInterval(checkBackgroundStatus, 100);
@@ -1792,6 +1773,58 @@ HTML_TEMPLATE = """<!doctype html>
       if (panel) panel.style.display = 'none';
     }
 
+    function _escapeHtml(s) {
+      const d = document.createElement('div');
+      d.innerText = String(s);
+      return d.innerHTML;
+    }
+
+    // Reflects the post-save validate_dataset.check_episode() result the
+    // recorder node publishes on /recorder/ui_status after every episode.
+    function updateValidationBanner(info, blocked) {
+      const banner = document.getElementById('validation-banner');
+      const text = document.getElementById('validation-banner-text');
+      const ackBtn = document.getElementById('validation-ack-btn');
+      if (!banner || !text || !ackBtn) return;
+
+      if (!info || !info.issues || info.issues.length === 0) {
+        banner.style.display = 'none';
+        return;
+      }
+
+      const lines = info.issues.map(i => `&bull; ${_escapeHtml(i.message)}`).join('<br>');
+      banner.style.display = 'block';
+      if (blocked) {
+        banner.style.background = 'rgba(220, 38, 38, 0.08)';
+        banner.style.border = '1px solid rgba(220, 38, 38, 0.35)';
+        text.innerHTML = `<b style="color:#dc2626;">Episode ${info.episode} FAILED validation — recording paused</b><br>${lines}`;
+        ackBtn.style.display = 'block';
+      } else {
+        banner.style.background = 'rgba(217, 119, 6, 0.08)';
+        banner.style.border = '1px solid rgba(217, 119, 6, 0.35)';
+        text.innerHTML = `<b style="color:#d97706;">Episode ${info.episode}: ${info.issues.length} warning(s)</b><br>${lines}`;
+        ackBtn.style.display = 'none';
+      }
+    }
+
+    async function acknowledgeValidation() {
+      const btn = document.getElementById('validation-ack-btn');
+      if (btn) btn.disabled = true;
+      try {
+        const res = await fetch('/api/record/acknowledge_validation', { method: 'POST' });
+        const data = await res.json();
+        if (data.ok) {
+          showToast('Acknowledged — resuming recording');
+        } else {
+          showToast(data.error || 'Failed to acknowledge', true);
+        }
+      } catch (e) {
+        showToast('Acknowledge request failed', true);
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
     async function loadConfig() {
       updateTaskLabels();
       try {
@@ -1806,6 +1839,8 @@ HTML_TEMPLATE = """<!doctype html>
         if (recording.episode_len && document.getElementById('episode_len')) document.getElementById('episode_len').value = recording.episode_len;
         if (recording.inter_episode_delay && document.getElementById('interdelay')) document.getElementById('interdelay').value = recording.inter_episode_delay;
         if (recording.fps && document.getElementById('fps')) document.getElementById('fps').value = recording.fps;
+        // Dataset/task/prompt fields deliberately stay empty at each UI start.
+        // The operator enters the metadata for the current collection session.
         if (recording.max_episodes && document.getElementById('max_episodes')) document.getElementById('max_episodes').value = recording.max_episodes;
         
         setSelectValue('topic_leader_cmd_right', topics.leader_cmd_topic_right);
@@ -1814,15 +1849,16 @@ HTML_TEMPLATE = """<!doctype html>
       }
     }
 
-    function initFixed4CameraGrid() {
+    function initFixedCameraLayout() {
+      // One wide world camera is shown above the two gripper cameras.
+      // These same names are saved in camera_topics when a recording starts.
       const fixedCameras = [
-        { name: "Primary Binocular Vision (Left)",    topic: "/zed/zed_node/left/color/rect/image/compressed" },
-        { name: "Primary Binocular Vision (Right)",   topic: "/zed/zed_node/right/color/rect/image/compressed" },
-        { name: "Left Wrist Camera",                  topic: "/left/camera/color/image_raw/compressed" },
-        { name: "Right Wrist Camera",                 topic: "/right/camera/color/image_raw/compressed" }
+        { name: "World Camera",         topic: "/world/camera/color/image_raw/compressed" },
+        { name: "Left Gripper Camera",  topic: "/left/camera/color/image_raw/compressed" },
+        { name: "Right Gripper Camera", topic: "/right/camera/color/image_raw/compressed" }
       ];
 
-      const domainId = parseInt(loadedDomainId) || 33;
+      const domainId = parseInt(loadedDomainId) || 55;
 
       fixedCameras.forEach(cam => {
         fetch('/api/cameras/register', {
@@ -1834,10 +1870,10 @@ HTML_TEMPLATE = """<!doctype html>
     }
 
     loadConfig();
-    // Auto-load topics for domain 33 on startup so cameras connect immediately
-    loadTopics(true).then(() => initFixed4CameraGrid());
+    // Auto-load topics for domain 55 on startup so cameras connect immediately
+    loadTopics(true).then(() => initFixedCameraLayout());
     // Also init camera grid immediately (before topics finish loading) for UI display
-    initFixed4CameraGrid();
+    initFixedCameraLayout();
 
     // Real-time Theme Sync with Main Dashboard UI (app.py)
     async function syncThemeWithMainApp() {
@@ -1943,21 +1979,7 @@ class DataManagementUINode(Node):
         self.cli_rec_ack_validation = self.create_client(Trigger, '/recorder/acknowledge_validation')
         self.cli_rep_start = self.create_client(StartReplay, '/replay/start')
         self.cli_rep_stop = self.create_client(Trigger, '/replay/stop')
-
-        # Self-healing: this UI is meant to run alongside ros2_topic_recorder
-        # and ros2_topic_replay (see launch/data_collection.launch.py), but
-        # in practice it keeps getting started alone via a bare
-        # `ros2 run daksha_data_collection web_data_management_ui` --
-        # leaving /recorder/start (and /replay/start) with no server behind
-        # them, so every Start Record/Replay click fails with "service is
-        # not available" until someone notices and manually launches the
-        # missing node. Checking here and auto-launching whatever's missing
-        # makes this UI self-sufficient regardless of how it was started.
-        # Delayed (not checked immediately): service discovery needs a few
-        # spin cycles to populate after this node is added to an executor,
-        # and that hasn't happened yet at __init__ time.
-        self._dep_check_timer = self.create_timer(3.0, self._ensure_dependent_nodes)
-
+        
         self._rec_state = False  # False = idle/waiting, True = recording
         self._rec_missing: list = []
         self._rec_step = 0
@@ -1966,13 +1988,6 @@ class DataManagementUINode(Node):
         self._replay_active = False
         self._record_active = False
         
-        # Guards the read-modify-write of CONFIG_PATH in start_record(): the
-        # HTTP server is threaded, so two near-simultaneous Start Record
-        # requests (double-click, slow retry) could otherwise race and let
-        # one request's dataset/task/topic selection silently clobber the
-        # other's before the recorder ever reads the file.
-        self._config_lock = threading.Lock()
-
         # Motor status from real ROS topics
         self._motor_data = {}   # {'left': [...], 'right': [...]}
         self._motor_lock = threading.Lock()
@@ -2057,34 +2072,6 @@ class DataManagementUINode(Node):
                     ).start()
         except Exception as e:
             self.get_logger().error(f"Error in replay status callback: {e}")
-
-    def _ensure_dependent_nodes(self) -> None:
-        """One-shot check (see the timer in __init__): launch
-        ros2_topic_recorder / ros2_topic_replay ourselves if their services
-        aren't up yet, so this UI works whether it was started via the
-        proper launch file or standalone."""
-        self._dep_check_timer.cancel()
-        try:
-            if not self.cli_rec_start.service_is_ready():
-                self.get_logger().warn(
-                    "/recorder/start not available -- launching ros2_topic_recorder"
-                )
-                subprocess.Popen(
-                    ["ros2", "run", "daksha_data_collection", "ros2_topic_recorder"],
-                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                    preexec_fn=os.setsid,
-                )
-            if not self.cli_rep_start.service_is_ready():
-                self.get_logger().warn(
-                    "/replay/start not available -- launching ros2_topic_replay"
-                )
-                subprocess.Popen(
-                    ["ros2", "run", "daksha_data_collection", "ros2_topic_replay"],
-                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                    preexec_fn=os.setsid,
-                )
-        except Exception as e:
-            self.get_logger().error(f"Dependent-node self-check failed: {e}")
 
     def _motor_cb(self, msg: MotorStatusArray, side: str):
         """Cache latest per-motor status (id/error/error_name/mos_temp/rotor_temp)."""
@@ -2234,7 +2221,7 @@ class DataManagementUINode(Node):
                 'topics': topics_cfg,
                 'camera_topics': camera_topics,
                 'recording': recording_cfg,
-                'dataset_name': dataset_cfg.get('dataset_name', 'my_dataset'),
+                'dataset_name': dataset_cfg.get('dataset_name', ''),
                 'domain_id': domain_id
             }
         except Exception as e:
@@ -2463,44 +2450,28 @@ class DataManagementUINode(Node):
 
             # Update configuration YAML file
             try:
-                with self._config_lock:
-                    with open(self.CONFIG_PATH, 'r') as f:
-                        cfg = yaml.safe_load(f) or {}
+                with open(self.CONFIG_PATH, 'r') as f:
+                    cfg = yaml.safe_load(f) or {}
+                
+                cfg.setdefault('dataset', {})['dataset_name'] = dataset_name
+                cfg['dataset']['task'] = task
+                cfg['dataset']['prompt'] = prompt
+                
+                cfg.setdefault('recording', {})['record_hz'] = record_hz
+                cfg['recording']['episode_len'] = episode_length
+                cfg['recording']['max_episodes'] = max_episodes
+                cfg['recording']['domain_id'] = domain_id
+                cfg['recording']['inter_episode_delay'] = interdelay
+                cfg['recording']['fps'] = fps
+                cfg['domain_id'] = domain_id
 
-                    cfg.setdefault('dataset', {})['dataset_name'] = dataset_name
-                    cfg['dataset']['task'] = task
-                    cfg['dataset']['prompt'] = prompt
-
-                    cfg.setdefault('recording', {})['record_hz'] = record_hz
-                    cfg['recording']['episode_len'] = episode_length
-                    cfg['recording']['max_episodes'] = max_episodes
-                    cfg['recording']['domain_id'] = domain_id
-                    cfg['recording']['inter_episode_delay'] = interdelay
-                    cfg['recording']['fps'] = fps
-                    cfg['domain_id'] = domain_id
-
-                    if topics_data:
-                        # Merge only non-empty values: the browser sends a full
-                        # topics object shaped like the config on every request,
-                        # so a session that starts recording before "Load
-                        # Topics" has populated the pickers (or before the
-                        # camera list has loaded) sends blank strings / an empty
-                        # camera_topics dict for everything -- a blind .update()
-                        # would silently blank out a previously-good config
-                        # (including all camera topics) and let recording start
-                        # with nothing actually wired up. Keep whatever's
-                        # already configured for any key the browser left empty.
-                        def _merge_nonempty(dst: dict, src: dict) -> None:
-                            for k, v in src.items():
-                                if v:
-                                    dst[k] = v
-
-                        _merge_nonempty(cfg.setdefault('topics', {}), topics_data)
-                        _merge_nonempty(cfg.setdefault('recording_topics', {}), topics_data)
-
-                    with open(self.CONFIG_PATH, 'w') as f:
-                        yaml.dump(cfg, f, default_flow_style=False, sort_keys=False)
-                    self.get_logger().info("Updated config.yaml with new recording parameters and topics.")
+                if topics_data:
+                    cfg.setdefault('topics', {}).update(topics_data)
+                    cfg.setdefault('recording_topics', {}).update(topics_data)
+                
+                with open(self.CONFIG_PATH, 'w') as f:
+                    yaml.dump(cfg, f, default_flow_style=False, sort_keys=False)
+                self.get_logger().info("Updated config.yaml with new recording parameters and topics.")
             except Exception as e:
                 self.get_logger().error(f"Failed to update config.yaml: {e}")
 
@@ -3128,7 +3099,7 @@ def main(args=None):
     server.ros_node = ui_node
 
     ips = get_local_ips()
-    pref_ip = "localhost"
+    pref_ip = socket.gethostname()
     for ip in ips:
         if ip.startswith("192.168.200."):
             pref_ip = ip
@@ -3189,4 +3160,3 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-

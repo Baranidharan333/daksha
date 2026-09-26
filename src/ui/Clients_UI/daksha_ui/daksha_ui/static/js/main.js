@@ -1032,17 +1032,30 @@ function initCameraCanvases() {
 }
 
 // ── ROS Topic Availability ──────────────────────────────────────────
+// Topics like the per-arm motor status only start publishing once
+// controller_manager/hw_interface finishes activating, which can happen
+// well after the rest of bringup -- a one-shot check on modal-open would
+// freeze on "NOT AVAILABLE" forever if it fired before that, even after
+// the topic goes live. Poll while the modal stays open instead.
+let _topicStatusPollId = null;
+
 function openTopicStatusModal() {
   const modal = document.getElementById('topic-status-modal');
   if (modal) {
     modal.classList.add('active');
     refreshTopicStatus();
+    if (_topicStatusPollId) clearInterval(_topicStatusPollId);
+    _topicStatusPollId = setInterval(refreshTopicStatus, 2000);
   }
 }
 
 function closeTopicStatusModal() {
   const modal = document.getElementById('topic-status-modal');
   if (modal) modal.classList.remove('active');
+  if (_topicStatusPollId) {
+    clearInterval(_topicStatusPollId);
+    _topicStatusPollId = null;
+  }
 }
 
 async function refreshTopicStatus() {

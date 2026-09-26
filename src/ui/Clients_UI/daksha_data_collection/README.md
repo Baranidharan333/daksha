@@ -106,7 +106,7 @@ Edit your settings in `daksha_data_collection/config/config.yaml`. Below is a st
 ```yaml
 domain_id: 3  # Global ROS 2 Domain ID
 dataset:
-  root_dir: /home/s1/.ihub/.barani/gen2_full/src/ui/Clients_UI/daksha_data_collection/datasets
+  root_dir: ~/.barani/gen2_full/src/ui/Clients_UI/daksha_data_collection/datasets
   dataset_name: Box_pick_and_place
   task: pick_object
   prompt: "Pick up the red block"

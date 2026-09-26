@@ -8,81 +8,50 @@ import os
 import subprocess
 
 
-# -- ROS 2 parameters (Clients_UI/config/*.yaml) -----------------------------
-# Every setting below is a real ROS parameter, supplied by
-# Clients_UI/config/common.yaml + daksha_ui.yaml via client_ui.launch.py's
-# parameters=[...]
-# (or by hand: --ros-args --params-file <that file>). The node is created with
-# automatically_declare_parameters_from_overrides=True, so a key added to that
-# file is readable here with no change to this script:
-#     ros2 param get /daksha_dashboard network.daksha_ui_port
-#
-# ROS_DOMAIN_ID is the one setting that cannot arrive this way. DDS reads it
-# during rclpy.init(), and a node has to be on a domain already before it can
-# read any parameter. The launch file exports it with SetEnvironmentVariable
-# before starting this node. Run by hand with no domain in the environment,
-# fall back to this robot's own domain rather than silently landing on domain
-# 0, where none of the robot's topics are visible.
-DEFAULT_ROS_DOMAIN_ID = "33"
-if not os.environ.get("ROS_DOMAIN_ID"):
-    os.environ["ROS_DOMAIN_ID"] = DEFAULT_ROS_DOMAIN_ID
-    print(f"[config] ROS_DOMAIN_ID unset - defaulting to {DEFAULT_ROS_DOMAIN_ID}; "
-          f"launch via client_ui.launch.py to take it from config/common.yaml")
-
-import sys
-
-import rclpy
-from rclpy.exceptions import ParameterNotDeclaredException
-from rclpy.node import Node as _RclpyNode
-
-if not rclpy.ok():
-    rclpy.init(args=sys.argv)
-
-# Named to match the launch file so `ros2 param list /daksha_dashboard` works
-# against a running UI.
-_param_node = _RclpyNode(
-    "daksha_dashboard",
-    automatically_declare_parameters_from_overrides=True,
-)
-
-
-def cfg(name, default=None):
-    """One dotted ROS parameter, or `default` when no params file supplied it.
-
-    automatically_declare_parameters_from_overrides declares only what was
-    actually passed in, so every lookup needs a fallback for the
-    no-params-file case.
+# ── Load project configuration ────────────────────────────────────────────────
+def _load_project_config():
+    """Load daksha_ui's own config/project.config.yaml — installed to
+    share/daksha_ui/config/, same resource pattern as camera_layout.json
+    below. Belongs to this package alone; no other package reads it.
+    Share-dir-first, source-relative fallback, same reasoning as
+    CAMERA_LAYOUT_PATH: realpath (not abspath) matters for the fallback
+    because with --symlink-install the "installed" executable at
+    install/daksha_ui/lib/daksha_ui/dashboard_app.py is a symlink back to
+    this same source file, and abspath(__file__) would preserve that
+    symlink path instead of resolving back to daksha_ui/'s real config/.
+    Returns (cfg, resolved_path) — the path is kept as CONFIG_PATH so the
+    /api/joint_calibration POST handler can write updates back to it.
     """
+    candidates = []
     try:
-        return _param_node.get_parameter(name).value
-    except ParameterNotDeclaredException:
-        return default
+        from ament_index_python.packages import get_package_share_directory
+        candidates.append(os.path.join(
+            get_package_share_directory("daksha_ui"), "config", "project.config.yaml"
+        ))
+    except Exception:
+        pass
+    _self = os.path.dirname(os.path.realpath(__file__))
+    candidates.append(os.path.join(_self, '..', 'config', 'project.config.yaml'))
+    candidates = [os.path.normpath(p) for p in candidates]
+    for path in candidates:
+        if os.path.isfile(path):
+            try:
+                import yaml
+                with open(path) as f:
+                    cfg = yaml.safe_load(f)
+                print(f"[config] Loaded project config from: {path}")
+                return cfg or {}, path
+            except Exception as e:
+                print(f"[config] Failed to load {path}: {e}")
+    print("[config] project.config.yaml not found — using built-in defaults")
+    return {}, candidates[-1]
 
 
-def cfg_group(prefix):
-    """A whole parameter sub-tree as a nested dict.
+PROJECT_CFG, CONFIG_PATH = _load_project_config()
 
-    The parameter file's nesting is flattened to dotted names on load, so
-    `joint_calibration.left_joint_1.scale` has to be rebuilt into
-    {'left_joint_1': {'scale': ...}} for the code that consumes it.
-    """
-    out = {}
-    for key, param in _param_node.get_parameters_by_prefix(prefix).items():
-        node = out
-        parts = key.split(".")
-        for part in parts[:-1]:
-            node = node.setdefault(part, {})
-        node[parts[-1]] = param.value
-    return out
-
-
-# Where the parameter file lives on disk, passed as a parameter by the launch
-# file. Only the calibration editor needs it, to write its changes back.
-CONFIG_PATH = cfg("config_file")
-if CONFIG_PATH:
-    print(f"[config] parameters from: {CONFIG_PATH}")
-else:
-    print("[config] no config_file parameter - calibration edits will not persist")
+# Apply ROS_DOMAIN_ID from config (before any ROS imports)
+_domain_id = str(PROJECT_CFG.get('ros', {}).get('domain_id', 3))
+os.environ['ROS_DOMAIN_ID'] = _domain_id
 
 import threading
 import time
@@ -91,6 +60,7 @@ import base64
 import logging
 import re
 import math
+import socket
 import yaml
 from functools import lru_cache
 from concurrent.futures import ThreadPoolExecutor
@@ -161,8 +131,8 @@ JOY_MAX_LINEAR = 0.5       # m/s at full forward/back deflection
 JOY_MAX_ANGULAR = 1.0      # rad/s at full left/right deflection
 JOY_DEADMAN_TIMEOUT = 0.5  # zero cmd_vel if no joystick update received within this long
 
-_jt = cfg_group('joint_topics')
-_mt = cfg_group('motor_topics')
+_jt = PROJECT_CFG.get('joint_topics', {})
+_mt = PROJECT_CFG.get('motor_topics', {})
 LEFT_JOINT_TOPIC  = _jt.get('follower_left',  '/LeftArmSystem_ordered_joint_states')
 RIGHT_JOINT_TOPIC = _jt.get('follower_right', '/RightArmSystem_ordered_joint_states')
 LEFT_MOTOR_TOPIC  = _mt.get('left',  '/LeftArmSystem/motor_status')
@@ -170,13 +140,13 @@ RIGHT_MOTOR_TOPIC = _mt.get('right', '/RightArmSystem/motor_status')
 JOINT_TORQUE_TOPIC = _jt.get('torque_debug', '/jnt_cmt_to_ctrl')
 
 # Safety thresholds (from config, with safe defaults)
-_safety = cfg_group('safety')
+_safety = PROJECT_CFG.get('safety', {})
 BATTERY_WARN_PCT    = _safety.get('battery_warn_percent',  35)
 MOTOR_TEMP_WARN     = _safety.get('motor_temp_warn',  60)
 MOTOR_TEMP_ALERT    = _safety.get('motor_temp_alert', 65)
 
 # Cross-notification URL for Data Collection UI
-_net = cfg_group('network')
+_net = PROJECT_CFG.get('network', {})
 DATA_COLLECTION_URL = _net.get('data_collection_url', 'http://localhost:8888')
 DASHA_PORT          = _net.get('daksha_ui_port', 7070)
 
@@ -365,7 +335,7 @@ def _run_ros_echo(topic: str) -> dict | None:
         return None
 
 
-JOINT_CALIBRATION = cfg_group('joint_calibration')
+JOINT_CALIBRATION = PROJECT_CFG.get('joint_calibration', {})
 
 def _expand_joint_aliases(clean_name: str, value) -> dict:
     """Mirror a value onto every alias name the URDF viewer / joint list uses
@@ -646,12 +616,12 @@ def _start_motor_monitors() -> None:
 # Camera frame buffer: cam_id -> (base64_data_uri, timestamp)
 latest_camera_frames = {}
 
-# Known cameras, sourced from config/common.yaml's camera_topics (the
+# Known cameras, sourced from project.config.yaml's camera_topics (the
 # single source of truth also used for joint/motor topics) so this list
 # tracks whatever's actually wired up on the robot instead of being
 # hardcoded here. Falls back to the wrist cameras if the config is missing
 # the section entirely.
-_CAMERA_TOPICS_CFG = cfg_group('camera_topics') or {
+_CAMERA_TOPICS_CFG = PROJECT_CFG.get('camera_topics') or {
     "left_wrist": {"display_name": "Left Wrist Camera", "compressed": "/left/camera/color/image_raw/compressed"},
     "right_wrist": {"display_name": "Right Wrist Camera", "compressed": "/right/camera/color/image_raw/compressed"},
 }
@@ -676,7 +646,7 @@ CAM_NAME_MAP = {c["id"]: c["display_name"] for c in CAMERA_REGISTRY}
 # so the "Camera" quick-access modal remembers the layout across reloads/
 # restarts (Save/Load Camera Config buttons in the UI). Same share/-dir-
 # first, source-relative-fallback resolution as DESC_PKG above; unlike
-# the shared config this file belongs to daksha_ui alone, so it's a real
+# project.config.yaml this file belongs to daksha_ui alone, so it's a real
 # ament package resource rather than a hand-walked cross-package path.
 try:
     CAMERA_LAYOUT_PATH = os.path.join(
@@ -746,14 +716,7 @@ def _ros_bridge_loop() -> None:
         if not rclpy.ok():
             rclpy.init(args=None)
 
-        # use_global_arguments=False: the launch file passes
-        # -r __node:=daksha_dashboard, and a __node remap applies to every
-        # node a process creates. Without this, the parameter node above and
-        # this one both come up as /daksha_dashboard, which rosout complains
-        # about ("Publisher already registered for provided node name") and
-        # which makes `ros2 node list` ambiguous. This node reads no
-        # parameters, so it loses nothing by ignoring the global args.
-        node = Node("daksha_web_joint_visualizer", use_global_arguments=False)
+        node = Node("daksha_web_joint_visualizer")
         cmd_vel_pub = node.create_publisher(Twist, "/cmd_vel", 10)
         # Live per-joint slider commands (only enabled client-side once the
         # arm has confirmed it's homed within tolerance).
@@ -941,35 +904,43 @@ def get_urdf():
 
 @app.route("/api/joint_calibration", methods=["GET", "POST"])
 def joint_calibration_api():
-    """GET current calibration matrix or POST updates to config/daksha_ui.yaml."""
+    """GET current calibration matrix or POST updates to project.config.yaml."""
     global JOINT_CALIBRATION
     if request.method == "POST":
         data = request.get_json() or {}
         if isinstance(data, dict):
             JOINT_CALIBRATION.update(data)
-            if not CONFIG_PATH:
-                return jsonify({
-                    "ok": False,
-                    "error": "no config_file parameter — calibration applied in-memory "
-                             "only, not saved. Launch via client_ui.launch.py, or pass "
-                             "-p config_file:=<path to config/daksha_ui.yaml>.",
-                }), 500
+            PROJECT_CFG['joint_calibration'] = JOINT_CALIBRATION
             try:
-                # Read-modify-write the file rather than dumping what this
-                # process holds: the parameters here are a flattened view of
-                # one node's overrides, so dumping them would drop the
-                # `/**: ros__parameters:` envelope and every section this app
-                # never looks at, leaving the other UIs with no config.
-                with open(CONFIG_PATH) as f:
-                    document = yaml.safe_load(f) or {}
-                document.setdefault('/**', {}).setdefault('ros__parameters', {})
-                document['/**']['ros__parameters']['joint_calibration'] = JOINT_CALIBRATION
-                with open(CONFIG_PATH, 'w') as f:
-                    yaml.safe_dump(document, f, default_flow_style=False, sort_keys=False)
+                _write_joint_calibration(CONFIG_PATH, JOINT_CALIBRATION)
             except Exception as e:
                 return jsonify({"ok": False, "error": str(e)}), 500
             return jsonify({"ok": True, "calibration": JOINT_CALIBRATION})
     return jsonify({"ok": True, "calibration": JOINT_CALIBRATION})
+
+
+def _write_joint_calibration(path: str, calibration: dict) -> None:
+    """Rewrite only the joint_calibration: block in project.config.yaml,
+    in place. Deliberately NOT `yaml.safe_dump(PROJECT_CFG, ...)` over the
+    whole file — that round-trips through a plain dict and silently drops
+    every comment and section header in the file (hand-authored notes like
+    "# Perfect" / "# Fixed (Inverse -> 1.0)" next to each joint), plus
+    reorders keys alphabetically. Splicing just this block preserves
+    everything else in the file byte-for-byte."""
+    block = yaml.safe_dump({"joint_calibration": calibration}, default_flow_style=False)
+    with open(path) as f:
+        content = f.read()
+    new_content, n = re.subn(
+        r"^joint_calibration:\n(?:[ \t].*\n|\n)*",
+        block,
+        content,
+        count=1,
+        flags=re.MULTILINE,
+    )
+    if n == 0:
+        raise RuntimeError(f"joint_calibration: section not found in {path}")
+    with open(path, "w") as f:
+        f.write(new_content)
 
 
 @app.route("/pkg/<path:subpath>")
@@ -979,13 +950,18 @@ def serve_pkg(subpath):
     if subpath.startswith("meshes/"):
         web_meshes = os.path.join(DESC_PKG, "meshes_web")
         if os.path.isdir(web_meshes):
-            web_path = os.path.realpath(os.path.join(web_meshes, subpath[len("meshes/"):]))
-            if web_path.startswith(os.path.realpath(web_meshes)) and os.path.isfile(web_path):
+            web_path = os.path.abspath(os.path.join(web_meshes, subpath[len("meshes/"):]))
+            if web_path.startswith(os.path.abspath(web_meshes) + os.sep) and os.path.isfile(web_path):
                 return send_file(web_path, mimetype="model/stl")
 
-    full = os.path.realpath(os.path.join(DESC_PKG, subpath))
-    # Security: must stay inside DESC_PKG
-    if not full.startswith(os.path.realpath(DESC_PKG)):
+    # Security: subpath must stay inside DESC_PKG. Checked lexically (abspath,
+    # no symlink resolution) rather than via realpath — with --symlink-install
+    # every mesh under DESC_PKG is itself a symlink back to build/ (then src/),
+    # so realpath-ing it legitimately lands outside DESC_PKG and would 403
+    # every mesh. abspath still catches a "../" escape from the URL-controlled
+    # subpath, which is the actual thing being guarded against.
+    full = os.path.abspath(os.path.join(DESC_PKG, subpath))
+    if not full.startswith(os.path.abspath(DESC_PKG) + os.sep):
         abort(403)
     if not os.path.isfile(full):
         abort(404)
@@ -1493,7 +1469,7 @@ if __name__ == "__main__":
     start_ros_bridge()
     print("=" * 60)
     print("  iHub Robotics — Daksha Robot Web UI")
-    print(f"  http://localhost:{DASHA_PORT}")
+    print(f"  http://{socket.gethostname()}:{DASHA_PORT}")
     print(f"  ROS_DOMAIN_ID={os.environ.get('ROS_DOMAIN_ID', '?')}")
     print("=" * 60)
     app.run(host=_net.get('daksha_ui_host', '0.0.0.0'), port=DASHA_PORT, debug=False)

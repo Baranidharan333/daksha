@@ -1,0 +1,214 @@
+# ============================================================
+#  daksha_ui — package configuration
+#  File: daksha_ui/config/project.config.yaml
+#
+#  Belongs to the daksha_ui package alone (installed to
+#  share/daksha_ui/config/, same as camera_layout.json).
+#  Read only by dashboard_app.py — no other package loads this
+#  file. The Data Collection UI has its own separate config at
+#  daksha_data_collection/config/config.yaml.
+#
+#  HOW TO RELOAD: restart dashboard_app.py.
+# ============================================================
+
+
+# ── SECTION 1: NETWORK & PORTS ──────────────────────────────
+network:
+  daksha_ui_port: 7070           # Daksha Dashboard web server port
+  data_collection_port: 8888     # Data Collection Terminal web server port
+  daksha_ui_host: "0.0.0.0"     # Listen on all interfaces
+  data_collection_host: "0.0.0.0"
+
+  # Cross-service links: Data Collection fetches live battery/telemetry from
+  # the Daksha Dashboard over HTTP. Change these if the UIs are on different
+  # machines.
+  daksha_ui_url: "http://localhost:7070"
+  data_collection_url: "http://localhost:8888"
+
+  # Robot subnet (CycloneDDS peer discovery whitelist)
+  robot_subnet: "192.168.200"    # First 3 octets (x.x.x.0/24 range)
+  static_peer_ips:               # Fallback peer IPs if nmap/ARP fails
+    - "192.168.200.88"
+    - "192.168.200.167"
+    - "192.168.200.200"
+
+
+
+# ── SECTION 2: ROS 2 ENVIRONMENT ────────────────────────────
+ros:
+  distro: "humble"
+  ros_setup: "/opt/ros/humble/setup.bash"
+  domain_id: 55                  # ROS_DOMAIN_ID (matches this robot's actual bringup)
+  rmw_implementation: "rmw_cyclonedds_cpp"
+
+
+# ── SECTION 3: JOINT STATE TOPICS ───────────────────────────
+joint_topics:
+  # Follower arm (Daksha robot joint states)
+  follower_left:  "/LeftArmSystem_ordered_joint_states"
+  follower_right: "/RightArmSystem_ordered_joint_states"
+
+  # Follower arm commands
+  follower_cmd_left:  "/joint_cmd"
+  follower_cmd_right: "/joint_cmd"
+
+  # Leader arm (teleoperation input)
+  leader_left:  "/leader/left_joint_states"
+  leader_right: "/leader/right_joint_states"
+
+  # Leader commands (optional, leave empty if not used)
+  leader_cmd_left:  ""
+  leader_cmd_right: ""
+
+
+# ── SECTION 3B: JOINT CALIBRATION & LIMITS MATRIX ──────────
+#  - 'scale':  Set to -1.0 to INVERT/FLIP joint motion (+ vs -)
+#  - 'offset': Home pose zero offset in radians (raw - offset = 0 at home)
+#  - 'lower' / 'upper': Allowed min/max joint limits in radians
+#  Reset to raw/identity (scale 1.0, offset 0.0) with lower/upper copied
+#  directly from robot.urdf's own <limit> tags, so the 3D viewer shows
+#  exactly what /joint_states reports with no correction applied.
+joint_calibration:
+  # Left Arm Joints
+  left_joint_1:   { scale: 1.0, offset: 0.0, lower: -4.537856, upper: 0.349066 }
+  left_joint:     { scale: 1.0, offset: 0.0, lower: -4.537856, upper: 0.349066 }
+  left_joint_2:   { scale: 1.0, offset: 0.0, lower: -3.141593, upper: 0.174533 }
+  left_joint2:    { scale: 1.0, offset: 0.0, lower: -3.141593, upper: 0.174533 }
+  left_joint_3:   { scale: 1.0, offset: 0.0, lower: -1.570796, upper: 1.570796 }
+  left_joint_4:   { scale: 1.0, offset: 0.0, lower: -2.094395, upper: 0.0 }
+  left_joint_5:   { scale: 1.0, offset: 0.0, lower: -3.14159265, upper: 0.0 }
+  left_joint_6:   { scale: -1.0, offset: 0.0, lower: -0.785398, upper: 0.785398 }
+  left_joint_7:   { scale: 1.0, offset: 0.0, lower: -1.570796, upper: 1.570796 }
+
+  # Right Arm Joints
+  right_joint_1:  { scale: 1.0, offset: 0.0, lower: -0.349066, upper: 4.537856 }
+  right_joint:    { scale: 1.0, offset: 0.0, lower: -0.349066, upper: 4.537856 }
+  right_joint_2:  { scale: 1.0, offset: 0.0, lower: -3.141593, upper: 0.174533 }
+  right_joint2:   { scale: 1.0, offset: 0.0, lower: -3.141593, upper: 0.174533 }
+  right_joint_3:  { scale: 1.0, offset: 0.0, lower: -1.570796, upper: 1.570796 }
+  right_joint_4:  { scale: 1.0, offset: 0.0, lower: 0.0, upper: 2.094395 }
+  right_joint_5:  { scale: 1.0, offset: 0.0, lower: 0.0, upper: 3.14159265 }
+  right_joint_6:  { scale: 1.0, offset: 0.0, lower: -0.785398, upper: 0.785398 }
+  right_joint_7:  { scale: 1.0, offset: 0.0, lower: -1.570796, upper: 1.570796 }
+
+  # Gripper joints
+  left_gripper_left_joint:   { scale: 1.0, offset: 0.0, lower: -0.044, upper: 0.0 }
+  right_gripper_right_joint: { scale: 1.0, offset: 0.0, lower: 0.0,    upper: 0.044 }
+
+
+# ── SECTION 4: MOTOR STATUS TOPICS ──────────────────────────
+motor_topics:
+  left:  "/LeftArmSystem/motor_status"
+  right: "/RightArmSystem/motor_status"
+
+
+# ── SECTION 5: CAMERA TOPICS ────────────────────────────────
+camera_topics:
+  # Wrist cameras — mounted on end-effectors
+  left_wrist:
+    display_name: "Left Wrist Camera"
+    topic: "/left/camera/color/image_raw"
+    compressed: "/left/camera/color/image_raw/compressed"  # for recording
+
+  right_wrist:
+    display_name: "Right Wrist Camera"
+    topic: "/right/camera/color/image_raw"
+    compressed: "/right/camera/color/image_raw/compressed"  # for recording
+
+  # Head/world-view camera (start_all_camera.sh's "world" RealSense)
+  world:
+    display_name: "World Camera"
+    topic: "/world/camera/color/image_raw"
+    compressed: "/world/camera/color/image_raw/compressed"
+
+  # Head stereo cameras (only present on ZED-equipped robot variants)
+  binocular_left:
+    display_name: "Primary Binocular Vision (Left)"
+    topic: "/zed/zed_node/left/color/rect/image"
+    compressed: "/zed/zed_node/left/color/rect/image/compressed"
+
+  binocular_right:
+    display_name: "Primary Binocular Vision (Right)"
+    topic: "/zed/zed_node/right/color/rect/image"
+    compressed: "/zed/zed_node/right/color/rect/image/compressed"
+
+
+
+# ── SECTION 6: SAFETY THRESHOLDS ────────────────────────────
+safety:
+  # Battery thresholds
+  battery_warn_percent: 35       # Orange warning at this level
+
+  # Motor thermal thresholds (degrees Celsius)
+  motor_temp_warn: 60            # Yellow warning — monitor closely
+  motor_temp_alert: 65           # Orange high alert — reduce load
+
+
+# ── SECTION 7: RECORDING PARAMETERS ─────────────────────────
+recording:
+  record_hz: 30.0                # Recording frequency (Hz)
+  episode_len: 500               # Max steps per episode
+  max_episodes: 1                # Episodes per session
+  inter_episode_delay: 1.0       # Pause between episodes (seconds)
+  fps: 30                        # Camera FPS for video capture
+
+
+# ── SECTION 8: DATASET METADATA ─────────────────────────────
+dataset:
+  dataset_name: "Box_pick_and_place"
+  task: "pick_object"
+  prompt: "Pick up the red block"
+
+
+# ── SECTION 9: FILE PATHS ────────────────────────────────────
+# All paths are relative to their project root. Do NOT use
+# hardcoded /home/username paths here — each backend resolves
+# paths dynamically using its own __file__ location.
+paths:
+  # Daksha UI workspace (relative to src/, sibling of Clients_UI/)
+  daksha_description_pkg: "daksha_description_full_body"
+
+  # Primary URDF file (inside daksha_description_pkg/urdf/)
+  primary_urdf: "robot.urdf"
+
+  # Data Collection workspace (relative to Clients_UI/)
+  data_collection_config: "daksha_data_collection/config/config.yaml"
+
+  # Dataset storage (relative to Clients_UI/)
+  dataset_dir: "daksha_data_collection/datasets"
+
+  # ROS install overlay (relative to final/)
+  ros_install: "install/setup.bash"
+
+
+# ── SECTION 10: ROBOT METADATA ───────────────────────────────
+robot:
+  name: "Daksha"
+  version: "v10.2"
+  organization: "iHub Robotics"
+  bimanual: true
+  dof_per_arm: 8
+  total_joints: 16
+  arm_type: "v10.2"
+  ee_type: "daksha_hand"
+  body_type: "v10.2"
+
+
+# ── SECTION 11: UI / DISPLAY ─────────────────────────────────
+ui:
+  default_theme: "dark"          # "dark" or "light"
+  default_grid_visible: true     # 3D viewer grid on by default
+  camera_view_count: 4           # Number of camera feeds to show
+
+
+# ─────────────────────────────────────────────────────────────
+# HOW TO USE THIS FILE IN PYTHON (see dashboard_app.py's
+# _load_project_config() for the real, ament-share-dir-first
+# resolution this mirrors):
+#   from ament_index_python.packages import get_package_share_directory
+#   import yaml, os
+#   CFG_PATH = os.path.join(get_package_share_directory("daksha_ui"), "config", "project.config.yaml")
+#   with open(CFG_PATH) as f:
+#       cfg = yaml.safe_load(f)
+#   domain_id = cfg['ros']['domain_id']
+# ─────────────────────────────────────────────────────────────

@@ -1,0 +1,120 @@
+
+# cameras.yaml
+#
+# Which RealSense cameras start_all_cameras.launch.py actually brings up,
+# and with what stream settings -- edit this file instead of the launch
+# file to add/remove a camera, change its resolution/fps, or flip a stream
+# on/off. Every setting is per-camera, so each one can be tuned independently.
+#
+# Set a camera's `enabled` to false to skip launching it entirely (e.g. it's
+# unplugged, being serviced, or you just want to test the others alone)
+# without touching any Python.
+#
+# color_fps/depth_fps are the Hz knob -- edit just the number, the launch
+# file builds the "<res>x<fps>" profile string realsense2_camera expects.
+# Not every resolution/fps combination is valid on every RealSense sensor;
+# check `rs-enumerate-devices -c` for the ones a given camera actually supports.
+#
+# All three run at 30 fps below. rs-enumerate-devices reported world and
+# left on USB 2.1 (bandwidth-limited) and right on USB 3.2 (full speed) --
+# if world/left start dropping frames or timing out at 30 fps, that USB 2.1
+# link is the likely reason (see the launch file's comment on moving them to
+# native USB3 ports), not a setting in this file.
+#
+# ── Minimal footprint: only .../color/image_raw/compressed ──────────────
+# Nothing downstream in this workspace needs anything but the compressed
+# color feed, so every camera below is trimmed to just that:
+#   enable_depth: false           kills depth/* entirely (image, camera_info,
+#                                  metadata) -- depth_to_color extrinsics stays
+#                                  published regardless (see below, it's not
+#                                  gated by enable_depth)
+#   enable_infra1/infra2: false   no raw infrared streams
+#   enable_gyro/enable_accel: false
+#                                  IMU off -- also needs udev rules this box
+#                                  didn't have (see the launch file); flip
+#                                  back on only after running
+#                                  src/camera/librealsense/scripts/setup_udev_rules.sh
+#                                  and replugging
+#   pointcloud.enable: false      no /camera/.../points
+#   align_depth.enable: false     no depth-aligned-to-color image
+#   publish_tf: false             no extra /tf frames
+#   color_pub_plugins: [image_transport/compressed]
+#                                  image_transport advertises raw + compressed
+#                                  + compressedDepth + theora for every image
+#                                  topic by default; this restricts color to
+#                                  just "compressed", so .../color/image_raw
+#                                  (raw), compressedDepth and theora are never
+#                                  advertised at all
+#
+# What's left per camera after all of the above (confirmed by actually
+# launching it): color/image_raw/compressed, color/camera_info,
+# color/metadata, extrinsics/depth_to_color. All four are unconditional
+# publishers in realsense2_camera tied to the device having a depth+color
+# pair at all, not to enable_depth or any other stream toggle -- there is no
+# parameter to drop them without turning color off entirely, which would
+# also kill the compressed topic. extrinsics/depth_to_color is a
+# latched/publish-once calibration topic (near-zero ongoing cost); the other
+# three carry one message per frame.
+
+cameras:
+  world:
+    enabled: true
+    namespace: camera
+    name: world
+    serial_no: "_313522301897"
+    color_resolution: "640x480"
+    color_fps: 30
+    depth_resolution: "640x480"
+    depth_fps: 30
+    enable_depth: false
+    enable_infra1: false
+    enable_infra2: false
+    enable_gyro: false
+    enable_accel: false
+    pointcloud.enable: false
+    align_depth.enable: false
+    publish_tf: false
+    color_pub_plugins: [image_transport/compressed]
+
+  right:
+    enabled: true
+    namespace: right
+    name: camera
+    # Swapped with `left`'s serial below: the physical camera mounted on the
+    # right wrist was reporting as "left" (and vice versa) -- the namespace
+    # here is what defines "right" for every topic/consumer, so pointing it
+    # at the correct physical device is the fix, not renaming the blocks.
+    serial_no: "_260322274109"
+    color_resolution: "640x480"
+    color_fps: 30
+    depth_resolution: "640x480"
+    depth_fps: 30
+    enable_depth: false
+    enable_infra1: false
+    enable_infra2: false
+    enable_gyro: false
+    enable_accel: false
+    pointcloud.enable: false
+    align_depth.enable: false
+    publish_tf: false
+    color_pub_plugins: [image_transport/compressed]
+
+  left:
+    enabled: true
+    namespace: left
+    name: camera
+    # Swapped with `right`'s serial above -- see that comment.
+    serial_no: "_260322273428"
+    color_resolution: "640x480"
+    color_fps: 30
+    depth_resolution: "640x480"
+    depth_fps: 30
+    enable_depth: false
+    enable_infra1: false
+    enable_infra2: false
+    enable_gyro: false
+    enable_accel: false
+    pointcloud.enable: false
+    align_depth.enable: false
+    publish_tf: false
+    color_pub_plugins: [image_transport/compressed]

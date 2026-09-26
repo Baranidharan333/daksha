@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import threading
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterator, Optional
+from typing import Any, Iterator
 
 import av
 import pandas as pd
@@ -77,15 +76,7 @@ class V3DatasetReplay:
                 )
                 global_index += 1
 
-    def iter_episode(
-        self, episode_index: int, cancel_event: Optional[threading.Event] = None
-    ) -> Iterator[ReplayItem]:
-        """`cancel_event`: checked once per step so a caller decoding this on
-        a background thread (see ros2_topic_replay.py's _load_episode) can
-        abort a long-running load early -- decoding every frame of every
-        camera for a whole episode can take tens of seconds on this rig's
-        embedded hardware, and without a way to cut it short, Stop had
-        nothing to cancel."""
+    def iter_episode(self, episode_index: int) -> Iterator[ReplayItem]:
         df = pd.read_parquet(self._parquet_path(episode_index))
         decoders: dict[str, tuple[av.container.InputContainer, Iterator[Any]]] = {}
         try:
@@ -97,8 +88,6 @@ class V3DatasetReplay:
                 decoders[camera_key] = (container, container.decode(video=0))
 
             for local_index, row in enumerate(df.to_dict("records")):
-                if cancel_event is not None and cancel_event.is_set():
-                    return
                 item = dict(row)
                 if "prompt" not in item:
                     item["prompt"] = ""

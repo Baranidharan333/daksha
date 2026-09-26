@@ -625,6 +625,79 @@ svg{fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round}
 .toast.err{background:#7f1d1d}
 
 /* ----------------------------------------------------------- responsive */
+/* --------------------------------------------------------- camera grid */
+.cameras-card .card-head-actions{display:flex; align-items:center; gap:8px; margin-left:auto}
+.cam-action-btn{
+  display:inline-flex; align-items:center; gap:6px;
+  font-family:inherit; font-size:12.5px; font-weight:600; color:var(--blue);
+  background:var(--blue-soft); border:1px solid transparent;
+  border-radius:9px; padding:7px 12px; cursor:pointer;
+}
+.cam-action-btn:hover{background:#d9e8fd}
+.cam-action-btn.active{background:var(--blue); color:#fff}
+.cam-action-btn svg{width:14px; height:14px}
+.cam-action-btn svg.spin{animation:cam-spin .6s linear infinite}
+@keyframes cam-spin{100%{transform:rotate(360deg)}}
+
+.cam-config-panel{
+  background:var(--panel-2); border:1px solid var(--line-soft);
+  border-radius:11px; padding:14px; margin-bottom:16px;
+}
+.cam-config-columns{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+.cam-config-col-title{
+  font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--muted); margin-bottom:8px;
+}
+.cam-drop-list{
+  min-height:64px; background:var(--panel); border:1px dashed var(--line);
+  border-radius:10px; padding:8px; display:flex; flex-direction:column; gap:6px;
+}
+.cam-drop-list.cam-drag-over{border-color:var(--blue); background:var(--blue-soft)}
+.cam-drop-item{
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:8px 10px; background:var(--panel-2); border:1px solid var(--line-soft);
+  border-radius:8px; cursor:grab;
+}
+.cam-drop-item:hover{border-color:#bcd6fb}
+.cam-drop-item.dragging{opacity:.4}
+.cam-drop-item-name{font-size:12.5px; font-weight:600; color:var(--txt)}
+.cam-drop-item-topic{display:block; font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--dim); margin-top:2px}
+.cam-drop-item-handle{color:var(--dim); font-size:14px; flex-shrink:0}
+.cam-config-actions{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px}
+.cam-config-hint{font-size:12px; color:var(--muted)}
+
+.cam-grid-4{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+.cam-card{
+  background:#0a0f1a; border:1px solid var(--line); border-radius:12px;
+  overflow:hidden; position:relative; aspect-ratio:16/9;
+  display:flex; flex-direction:column;
+}
+/* World camera: spans both columns as its own full-width top row, with
+   whatever else is selected (left/right wrist) tiling in the row below. */
+.cam-card-wide{grid-column:1 / -1; aspect-ratio:32/9}
+/* The feed is 4:3, much narrower than this wide box -- "cover" (the default
+   for every other tile) would zoom in and crop the top/bottom to fill it.
+   "contain" keeps the whole frame visible, centered, with the card's own
+   dark background as letterboxing on the sides instead. */
+.cam-card-wide .cam-img-viewport{object-fit:contain}
+.cam-card-header{
+  position:absolute; top:0; left:0; right:0; padding:8px 12px;
+  background:linear-gradient(180deg, rgba(0,0,0,.75), transparent);
+  z-index:2; display:flex; justify-content:space-between; align-items:center;
+  font-size:12px; font-weight:600; color:#f1f5f9;
+}
+.cam-status-tag{
+  font-size:10.5px; padding:2px 6px; border-radius:4px;
+  background:rgba(239,68,68,.18); color:#fca5a5; border:1px solid rgba(239,68,68,.3);
+}
+.cam-img-viewport, .cam-canvas-viewport{
+  width:100%; height:100%; object-fit:cover; display:block; background:#050810;
+}
+.cam-offline-placeholder{
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; gap:8px; color:#64748b; font-size:12.5px;
+}
+
 @media (max-width:1400px){
   .stat-row{grid-template-columns:repeat(3,1fr)}
 }
@@ -642,6 +715,11 @@ svg{fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round}
   .main{height:auto}
   .stat-row{grid-template-columns:repeat(2,1fr)}
   .arm-grid{grid-template-columns:1fr}
+  .cam-grid-4{grid-template-columns:1fr}
+  /* Single column here, so the wide top row is just a normal card again --
+     the 32/9 ratio only makes sense spanning two columns. */
+  .cam-card-wide{aspect-ratio:16/9}
+  .cam-config-columns{grid-template-columns:1fr}
   /* The head wraps at this width, so the tools need their own line rather
      than being squeezed against the title. */
   .robot-card .card-head{flex-wrap:wrap}

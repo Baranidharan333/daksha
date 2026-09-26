@@ -12,7 +12,9 @@ Run (after sourcing your ROS 2 workspace):
 """
 
 import atexit
+import base64
 import collections
+import json
 import logging
 import os
 import re
@@ -38,8 +40,9 @@ try:
     from rclpy.node import Node
     from rclpy.executors import SingleThreadedExecutor
     from rclpy.qos import (QoSProfile, QoSReliabilityPolicy,
-                           QoSDurabilityPolicy, QoSHistoryPolicy)
-    from sensor_msgs.msg import JointState
+                           QoSDurabilityPolicy, QoSHistoryPolicy,
+                           qos_profile_sensor_data)
+    from sensor_msgs.msg import JointState, CompressedImage
     from std_msgs.msg import String, Float32
     from std_srvs.srv import Trigger
     from rcl_interfaces.srv import SetParameters, GetParameters
@@ -81,6 +84,10 @@ RECOVERY_COUNT_TOPIC = "/arm_recovery/recovery_counts"
 # the URDF's own joint names, so they drive the 3D model without remapping.
 LEFT_JOINT_STATE_TOPIC = "/LeftArmSystem_ordered_joint_states"
 RIGHT_JOINT_STATE_TOPIC = "/RightArmSystem_ordered_joint_states"
+
+# CAMERA_REGISTRY (the cameras available in the Cameras panel) is loaded
+# from config/camera_topics.yaml below, once APP_DIR exists -- see that file
+# to add, rename or remove a camera row without touching this code.
 
 # Command topics for the dashboard's joint sliders and navigation joystick.
 # Same names and units the rest of the workspace already uses: /joint_cmd is
@@ -151,6 +158,37 @@ VIEWER_JOINT_OVERRIDES_YAML = os.path.join(APP_DIR, "config", "viewer_joint_over
 # touching code.
 APPLICATIONS_YAML = os.path.join(APP_DIR, "config", "applications.yaml")
 
+# Cameras available in the Cameras panel (see config/camera_topics.yaml) --
+# kept out of this file for the same reason as APPLICATIONS_YAML above.
+CAMERA_TOPICS_YAML = os.path.join(APP_DIR, "config", "camera_topics.yaml")
+
+# Which cameras the operator has chosen to display, and in what order --
+# persisted next to the other config files (see CMakeLists.txt) so the
+# Cameras panel's Save/Load Camera Config buttons remember the layout across
+# reloads/restarts. Same shape as daksha_ui's own camera_layout.json.
+CAMERA_LAYOUT_JSON = os.path.join(APP_DIR, "config", "camera_layout.json")
+
+
+def _load_camera_layout():
+    """Ordered list of camera ids to display; defaults to every known
+    camera (registry order) until the operator saves a custom layout."""
+    try:
+        with open(CAMERA_LAYOUT_JSON) as f:
+            data = json.load(f)
+        selected = [cid for cid in data.get("selected", []) if cid in CAMERA_REGISTRY_BY_ID]
+        if selected:
+            return selected
+    except Exception:
+        pass
+    return [c["id"] for c in CAMERA_REGISTRY]
+
+
+def _save_camera_layout(selected):
+    tmp = CAMERA_LAYOUT_JSON + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump({"selected": selected}, f, indent=2)
+    os.replace(tmp, CAMERA_LAYOUT_JSON)
+
 
 def _load_port_table(path):
     if not os.path.isfile(path):
@@ -160,6 +198,25 @@ def _load_port_table(path):
         with open(path) as f:
             doc = yaml.safe_load(f) or {}
         return list(doc.get("applications", []))
+    except Exception:
+        logging.getLogger(__name__).exception("Could not read %s", path)
+        return []
+
+
+def _load_camera_registry(path):
+    """[{"id", "display_name", "topic"}, ...] from config/camera_topics.yaml.
+    A row missing any of those three keys is dropped rather than crashing
+    the panel over one bad entry."""
+    if not os.path.isfile(path):
+        logging.getLogger(__name__).error("Camera topics config not found: %s", path)
+        return []
+    try:
+        with open(path) as f:
+            doc = yaml.safe_load(f) or {}
+        return [
+            c for c in doc.get("cameras", [])
+            if isinstance(c, dict) and {"id", "display_name", "topic"} <= c.keys()
+        ]
     except Exception:
         logging.getLogger(__name__).exception("Could not read %s", path)
         return []
@@ -282,6 +339,11 @@ def robot_meta():
 # there would just fail to load.
 PORT_TABLE = _load_port_table(APPLICATIONS_YAML)
 _ENTRIES_BY_PORT = {entry["port"]: entry for entry in PORT_TABLE}
+
+# Cameras available in the Cameras panel -- see config/camera_topics.yaml.
+CAMERA_REGISTRY = _load_camera_registry(CAMERA_TOPICS_YAML)
+CAMERA_REGISTRY_BY_ID = {c["id"]: c for c in CAMERA_REGISTRY}
+CAM_TOPICS = {c["id"]: c["topic"] for c in CAMERA_REGISTRY}
 
 # This panel's own port. Stopping or restarting it would kill the process
 # serving the page, so both are refused for this one row.
@@ -778,6 +840,12 @@ class RobotStateNode(Node):
         for topic in (LEFT_JOINT_STATE_TOPIC, RIGHT_JOINT_STATE_TOPIC):
             self.create_subscription(JointState, topic, self._joint_cb, 10)
 
+        self._camera_frames = {}  # cam_id -> (base64 data URI, timestamp)
+        for cam_id, topic in CAM_TOPICS.items():
+            self.create_subscription(
+                CompressedImage, topic, self._make_camera_cb(cam_id), qos_profile_sensor_data,
+            )
+
         # ── Command side ───────────────────────────────────────────────
         # Both publishers are created up front but publish nothing until the
         # operator arms the matching control in the UI.
@@ -919,6 +987,22 @@ class RobotStateNode(Node):
         with self._lock:
             return dict(self._joint_positions), dict(self._joint_efforts), self._joint_stamp
 
+    def _make_camera_cb(self, cam_id):
+        def callback(msg):
+            uri = f"data:image/jpeg;base64,{base64.b64encode(bytes(msg.data)).decode('utf-8')}"
+            with self._lock:
+                self._camera_frames[cam_id] = (uri, time.time())
+        return callback
+
+    def get_camera_frames(self):
+        """Latest frame per camera id, dropping anything older than 3s so a
+        dead topic falls back to the offline placeholder instead of a
+        frozen last frame."""
+        now = time.time()
+        with self._lock:
+            frames = dict(self._camera_frames)
+        return {cam_id: uri for cam_id, (uri, stamp) in frames.items() if now - stamp < 3.0}
+
     # ── Commands ───────────────────────────────────────────────────────
     def publish_joint_cmd(self, name, position):
         msg = JointState()
@@ -1020,6 +1104,13 @@ def start_bringup():
     with _lock:
         if _proc is not None and _proc.poll() is None:
             return False, "bringup is already running."
+        if _bringup_already_running():
+            # Not tracked by _proc (an orphan from a previous instance of
+            # this panel -- see _find_bringup_pid()), but launching a second
+            # bringup on top of it would fight the first over the same CAN
+            # adapter and vcan0/vcan1, same as the auto-launch guard in
+            # main() avoids.
+            return False, "bringup is already running (started outside this panel instance). Kill it first if you want to restart."
 
         try:
             proc = subprocess.Popen(
@@ -1050,11 +1141,26 @@ def start_bringup():
 def kill_bringup():
     with _lock:
         proc = _proc
-        if proc is None or proc.poll() is not None:
-            return False, "bringup is not running."
-        pgid = os.getpgid(proc.pid)
 
-    log_event(f"Stopping {LAUNCH_PACKAGE} {LAUNCH_FILE} (pid {proc.pid})...")
+    if proc is not None and proc.poll() is None:
+        pid = proc.pid
+        is_gone = lambda: proc.poll() is not None
+    else:
+        # Not tracked by _proc -- an orphaned bringup from a previous
+        # instance of this panel (see _find_bringup_pid()). Falling back to
+        # it here is what makes Kill actually work for it instead of just
+        # reporting "not running" while get_status() shows it as up.
+        pid = _find_bringup_pid()
+        if pid is None:
+            return False, "bringup is not running."
+        is_gone = lambda: _find_bringup_pid() is None
+
+    try:
+        pgid = os.getpgid(pid)
+    except ProcessLookupError:
+        return False, f"Process {pid} is already gone."
+
+    log_event(f"Stopping {LAUNCH_PACKAGE} {LAUNCH_FILE} (pid {pid})...")
     try:
         # SIGINT, not SIGTERM/SIGKILL: this is what `ros2 launch` catches to
         # cleanly shut down every node it started, same as Ctrl+C.
@@ -1065,10 +1171,10 @@ def kill_bringup():
     def _force_kill_if_stuck():
         deadline = time.time() + KILL_GRACE_PERIOD_S
         while time.time() < deadline:
-            if proc.poll() is not None:
+            if is_gone():
                 return
             time.sleep(0.2)
-        if proc.poll() is None:
+        if not is_gone():
             log_event("bringup did not stop gracefully, forcing SIGKILL", level="warn")
             try:
                 os.killpg(pgid, signal.SIGKILL)
@@ -1079,23 +1185,48 @@ def kill_bringup():
     return True, "Stopping bringup..."
 
 
-def _bringup_already_running() -> bool:
-    """True if a `ros2 launch <package> <launch_file>` process already
-    exists on this machine, regardless of whether *this* Flask process is
-    the one tracking it. Needed because the bringup child tree survives
+def _find_bringup_pid():
+    """PID of a `ros2 launch <package> <launch_file>` process on this
+    machine, regardless of whether *this* Flask process is the one tracking
+    it -- or None. Needed because the bringup child tree survives
     independently of this process (preexec_fn=os.setsid in start_bringup()):
-    after a systemd restart of this panel (Restart=always), `_proc` resets
-    to None even though an orphaned bringup may still be running from
-    before the crash. Checking the OS instead of our own in-memory state is
-    what lets auto-launch-on-startup below stay safe."""
+    after this panel is killed and restarted (a crash, Ctrl+C, a systemd
+    restart), `_proc` resets to None even though an orphaned bringup may
+    still be running from before. Checking the OS instead of our own
+    in-memory state is what lets auto-launch-on-startup, get_status() and
+    start_bringup()'s duplicate-launch guard all stay correct across that."""
     try:
         result = subprocess.run(
             ["pgrep", "-f", f"ros2 launch {LAUNCH_PACKAGE} {LAUNCH_FILE}"],
             capture_output=True, text=True, timeout=3.0,
         )
-        return result.returncode == 0 and bool(result.stdout.strip())
+        if result.returncode == 0 and result.stdout.strip():
+            return int(result.stdout.split()[0])
     except Exception:
-        return False
+        pass
+    return None
+
+
+def _bringup_already_running() -> bool:
+    return _find_bringup_pid() is not None
+
+
+def _process_uptime_s(pid):
+    """Seconds since `pid` started, read from the OS via `ps -o etimes=`.
+
+    Used for a bringup this panel didn't itself launch (an orphan from a
+    previous instance -- see _find_bringup_pid()), where there is no
+    _started_at to compute uptime from. Without this, get_status() had
+    nothing to report but 0.0, which looked like the whole panel was frozen
+    even though motor status and joint states were updating live."""
+    try:
+        result = subprocess.run(
+            ["ps", "-o", "etimes=", "-p", str(pid)],
+            capture_output=True, text=True, timeout=2.0,
+        )
+        return float(result.stdout.strip())
+    except Exception:
+        return None
 
 
 def get_status():
@@ -1103,10 +1234,28 @@ def get_status():
         proc = _proc
         started_at = _started_at
     running = proc is not None and proc.poll() is None
+    pid = proc.pid if running else None
+    uptime_s = round(time.time() - started_at, 1) if running and started_at else None
+
+    if not running:
+        # _proc only tracks bringup *this* panel process launched itself.
+        # An orphaned bringup from a previous instance of this panel (see
+        # _find_bringup_pid()) is still really running, and reporting it as
+        # down here is what left the Launch button enabled and every
+        # bringupRunning-gated poll (motor status, joint states, ...) dark
+        # on the frontend despite bringup actually being up.
+        orphan_pid = _find_bringup_pid()
+        if orphan_pid is not None:
+            running = True
+            pid = orphan_pid
+
+    if running and uptime_s is None:
+        uptime_s = _process_uptime_s(pid)
+
     return {
         "running": running,
-        "pid": proc.pid if running else None,
-        "uptime_s": round(time.time() - started_at, 1) if running and started_at else 0.0,
+        "pid": pid,
+        "uptime_s": uptime_s if uptime_s is not None else 0.0,
         "package": LAUNCH_PACKAGE,
         "launch_file": LAUNCH_FILE,
     }
@@ -1198,13 +1347,54 @@ def api_logs():
     since = request.args.get("since", 0, type=int)
     with _log_lock:
         entries = [e for e in _log_entries if e["id"] > since]
-    return jsonify({"logs": entries})
+        latest = _log_seq
+    # `latest` lets the browser notice this panel process restarted (its log
+    # id counter resets to 0 with it) -- otherwise a tab left open across a
+    # restart keeps asking for ids past the new process's entire history and
+    # the log view goes silent forever, since every entry it has is <= the
+    # stale `since` the browser is still sending.
+    return jsonify({"logs": entries, "latest": latest})
 
 
 @app.route("/api/motor_status")
 def api_motor_status():
     status = state_node.get_status() if state_node else {"left": [], "right": []}
     return jsonify({"status": status, "available": MOTOR_STATUS_AVAILABLE})
+
+
+@app.route("/api/camera_frames")
+def api_camera_frames():
+    """Return latest camera frames as base64 JPEG data URIs, keyed by
+    camera id."""
+    frames = state_node.get_camera_frames() if state_node else {}
+    return jsonify({"ok": True, "frames": frames})
+
+
+@app.route("/api/camera_config", methods=["GET", "POST"])
+def api_camera_config():
+    """GET: every known camera plus the saved display layout (which ones,
+    in what order). POST {"selected": [id, ...]}: save a new layout --
+    used by the Cameras panel's drag-and-drop Save/Load Camera Config
+    buttons."""
+    if request.method == "POST":
+        data = request.get_json(silent=True) or {}
+        selected = data.get("selected")
+        if not isinstance(selected, list) or not all(isinstance(s, str) for s in selected):
+            return jsonify({"ok": False, "error": "selected must be a list of camera ids"}), 400
+        selected = [cid for cid in selected if cid in CAMERA_REGISTRY_BY_ID]
+        if not selected:
+            return jsonify({"ok": False, "error": "no valid camera ids in selection"}), 400
+        try:
+            _save_camera_layout(selected)
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
+        return jsonify({"ok": True, "selected": selected})
+
+    return jsonify({
+        "ok": True,
+        "available": CAMERA_REGISTRY,
+        "selected": _load_camera_layout(),
+    })
 
 
 @app.route("/api/recovery_counts")
@@ -1588,6 +1778,7 @@ def main():
             f"Watching joint states: {LEFT_JOINT_STATE_TOPIC}, {RIGHT_JOINT_STATE_TOPIC}"
         )
         log_event(f"Watching battery: {BATTERY_TOPIC}")
+        log_event(f"Watching cameras: {', '.join(CAM_TOPICS.values())}")
     else:
         log_event(f"ROS 2 unavailable ({ROS_IMPORT_ERROR}) — no live robot state", level="warn")
 
