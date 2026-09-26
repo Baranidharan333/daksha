@@ -7,9 +7,13 @@ import time
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
 from std_srvs.srv import Trigger
+from gen2_msgs.srv import SetHomePosition
 
 
-HOME_POSITION = np.array([
+# Fallback for the "reset to default" case in set_home_position_cb -- not
+# used directly once the node is up (self.home_position is), so /move_home
+# always drives to whatever was last set there, not this constant.
+DEFAULT_HOME_POSITION = np.array([
     # # LEFT ARM
     # 0.0,
     # 0.0,
@@ -86,7 +90,18 @@ class HomeMoveService(Node):
             self.move_home_cb
         )
 
-        self.home_position = HOME_POSITION
+        # Separate from /move_home on purpose: /move_home is a bare Trigger
+        # already called (as std_srvs/Trigger, no request fields) from
+        # leader_controller_ui.py, dashboard_app.py and launch_control_app.py
+        # -- changing its type would break all three. This just updates what
+        # "home" currently means; /move_home still does the actual move.
+        self.create_service(
+            SetHomePosition,
+            "/set_home_position",
+            self.set_home_position_cb
+        )
+
+        self.home_position = np.array(DEFAULT_HOME_POSITION, dtype=float)
 
     def right_cb(self, msg):
         self.right_state = msg
@@ -149,6 +164,39 @@ class HomeMoveService(Node):
 
         response.success = True
         response.message = "Reached home"
+
+        return response
+
+    def set_home_position_cb(self, request, response):
+        """Updates self.home_position -- doesn't move anything itself.
+        An empty position resets to DEFAULT_HOME_POSITION; otherwise it must
+        supply exactly one value per joint (left arm then right arm, same
+        order /move_home already uses)."""
+
+        joint_count = len(DEFAULT_HOME_POSITION)
+
+        if len(request.position) == 0:
+            self.home_position = np.array(DEFAULT_HOME_POSITION, dtype=float)
+            response.success = True
+            response.message = "Home position reset to default"
+            return response
+
+        if len(request.position) != joint_count:
+            response.success = False
+            response.message = (
+                f"Expected {joint_count} positions (left arm then right "
+                f"arm), received {len(request.position)}"
+            )
+            return response
+
+        self.home_position = np.array(request.position, dtype=float)
+
+        self.get_logger().info(
+            f"Home position set to {self.home_position.tolist()}"
+        )
+
+        response.success = True
+        response.message = "Home position updated"
 
         return response
 
