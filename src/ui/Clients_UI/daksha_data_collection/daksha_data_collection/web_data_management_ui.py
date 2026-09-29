@@ -74,7 +74,7 @@ class SessionState:
         self.loaded_topics: list = []
         # camera_names maps camera-label -> ros-topic for THIS session
         self.camera_names: dict = {
-            "World Camera": "/world/camera/color/image_raw/compressed",
+            "World Camera": "/camera/world/color/image_raw/compressed",
             "Left Gripper Camera": "/left/camera/color/image_raw/compressed",
             "Right Gripper Camera": "/right/camera/color/image_raw/compressed"
         }
@@ -161,7 +161,7 @@ def _get_or_create_domain_cam_node(domain_id: int) -> 'CameraDisplayNode':
         # The operator layout has one world view above the two gripper views.
         # Keep this list in sync with initFixedCameraLayout() in the web UI.
         default_cams = [
-            ("World Camera", "/world/camera/color/image_raw/compressed"),
+            ("World Camera", "/camera/world/color/image_raw/compressed"),
             ("Left Gripper Camera", "/left/camera/color/image_raw/compressed"),
             ("Right Gripper Camera", "/right/camera/color/image_raw/compressed")
         ]
@@ -1178,7 +1178,7 @@ async function ihubEmergencyStop(){
     // Cameras are intentionally NOT auto-added on startup; user adds them manually.
     async function autoAddDefaultCameras() {
       const defaultCams = {
-        'world': '/world/camera/color/image_raw/compressed',
+        'world': '/camera/world/color/image_raw/compressed',
         'wrist_right': '/right/camera/color/image_raw/compressed',
         'wrist_left': '/left/camera/color/image_raw/compressed'
       };
@@ -1424,7 +1424,7 @@ async function ihubEmergencyStop(){
         // Always record the three cameras presented in the operator layout.
         // Extra cameras added in the developer drawer are appended below.
         camera_topics: {
-          "world": "/world/camera/color/image_raw/compressed",
+          "world": "/camera/world/color/image_raw/compressed",
           "wrist_right": "/right/camera/color/image_raw/compressed",
           "wrist_left": "/left/camera/color/image_raw/compressed"
         }
@@ -1853,7 +1853,7 @@ async function ihubEmergencyStop(){
       // One wide world camera is shown above the two gripper cameras.
       // These same names are saved in camera_topics when a recording starts.
       const fixedCameras = [
-        { name: "World Camera",         topic: "/world/camera/color/image_raw/compressed" },
+        { name: "World Camera",         topic: "/camera/world/color/image_raw/compressed" },
         { name: "Left Gripper Camera",  topic: "/left/camera/color/image_raw/compressed" },
         { name: "Right Gripper Camera", topic: "/right/camera/color/image_raw/compressed" }
       ];

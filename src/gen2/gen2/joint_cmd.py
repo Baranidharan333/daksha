@@ -56,8 +56,8 @@ class JointCommandLimiter(Node):
         super().__init__("joint_command_limiter")
 
         # -------- Parameters --------
-        self.declare_parameter("max_velocity", 1.0)       # rad/s
-        self.declare_parameter("max_acceleration", 2.0)   # rad/s^2
+        self.declare_parameter("max_velocity", 2.0)       # rad/s
+        self.declare_parameter("max_acceleration", 4.0)   # rad/s^2
         self.declare_parameter("publish_rate", 500.0)    # Hz
         self.declare_parameter("joint_limits_path", "")
         self.declare_parameter("enforce_joint_limits", False)

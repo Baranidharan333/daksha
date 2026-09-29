@@ -36,7 +36,9 @@ topics:
   leader_cmd_topic_left: ''
   leader_cmd_topic_right: ''
   camera_topics: &id001
-    world: /world/camera/color/image_raw/compressed
+    world: /camera/world/color/image_raw/compressed
+    left: /left/camera/color/image_raw/compressed
+    right: /right/camera/color/image_raw/compressed
 recording_topics:
   leader_topic_left: /leader/left_joint_states
   leader_topic_right: /leader/right_joint_states
@@ -48,3 +50,5 @@ recording_topics:
   leader_cmd_topic_left: ''
   leader_cmd_topic_right: ''
   camera_topics: *id001
+  
+

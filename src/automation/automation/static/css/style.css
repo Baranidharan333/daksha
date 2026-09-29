@@ -211,6 +211,13 @@ svg{fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round}
    .is-hidden is what the JS toggles. */
 .is-hidden{display:none !important}
 
+.set-toggle-row{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:9px 2px; margin-top:8px; border-top:1px solid var(--line-soft);
+}
+.set-toggle-row span{font-size:13px; color:var(--muted)}
+.set-toggle-row .switch{margin-left:0}
+
 .set-note{
   margin:14px 2px 2px; font-size:12.5px; color:var(--muted); line-height:1.7;
 }
@@ -563,7 +570,7 @@ svg{fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round}
 .act.open{min-width:74px}
 .act.icon{padding:5px 8px; color:var(--muted)}
 .act.stop{color:#fff; background:var(--red); border-color:var(--red)}
-.act.start{color:#fff; background:var(--green); border-color:var(--green)}
+.act.start{color:#fff; background:var(--green); border-color:var(--green); min-width:74px}
 .act:hover:not(:disabled){filter:brightness(.97)}
 .act:disabled{opacity:.4; cursor:not-allowed}
 .act-badge{

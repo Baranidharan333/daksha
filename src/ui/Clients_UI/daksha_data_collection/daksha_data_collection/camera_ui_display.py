@@ -16,7 +16,7 @@ from sensor_msgs.msg import CompressedImage, Image
 
 
 DEFAULT_CAMERA_TOPICS = {
-    "World Camera": "/world/camera/color/image_raw/compressed",
+    "World Camera": "/camera/world/color/image_raw/compressed",
     "Left Gripper Camera": "/left/camera/color/image_raw/compressed",
     "Right Gripper Camera": "/right/camera/color/image_raw/compressed"
 }

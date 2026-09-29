@@ -84,7 +84,7 @@ private:
 
     double gripper_joint_max_ = 0.044;
 
-    double gripper_motor_max_rad_ = -1.81;
+    double gripper_motor_max_rad_ = -1.8370; // withot rubber padding = -1.81
     // -------- Flags --------
     bool initialized_ = false;
 

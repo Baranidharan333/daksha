@@ -4,6 +4,8 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSReliabilityPolicy, QoSHistoryPolicy
 from std_msgs.msg import String
+from rcl_interfaces.srv import GetParameters, SetParameters
+from rcl_interfaces.msg import Parameter, ParameterValue, ParameterType
 from flask import Flask, jsonify, render_template_string, request
 import subprocess
 import signal
@@ -462,21 +464,64 @@ class Gen2LeaderNode(Node):
             String, "/mode_toggler/status", self._robot_mode_cb, MODE_STATUS_QOS,
         )
 
+        # Parameter service clients, cached per (node_name, service kind) so
+        # repeated get/set calls don't re-create a client (and its discovery
+        # overhead) every time.
+        self._param_clients = {}
+
     def _robot_mode_cb(self, msg):
         self._robot_mode = msg.data
 
     def get_robot_mode(self):
         return self._robot_mode
 
+    def _get_param_client(self, node_name, kind):
+        """Lazily create/cache a GetParameters or SetParameters client for
+        `node_name` ('get' or 'set')."""
+        key = (node_name, kind)
+        client = self._param_clients.get(key)
+        if client is not None:
+            return client
+        srv_type = GetParameters if kind == "get" else SetParameters
+        client = self.create_client(srv_type, f"{node_name}/{kind}_parameters")
+        self._param_clients[key] = client
+        return client
+
+    def _call_param_service(self, client, request, timeout_s):
+        """Send a request on an rcl_interfaces parameter service client and
+        wait (via the executor already spinning this node, e.g. in main())
+        for the response, bounded by `timeout_s`. Does NOT spin itself, to
+        avoid racing the node's own spin() call from another thread."""
+        if not client.wait_for_service(timeout_sec=timeout_s):
+            raise TimeoutError(f"{client.srv_name} is not available")
+        future = client.call_async(request)
+        deadline = time.time() + timeout_s
+        while not future.done():
+            if time.time() >= deadline:
+                future.cancel()
+                raise TimeoutError(f"{client.srv_name} call timed out")
+            time.sleep(0.01)
+        if future.exception() is not None:
+            raise future.exception()
+        return future.result()
+
     def set_robot_mode(self, mode):
-        """Best-effort `ros2 param set /mode_toggler mode <mode>`."""
+        """Best-effort `/mode_toggler/set_parameters` call for the 'mode' param."""
         if mode not in ("teach", "normal"):
             return False
         try:
-            subprocess.run(
-                ["ros2", "param", "set", "/mode_toggler", "mode", mode],
-                check=True, capture_output=True, text=True, timeout=5.0,
-            )
+            client = self._get_param_client("/mode_toggler", "set")
+            request = SetParameters.Request(parameters=[
+                Parameter(
+                    name="mode",
+                    value=ParameterValue(
+                        type=ParameterType.PARAMETER_STRING, string_value=mode,
+                    ),
+                ),
+            ])
+            response = self._call_param_service(client, request, timeout_s=5.0)
+            if not response.results[0].successful:
+                raise RuntimeError(response.results[0].reason)
             self.get_logger().info(f'Robot mode set to {mode}')
             return True
         except Exception as e:
@@ -484,24 +529,31 @@ class Gen2LeaderNode(Node):
             return False
 
     def get_double_param(self, node_name, name):
-        """Best-effort `ros2 param get <node_name> <name>`, e.g. 'Double value is: 3.0'."""
+        """Best-effort `<node_name>/get_parameters` call for a double param."""
         try:
-            result = subprocess.run(
-                ["ros2", "param", "get", node_name, name],
-                check=True, capture_output=True, text=True, timeout=1.5,
-            )
-            return float(result.stdout.strip().rsplit(":", 1)[-1].strip())
+            client = self._get_param_client(node_name, "get")
+            request = GetParameters.Request(names=[name])
+            response = self._call_param_service(client, request, timeout_s=1.5)
+            return response.values[0].double_value
         except Exception as e:
             self.get_logger().error(f'Failed to get {node_name} {name}: {str(e)}')
             return None
 
     def set_double_param(self, node_name, name, value):
-        """Best-effort `ros2 param set <node_name> <name> <value>`."""
+        """Best-effort `<node_name>/set_parameters` call for a double param."""
         try:
-            subprocess.run(
-                ["ros2", "param", "set", node_name, name, str(value)],
-                check=True, capture_output=True, text=True, timeout=5.0,
-            )
+            client = self._get_param_client(node_name, "set")
+            request = SetParameters.Request(parameters=[
+                Parameter(
+                    name=name,
+                    value=ParameterValue(
+                        type=ParameterType.PARAMETER_DOUBLE, double_value=float(value),
+                    ),
+                ),
+            ])
+            response = self._call_param_service(client, request, timeout_s=5.0)
+            if not response.results[0].successful:
+                raise RuntimeError(response.results[0].reason)
             self.get_logger().info(f'{node_name} {name} set to {value}')
             return True
         except Exception as e:

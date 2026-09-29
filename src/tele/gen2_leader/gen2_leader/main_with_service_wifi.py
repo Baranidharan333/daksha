@@ -40,11 +40,11 @@ class LeaderToPositionController(Node):
         )
 
         self.right_direction = [
-            -1, 1, 1, 1, 1, -1, 1
+            -1, -1, 1, 1, 1, -1, 1
         ]
 
         self.left_direction = [
-            -1, 1, -1, -1, 1, 1, 1
+            -1, 1, -1, -1, 1, -1, -1
         ]
 
         self.left_joints = [

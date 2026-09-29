@@ -10,7 +10,7 @@ same network.
     ROBOT (with ROS 2):   python3 viveka_camera_ui.py
     ANY LAPTOP (no ROS):  python3 viveka_camera_ui.py --demo
 
-Then browse to   http://<device-ip>:70002
+Then browse to   http://<device-ip>:7002
 
 This script supports BOTH Raw (`sensor_msgs/Image`) and Compressed 
 (`sensor_msgs/CompressedImage`) topics automatically. If your topic name ends with
@@ -42,7 +42,7 @@ CAMERAS = [
     ("RIGHT ARM", "/right/camera/color/image_rect_raw"),
     ("LEFT ARM", "/left/camera/color/image_rect_raw"),
 ]
-PORT = 70002
+PORT = 7002
 JPEG_QUALITY = 80
 
 

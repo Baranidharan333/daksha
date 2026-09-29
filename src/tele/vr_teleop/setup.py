@@ -30,7 +30,6 @@ setup(
     maintainer_email="unity-robotics@unity3d.com",
     description="ROS TCP Endpoint Unity Integration (ROS2 version)",
     license="Apache 2.0",
-    tests_require=["pytest"],
     entry_points={
         "console_scripts": [
             "default_server_endpoint = vr_teleop.bridge_nodes.default_server_endpoint:main",

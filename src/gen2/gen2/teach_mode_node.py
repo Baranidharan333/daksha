@@ -38,7 +38,7 @@ DEFAULT_NORMAL_KD = [
     1.0,
     1.0,
     1.0,
-    0.5,
+    1.5,
 ]
 
 # NORMAL_KP = [

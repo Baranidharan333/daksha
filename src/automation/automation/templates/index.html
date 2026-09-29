@@ -449,12 +449,14 @@
         <div><dt>Motor status (hw_interface)</dt><dd class="mono">{{ "available" if motor_status else "unavailable" }}</dd></div>
         <div><dt>Apps with a start command</dt><dd class="mono" id="setStartable">—</dd></div>
       </dl>
-      <p class="set-note">
-        Start and Restart in the Applications table need an entry in
-        <code>APP_COMMANDS</code> in
-        <code>automation/automation/launch_control_app.py</code>. Stop works
-        without one, since it only needs the PID holding the port.
-      </p>
+
+      <div class="set-toggle-row">
+        <span>Open application links in a new tab</span>
+        <label class="switch">
+          <input type="checkbox" id="openNewTab" checked>
+          <span class="track"><span class="knob"></span></span>
+        </label>
+      </div>
     </section>
 
   </div>

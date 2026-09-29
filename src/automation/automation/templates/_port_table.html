@@ -32,8 +32,15 @@
 <script>
 // Build each link against whatever host the browser is actually using
 // (localhost, a LAN IP, the robot's hostname, ...) rather than hardcoding one.
+// Whether it opens in a new tab follows the "Open application links in a
+// new tab" toggle on the dashboard's Settings panel (same localStorage key).
+const openInNewTab = localStorage.getItem("linksOpenNewTab") !== "false";
 document.querySelectorAll(".port-link").forEach(a => {
   const port = a.dataset.port;
   a.href = `${location.protocol}//${location.hostname}:${port}/`;
+  if(openInNewTab){
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+  }
 });
 </script>

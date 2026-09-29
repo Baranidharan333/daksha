@@ -20,7 +20,6 @@ setup(
     maintainer_email='selvambharani100@gmial.com',
     description="Launch files bringing up the robot's RealSense cameras (world D455 + left/right D405 wrist cameras)",
     license='MIT',
-    tests_require=['pytest'],
     entry_points={
         'console_scripts': [],
     },

@@ -83,6 +83,23 @@ function tickClock(){
 /* ------------------------------------------------------- applications */
 let appFilter = "";
 
+// Whether "Open" links on the Applications table (and the Ports page, via
+// its own copy of this logic in _port_table.html) open in a new tab.
+// Persisted per-browser so it survives refreshes; defaults to new tab.
+let linksOpenNewTab = localStorage.getItem("linksOpenNewTab") !== "false";
+const linkTargetAttrs = () => linksOpenNewTab ? ` target="_blank" rel="noopener noreferrer"` : "";
+
+function initLinkTargetSetting(){
+  const toggle = $("openNewTab");
+  if(!toggle) return;
+  toggle.checked = linksOpenNewTab;
+  toggle.addEventListener("change", () => {
+    linksOpenNewTab = toggle.checked;
+    localStorage.setItem("linksOpenNewTab", linksOpenNewTab);
+    renderApps(Object.values(appsByPort));
+  });
+}
+
 const ICON = {
   open:    `<svg viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-8.5 8.5"/><path d="M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5"/></svg>`,
   restart: `<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1015-6.7M3 4v5h5"/></svg>`,
@@ -95,7 +112,7 @@ function appRowHtml(a){
 
   let open;
   if(a.kind === "http"){
-    open = `<a class="act open" href="${url}">Open ${ICON.open}</a>`;
+    open = `<a class="act open" href="${url}"${linkTargetAttrs()}>Open ${ICON.open}</a>`;
   } else {
     open = `<span class="act-badge">${a.kind.toUpperCase()}</span>`;
   }
@@ -116,8 +133,8 @@ function appRowHtml(a){
         onclick="appAction(${a.port},'stop')">${ICON.stop}</button>`;
   } else {
     toggle = `<button class="act start" ${a.startable ? "" : "disabled"}
-        title="${a.startable ? "Start" : `No start command configured for port ${a.port}`}"
-        onclick="appAction(${a.port},'start')">${ICON.start}</button>`;
+        title="${a.startable ? "Launch" : `No start command configured for port ${a.port}`}"
+        onclick="appAction(${a.port},'start')">Launch ${ICON.start}</button>`;
   }
 
   const status = a.running
@@ -133,7 +150,11 @@ function appRowHtml(a){
   </tr>`;
 }
 
+let appsByPort = {};
+
 function renderApps(apps){
+  appsByPort = Object.fromEntries(apps.map(a => [a.port, a]));
+
   const q = appFilter.trim().toLowerCase();
   const shown = q
     ? apps.filter(a => `${a.port} ${a.service} ${a.file}`.toLowerCase().includes(q))
@@ -161,8 +182,19 @@ async function pollApps(){
 }
 
 async function appAction(port, action){
+  const name = appsByPort[port]?.service || `Application on port ${port}`;
+
+  if(action === "start"){
+    toast(`Launching ${name}…`);
+  }
+
   const {data} = await post(`/api/app/${port}/${action}`);
-  toast(data.message, !data.success);
+
+  if(action === "start" && data.success){
+    toast(`${name} launched`);
+  } else {
+    toast(data.message, !data.success);
+  }
   setTimeout(pollApps, 600);
 }
 
@@ -1045,6 +1077,8 @@ document.querySelectorAll(".nav-item").forEach(item => {
 });
 window.addEventListener("hashchange", () => showView(location.hash.slice(1)));
 showView(location.hash.slice(1) || "dashboard");
+
+initLinkTargetSetting();
 
 tickClock(); setInterval(tickClock, 1000);
 poll(); setInterval(poll, 1000);

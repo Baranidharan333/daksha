@@ -583,9 +583,19 @@ def stop_app(port):
     # whatever process group that pid actually belongs to -- if that's a
     # shared group (the whole `ros2 launch` tree), this stops more than just
     # this row. True today for ports 8102/8110 as well; nothing new here.
+    #
+    # SIGINT, not SIGTERM: same reasoning as kill_bringup() below. `ros2
+    # launch` (ports 7001/8110/8888) only runs its child-node shutdown
+    # sequence on SIGINT -- its own SIGTERM handler explicitly skips that and
+    # can orphan the nodes it started. The VR Management UI (port 8101) is
+    # the same story from the other side: its Flask process only reaches the
+    # `finally: node.stop_node()` block that tears down its four subprocess
+    # children (default_server_endpoint, quest_tf_switch, quest_tf_to_pose,
+    # ik_node) via a KeyboardInterrupt, which Python's default handler raises
+    # for SIGINT, not SIGTERM.
     log_event(f"[{port}] stopping pid {pid}...")
     try:
-        os.killpg(pgid, signal.SIGTERM)
+        os.killpg(pgid, signal.SIGINT)
     except ProcessLookupError:
         pass
 
@@ -1263,8 +1273,12 @@ def get_status():
 
 @atexit.register
 def _cleanup_on_exit():
-    """Don't leave an orphaned `ros2 launch` tree running if this Flask
-    process itself is stopped while bringup is still up."""
+    """Don't leave an orphaned `ros2 launch` tree, or any Applications-table
+    service this panel started (see _app_procs), running if this Flask
+    process itself is stopped (Ctrl+C, systemd stop, ...) while they're
+    still up. Both were started with preexec_fn=os.setsid, so they sit in
+    their own process groups and a Ctrl+C on this process's terminal never
+    reaches them on its own -- this is what actually stops them."""
     with _lock:
         proc = _proc
     if proc is not None and proc.poll() is None:
@@ -1272,6 +1286,15 @@ def _cleanup_on_exit():
             os.killpg(os.getpgid(proc.pid), signal.SIGINT)
         except ProcessLookupError:
             pass
+
+    with _app_proc_lock:
+        app_procs = dict(_app_procs)
+    for port, proc in app_procs.items():
+        if proc.poll() is None:
+            try:
+                os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
+            except ProcessLookupError:
+                pass
 
 
 @app.after_request
