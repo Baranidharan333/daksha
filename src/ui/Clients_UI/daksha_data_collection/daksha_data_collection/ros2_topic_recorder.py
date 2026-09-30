@@ -5,6 +5,7 @@ import argparse
 import json
 import os
 import sys
+import time
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -96,10 +97,10 @@ vd = _load_validate_dataset_module()
 
 try:
     from .config import CameraSpec, V3DatasetConfig, V3FeatureSpec
-    from .recorder import V3DatasetRecorder
+    from .recorder import EpisodeRejected, V3DatasetRecorder
 except ImportError:
     from config import CameraSpec, V3DatasetConfig, V3FeatureSpec
-    from recorder import V3DatasetRecorder
+    from recorder import EpisodeRejected, V3DatasetRecorder
 
 
 ROS2_TOPIC_CONFIG = "ros2_topics.json"
@@ -212,6 +213,12 @@ class Ros2V3TopicRecorder(Node):
         self.include_follower_state_duplicate = bool(
             record_cfg.get("include_follower_state_duplicate", False)
         )
+        # A step is only stored when every camera and joint stream has
+        # delivered a message within this many seconds -- otherwise a frozen
+        # camera or dropped arm would be recorded as if it were live.
+        self.max_input_age = float(record_cfg.get("max_input_age_sec", 0.5))
+        self._rx_time: Dict[str, float] = {}
+        self.skipped_steps = 0
 
         # Gripper sign is not a fixed hardware constant like the other 6
         # joints in JOINT_SIGN_CORRECTION -- it has been observed to flip
@@ -319,9 +326,15 @@ class Ros2V3TopicRecorder(Node):
         try:
             status = {
                 "recording": self.record_timer is not None,
+                # True from Start until Stop / max_episodes -- stays True
+                # through the inter-episode delay, so the UI doesn't mistake
+                # the gap between auto-restarted episodes for a stop.
+                "session_active": self.control_start_requested and not self.stop_requested,
                 "step_count": self.step_count,
                 "max_steps": self.episode_len,
+                "record_hz": self.record_hz,
                 "episodes_recorded": self.episodes_recorded,
+                "max_episodes": self.max_episodes,
                 "camera_topics": self.camera_topics,
                 "dataset_name": self.dataset_name,
                 "validation_blocked": self.validation_blocked,
@@ -337,18 +350,22 @@ class Ros2V3TopicRecorder(Node):
 
     def _leader_left_callback(self, msg: JointState) -> None:
         self.latest_leader_left = msg
+        self._rx_time["leader_left"] = time.monotonic()
         self._update_joint_name_reference()
 
     def _leader_right_callback(self, msg: JointState) -> None:
         self.latest_leader_right = msg
+        self._rx_time["leader_right"] = time.monotonic()
         self._update_joint_name_reference()
 
     def _follower_left_callback(self, msg: JointState) -> None:
         self.latest_follower_left = msg
+        self._rx_time["follower_left"] = time.monotonic()
         self._update_joint_name_reference()
 
     def _follower_right_callback(self, msg: JointState) -> None:
         self.latest_follower_right = msg
+        self._rx_time["follower_right"] = time.monotonic()
         self._update_joint_name_reference()
 
     def _set_joint_subscription(self, sub_attr: str, topic_attr: str, new_topic: str, callback) -> None:
@@ -489,6 +506,9 @@ class Ros2V3TopicRecorder(Node):
 
         self.control_start_requested = True
         self.stop_requested = False
+        # max_episodes counts per Start press, not per node lifetime.
+        self.episodes_recorded = 0
+        self.is_finalized = False
         self.last_episode_validation = None
         self.validation_blocked = False
 
@@ -569,11 +589,13 @@ class Ros2V3TopicRecorder(Node):
     def _make_compressed_image_callback(self, camera_key: str):
         def callback(msg: CompressedImage) -> None:
             self.current_images[camera_key] = msg
+            self._rx_time[f"camera:{camera_key}"] = time.monotonic()
         return callback
 
     def _make_raw_image_callback(self, camera_key: str):
         def callback(msg: Image) -> None:
             self.current_images[camera_key] = msg
+            self._rx_time[f"camera:{camera_key}"] = time.monotonic()
         return callback
 
     # ── Joint name tracking (from reference) ──────────────────────────────
@@ -750,6 +772,19 @@ class Ros2V3TopicRecorder(Node):
         if self.latest_follower_right is None: return False
         return all(f is not None for f in self.current_images.values())
 
+    def _stale_inputs(self) -> list[str]:
+        """Streams whose latest message is older than max_input_age."""
+        if self.max_input_age <= 0:
+            return []
+        now = time.monotonic()
+        keys = ["leader_left", "leader_right", "follower_left", "follower_right"]
+        keys += [f"camera:{k}" for k in self.current_images]
+        return [
+            f"{k} ({now - self._rx_time[k]:.2f}s old)" if k in self._rx_time else f"{k} (never)"
+            for k in keys
+            if now - self._rx_time.get(k, float("-inf")) > self.max_input_age
+        ]
+
     def _missing_inputs(self) -> list[str]:
         missing = []
         if self.latest_leader_left is None: missing.append(f"leader_left:{self.leader_left_topic}")
@@ -806,7 +841,15 @@ class Ros2V3TopicRecorder(Node):
 
     def _ensure_recorder(self) -> V3DatasetRecorder:
         if self.recorder is not None:
-            return self.recorder
+            if Path(self.recorder.root).resolve() == Path(self.root_dir).resolve():
+                return self.recorder
+            # Operator switched dataset (new or existing) since the last
+            # episode -- close out the old one instead of writing into it.
+            self.get_logger().info(
+                f"Dataset changed: {self.recorder.root} -> {self.root_dir}"
+            )
+            self.recorder.finalize()
+            self.recorder = None
         cfg = self._build_v3_config()
         if (cfg.root / "meta" / "info.json").exists():
             self.recorder = V3DatasetRecorder.resume_existing(cfg)
@@ -832,9 +875,11 @@ class Ros2V3TopicRecorder(Node):
         self._start_episode()
 
     def _start_episode(self) -> None:
-        self._ensure_recorder()
+        self._ensure_recorder().reload_from_disk()
         self.step_count = 0
+        self.skipped_steps = 0
         self.record_timer = self.create_timer(1.0 / self.record_hz, self._record_step)
+        self._publish_status()
         self.get_logger().info(
             f"Recording episode into {self.root_dir} (target: {self.episode_len} steps)"
         )
@@ -844,6 +889,14 @@ class Ros2V3TopicRecorder(Node):
             return
         if not self._all_topics_ready():
             self.get_logger().warn("Skipping step — topic(s) missing")
+            return
+        stale = self._stale_inputs()
+        if stale:
+            self.skipped_steps += 1
+            self.get_logger().warn(
+                "Skipping step — stale input(s): " + ", ".join(stale),
+                throttle_duration_sec=1.0,
+            )
             return
 
         frames = {}
@@ -868,6 +921,15 @@ class Ros2V3TopicRecorder(Node):
                         frames[f"observation.images.{k}"] = img_data
                 except Exception as exc:
                     self.get_logger().warn(f"Lazy decoding failed for camera '{k}': {exc}")
+
+        missing_frames = [k for k in self.current_images if f"observation.images.{k}" not in frames]
+        if missing_frames:
+            self.skipped_steps += 1
+            self.get_logger().warn(
+                "Skipping step — undecodable frame(s): " + ", ".join(missing_frames),
+                throttle_duration_sec=1.0,
+            )
+            return
 
         self._update_joint_name_reference()
 
@@ -909,8 +971,13 @@ class Ros2V3TopicRecorder(Node):
         )
 
         self.step_count += 1
-        if self.step_count == 1 or self.step_count % max(1, int(self.record_hz)) == 0 or self.step_count == self.episode_len:
+        # Push status exactly on every 1-second boundary (30 Hz -> 30, 60,
+        # 90 ...; 10 Hz -> 10, 20, 30 ...) so the UI counter lands on those
+        # values instead of whatever the free-running 1 Hz timer caught.
+        steps_per_sec = max(1, int(round(self.record_hz)))
+        if self.step_count % steps_per_sec == 0 or self.step_count == self.episode_len:
             self.get_logger().info(f"Episode buffer: {self.step_count}/{self.episode_len} steps")
+            self._publish_status()
 
         if self.episode_len > 0 and self.step_count >= self.episode_len:
             self._finish_episode()
@@ -922,11 +989,32 @@ class Ros2V3TopicRecorder(Node):
         if self.recorder is None:
             return
 
-        self.recorder.save_episode(parallel_encoding=True)
+        try:
+            self.recorder.save_episode(parallel_encoding=True)
+        except EpisodeRejected as rej:
+            # Frames / joints / timestamps didn't line up: nothing was stored.
+            # Pause like a failed validation so the operator sees why.
+            self.step_count = 0
+            self.get_logger().error(f"NOT SAVED -- {rej}")
+            self.last_episode_validation = {
+                "episode": rej.episode_index,
+                "ok": False,
+                "acknowledged": False,
+                "issues": [{"episode": rej.episode_index, "code": "episode-not-saved",
+                            "severity": "ERROR", "message": f"Not saved: {p}"}
+                           for p in rej.problems],
+            }
+            self.validation_blocked = not self.stop_requested
+            self._publish_status()
+            return
         episode_index = self.recorder.num_episodes - 1
         self.step_count = 0
         self.episodes_recorded += 1
-        self.get_logger().info(f"Saved v3 episode {episode_index} to {self.root_dir}")
+        self._publish_status()
+        self.get_logger().info(
+            f"Saved v3 episode {episode_index} to {self.root_dir}"
+            + (f" ({self.skipped_steps} stale step(s) skipped)" if self.skipped_steps else "")
+        )
 
         self._validate_last_episode(episode_index)
 
@@ -936,6 +1024,7 @@ class Ros2V3TopicRecorder(Node):
                 self.recorder.finalize()
                 self.is_finalized = True
             self.control_start_requested = False
+            self._publish_status()
             return
 
         if self.stop_requested:
@@ -1049,8 +1138,11 @@ class Ros2V3TopicRecorder(Node):
         if self.recorder is not None:
             try:
                 if self.step_count > 0:
-                    self.recorder.save_episode(parallel_encoding=True)
-                    self._validate_last_episode(self.recorder.num_episodes - 1)
+                    try:
+                        self.recorder.save_episode(parallel_encoding=True)
+                        self._validate_last_episode(self.recorder.num_episodes - 1)
+                    except EpisodeRejected as rej:
+                        self.get_logger().error(f"NOT SAVED on shutdown -- {rej}")
                 if not self.is_finalized:
                     self.recorder.finalize()
             finally:

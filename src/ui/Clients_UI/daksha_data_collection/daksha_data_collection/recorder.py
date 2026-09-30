@@ -21,6 +21,17 @@ except ImportError:
     from features import build_v3_features
 
 
+class EpisodeRejected(Exception):
+    """save_episode() refused to store an episode whose camera frames, joint
+    vectors and timestamps don't line up. Nothing was written to the dataset
+    (any partially written files were removed); `problems` lists why."""
+
+    def __init__(self, episode_index: int, problems: list[str]) -> None:
+        super().__init__(f"episode {episode_index} rejected: " + "; ".join(problems))
+        self.episode_index = episode_index
+        self.problems = problems
+
+
 class V3DatasetRecorder:
     """
     Local-only v3-style dataset recorder.
@@ -101,6 +112,15 @@ class V3DatasetRecorder:
     @classmethod
     def resume_existing(cls, cfg: V3DatasetConfig) -> "V3DatasetRecorder":
         return cls(cfg=cfg)
+
+    def reload_from_disk(self) -> None:
+        """Re-read episode/frame counters from meta/. Episodes may have been
+        deleted (web UI / delete_episode CLI) since this recorder was opened;
+        without this the next episode would reuse stale counters and leave a
+        hole in the numbering plus a wrong global `index`."""
+        self._num_episodes = self._compute_num_episodes()
+        self._num_frames = self._compute_num_frames()
+        self._next_episode_index = self._compute_next_episode_index()
 
     @property
     def root(self) -> Path:
@@ -190,9 +210,13 @@ class V3DatasetRecorder:
             return
 
         episode_index = self._next_episode_index
+        problems = self._check_episode_buffer()
+        if problems:
+            self.clear_episode_buffer()
+            raise EpisodeRejected(episode_index, problems)
+
         task = str(self._episode_rows[0].get("task", "task"))
         prompt = str(self._episode_rows[0].get("prompt", ""))
-        task_index = self._ensure_task(task, prompt)
 
         episode_rows: list[dict[str, Any]] = []
         for frame_index, row in enumerate(self._episode_rows):
@@ -200,22 +224,43 @@ class V3DatasetRecorder:
             item["episode_index"] = episode_index
             item["frame_index"] = frame_index
             item["index"] = self._num_frames + frame_index
-            item["task_index"] = task_index
             episode_rows.append(item)
 
-        df = pd.DataFrame(episode_rows)
+        # Write data + videos first, verify them, and only then touch meta/.
+        # A failed episode therefore never appears in episodes.parquet,
+        # tasks.parquet, info.json or stats.json.
         parquet_path = self.data_dir / f"episode_{episode_index:06d}.parquet"
-        df.to_parquet(parquet_path, index=False, compression="zstd")
+        written: list[Path] = []
+        try:
+            if self.cfg.use_videos:
+                for cam in self.cfg.enabled_cameras:
+                    video_path = self.video_dir(cam.key) / f"episode_{episode_index:06d}.mp4"
+                    written.append(video_path)
+                    self._write_video(
+                        camera_key=cam.key,
+                        frames=self._episode_frames[cam.key],
+                        width=cam.width,
+                        height=cam.height,
+                        episode_index=episode_index,
+                    )
+                    n = self._video_frame_count(video_path)
+                    if n != len(episode_rows):
+                        raise EpisodeRejected(episode_index, [
+                            f"{cam.key}: video has {n} frames but episode has {len(episode_rows)} rows"
+                        ])
+        except Exception as exc:
+            for f in written:
+                f.unlink(missing_ok=True)
+            self.clear_episode_buffer()
+            if isinstance(exc, EpisodeRejected):
+                raise
+            raise EpisodeRejected(episode_index, [f"video write failed: {exc}"]) from exc
 
-        if self.cfg.use_videos:
-            for cam in self.cfg.enabled_cameras:
-                self._write_video(
-                    camera_key=cam.key,
-                    frames=self._episode_frames[cam.key],
-                    width=cam.width,
-                    height=cam.height,
-                    episode_index=episode_index,
-                )
+        task_index = self._ensure_task(task, prompt)
+        for item in episode_rows:
+            item["task_index"] = task_index
+        df = pd.DataFrame(episode_rows)
+        df.to_parquet(parquet_path, index=False, compression="zstd")
 
         episodes_df = self._read_episodes()
         new_episode_row = pd.DataFrame(
@@ -241,6 +286,54 @@ class V3DatasetRecorder:
         self.clear_episode_buffer()
         self._rebuild_info_json()
         self._enqueue_stats_rebuild()
+
+    def _check_episode_buffer(self) -> list[str]:
+        """Every step must carry one frame per camera, joint vectors of the
+        declared width with finite values, and a strictly increasing,
+        finite timestamp. Returns the list of problems (empty = OK)."""
+        rows = self._episode_rows
+        n = len(rows)
+        problems: list[str] = []
+        for cam in self.cfg.enabled_cameras:
+            got = len(self._episode_frames.get(cam.key, []))
+            if got != n:
+                problems.append(f"{cam.key}: {got} frames for {n} steps")
+
+        spec = self.cfg.feature_spec
+        dims = {
+            "action": spec.action_dim,
+            "observation.state": spec.follower_state_dim,
+            "observation.leader_state": spec.leader_state_dim,
+        }
+        if spec.include_follower_state_duplicate:
+            dims["observation.follower_state"] = spec.follower_state_dim
+        for key, dim in dims.items():
+            bad_len = [i for i, r in enumerate(rows) if len(r.get(key, [])) != dim]
+            if bad_len:
+                problems.append(
+                    f"{key}: {len(bad_len)} step(s) not {dim}-dim (first at step {bad_len[0]})"
+                )
+                continue
+            arr = np.asarray([r[key] for r in rows], dtype=np.float64)
+            if not np.isfinite(arr).all():
+                first = int(np.where(~np.isfinite(arr).all(axis=1))[0][0])
+                problems.append(f"{key}: NaN/inf values (first at step {first})")
+
+        ts = np.asarray([r.get("timestamp", np.nan) for r in rows], dtype=np.float64)
+        if not np.isfinite(ts).all():
+            problems.append("timestamp: NaN/inf values")
+        elif n > 1 and not (np.diff(ts) > 0).all():
+            first = int(np.where(np.diff(ts) <= 0)[0][0]) + 1
+            problems.append(f"timestamp: not strictly increasing (step {first})")
+        return problems
+
+    @staticmethod
+    def _video_frame_count(path: Path) -> int:
+        with av.open(str(path)) as container:
+            stream = container.streams.video[0]
+            if stream.frames:
+                return int(stream.frames)
+            return sum(1 for p in container.demux(stream) if p.size)
 
     def clear_episode_buffer(self) -> None:
         self._episode_rows.clear()
@@ -423,11 +516,30 @@ class V3DatasetRecorder:
             "observation.follower_state",
         ]
         stats: dict[str, Any] = {}
-        all_parquets = sorted(self.data_dir.glob("episode_*.parquet"))
+        # Only episodes tracked in episodes.parquet count. If another process
+        # (web UI delete / repair) renumbers files while this runs, give up
+        # instead of writing stats from a half-renamed dataset -- whoever
+        # changed it rebuilds stats itself afterwards.
+        def meta_mtime() -> float:
+            try:
+                return self.episodes_path.stat().st_mtime_ns
+            except FileNotFoundError:
+                return -1
+        mtime_before = meta_mtime()
+        episodes = self._read_episodes()
+        all_parquets = [
+            self.data_dir / f"episode_{int(i):06d}.parquet"
+            for i in sorted(episodes["episode_index"].astype(int))
+        ]
+        try:
+            frames = [pd.read_parquet(p) for p in all_parquets]
+        except FileNotFoundError:
+            return
+        if meta_mtime() != mtime_before:
+            return
         for column in numeric_columns:
             values: list[np.ndarray] = []
-            for parquet in all_parquets:
-                df = pd.read_parquet(parquet)
+            for df in frames:
                 if column not in df.columns:
                     continue
                 for item in df[column].tolist():
@@ -443,7 +555,9 @@ class V3DatasetRecorder:
             except Exception as e:
                 # Handle shape mismatches gracefully (e.g. mock runs mixed with real runs)
                 pass
-        self.stats_path.write_text(json.dumps(stats, indent=2), encoding="utf-8")
+        tmp = self.stats_path.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps(stats, indent=2), encoding="utf-8")
+        tmp.replace(self.stats_path)
 
     def _normalize_image(
         self,

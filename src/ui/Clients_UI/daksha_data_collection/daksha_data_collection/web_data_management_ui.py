@@ -18,6 +18,7 @@ import rclpy.executors
 from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSReliabilityPolicy, QoSHistoryPolicy
 from std_srvs.srv import Trigger
 from std_msgs.msg import String
+from sensor_msgs.msg import JointState
 from hw_interface.msg import MotorStatusArray
 from daksha_msgs.srv import StartRecord, StartReplay
 import cv2
@@ -384,6 +385,20 @@ HTML_TEMPLATE = """<!doctype html>
 
     /* Forms & Inputs */
     .form-group { margin-bottom: 14px; }
+    .motor-arm-head { display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; font-weight:800; letter-spacing:0.04em; color:var(--text-main); margin:8px 0 4px; }
+    .motor-arm-head .dot { display:inline-block; width:7px; height:7px; border-radius:50%; margin-right:6px; }
+    table.motor-table { width:100%; border-collapse:collapse; font-size:0.68rem; font-family:"IBM Plex Mono", monospace; }
+    table.motor-table th { text-align:right; font-weight:700; color:var(--text-muted); padding:3px 4px; border-bottom:1px solid var(--border); white-space:nowrap; }
+    table.motor-table th:first-child, table.motor-table th:nth-child(2) { text-align:left; }
+    table.motor-table td { text-align:right; padding:3px 4px; border-bottom:1px solid rgba(100,116,139,0.12); white-space:nowrap; font-variant-numeric: tabular-nums; }
+    table.motor-table td:first-child, table.motor-table td:nth-child(2) { text-align:left; }
+    table.motor-table tr.stale td { opacity:0.45; }
+    .mstate { display:inline-block; padding:1px 6px; border-radius:8px; font-weight:700; font-family:inherit; }
+    .mstate.ok { background:rgba(34,197,94,0.12); color:#16a34a; }
+    .mstate.off { background:rgba(100,116,139,0.15); color:#64748b; }
+    .mstate.err { background:rgba(239,68,68,0.15); color:#dc2626; }
+    td.t-warn { color:#d97706; font-weight:700; }
+    td.t-hot { color:#dc2626; font-weight:800; }
     .form-group label { display: block; font-size: 0.78rem; font-weight: 600; margin-bottom: 6px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
     input, select {
       width: 100%; padding: 10px 12px;
@@ -517,7 +532,7 @@ HTML_TEMPLATE = """<!doctype html>
 <body>
 <script>
 async function ihubEmergencyStop(){
-  if(!confirm('EMERGENCY STOP\n\nKill the ROS 2 bringup now?')) return;
+  if(!confirm('EMERGENCY STOP\\n\\nKill the ROS 2 bringup now?')) return;
   var btn=document.getElementById('ihubEstop');
   var prev=btn.textContent; btn.disabled=true; btn.textContent='STOPPING…';
   try{
@@ -556,25 +571,36 @@ async function ihubEmergencyStop(){
     <div class="panel left-panel">
       <h2>1. Task & Recording Setup</h2>
       <div class="form-group">
-        <label>Dataset Identifier</label>
-        <input type="text" id="dataset_name" value="" placeholder="Example: pick_and_place_v1" oninput="syncDatasetNames()" autocomplete="off" />
+        <label>Dataset</label>
+        <div style="display:flex; gap:8px;">
+          <select id="dataset_select" onchange="onDatasetSelect()" style="flex:1;">
+            <option value="__new__">+ Create new dataset</option>
+          </select>
+          <button class="btn-outline" onclick="refreshDatasetList()" title="Refresh dataset folder list" style="padding: 0 12px;">&#8635;</button>
+        </div>
+        <input type="text" id="dataset_name" value="" placeholder="New dataset name, e.g. pick_and_place_v1" oninput="onNewDatasetNameInput()" autocomplete="off" style="margin-top:8px;" />
+        <div id="dataset_mode_hint" style="font-size:0.72rem; color:var(--text-muted); margin-top:4px;">New dataset folder will be created on first recording.</div>
       </div>
       
       <div class="form-group">
         <label>Task 1 Name</label>
+        <select id="task1_pick" style="display:none;" onchange="onSavedPick('task1')"></select>
         <input type="text" id="task1_name" value="" placeholder="Example: pick_object" oninput="updateTaskLabels()" autocomplete="off" />
       </div>
       <div class="form-group">
         <label>Prompt 1 Instruction</label>
+        <select id="prompt1_pick" style="display:none;" onchange="onSavedPick('prompt1')"></select>
         <input type="text" id="prompt1_used" value="" placeholder="Example: Pick up the target object" autocomplete="off" />
       </div>
       
       <div class="form-group">
         <label>Task 2 Name</label>
+        <select id="task2_pick" style="display:none;" onchange="onSavedPick('task2')"></select>
         <input type="text" id="task2_name" value="" placeholder="Example: place_object" oninput="updateTaskLabels()" autocomplete="off" />
       </div>
       <div class="form-group">
         <label>Prompt 2 Instruction</label>
+        <select id="prompt2_pick" style="display:none;" onchange="onSavedPick('prompt2')"></select>
         <input type="text" id="prompt2_used" value="" placeholder="Example: Place the object in the destination" autocomplete="off" />
       </div>
       <div style="margin-top: 10px; padding: 14px; background: #eaf2ff; border: 1px solid rgba(31, 111, 235, 0.2); border-radius: 10px;">
@@ -639,9 +665,10 @@ async function ihubEmergencyStop(){
         <!-- Live Motor Temperatures -->
         <div style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0z"/></svg>
-          Live Motor Temperatures
+          Arm Motor Status
+          <span style="font-weight:500; text-transform:none; letter-spacing:0;">(hardware interface)</span>
         </div>
-        <div id="data-motor-temp-list" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; max-height: 150px; overflow-y: auto;">
+        <div id="data-motor-temp-list" style="max-height: 360px; overflow: auto;">
           <div style="font-size:0.75rem; color:#64748b;">Initializing motor telemetry…</div>
         </div>
       </div>
@@ -774,6 +801,173 @@ async function ihubEmergencyStop(){
   <div class="toast-container" id="toast-container"></div>
 
   <script>
+    // ── Dataset folder + saved task/prompt pickers ─────────────────────────
+    const NEW_DATASET = '__new__';
+    const CUSTOM_VALUE = '__custom__';
+    const PICK_FIELDS = {
+      task1:   { input: 'task1_name',   kind: 'task' },
+      prompt1: { input: 'prompt1_used', kind: 'prompt' },
+      task2:   { input: 'task2_name',   kind: 'task' },
+      prompt2: { input: 'prompt2_used', kind: 'prompt' },
+    };
+    let knownDatasets = [];      // [{name, episodes}]
+    let savedTaskPairs = [];     // [{task, prompt}] of the selected dataset
+
+    async function refreshDatasetList(selectName) {
+      const sel = document.getElementById('dataset_select');
+      const current = selectName !== undefined ? selectName : sel.value;
+      try {
+        const res = await fetch('/api/datasets/list');
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.error || 'list failed');
+        knownDatasets = data.datasets || [];
+      } catch (e) {
+        showToast('Could not load dataset folders: ' + e, true);
+        return;
+      }
+      sel.innerHTML = '';
+      sel.add(new Option('+ Create new dataset', NEW_DATASET));
+      knownDatasets.forEach(d => {
+        sel.add(new Option(`${d.name}  (${d.episodes} ep)`, d.name));
+      });
+      if (current && current !== NEW_DATASET && knownDatasets.some(d => d.name === current)) {
+        sel.value = current;
+      } else {
+        sel.value = NEW_DATASET;
+      }
+    }
+
+    function isExistingDataset(name) {
+      return knownDatasets.some(d => d.name === name);
+    }
+
+    async function onDatasetSelect() {
+      const sel = document.getElementById('dataset_select');
+      const nameInput = document.getElementById('dataset_name');
+      const hint = document.getElementById('dataset_mode_hint');
+      if (sel.value === NEW_DATASET) {
+        nameInput.style.display = '';
+        nameInput.value = '';
+        hint.innerText = 'New dataset folder will be created on first recording.';
+        savedTaskPairs = [];
+        setPickersVisible(false);
+        ['task1_name', 'prompt1_used', 'task2_name', 'prompt2_used'].forEach(id => document.getElementById(id).value = '');
+        updateTaskLabels();
+        syncDatasetNames();
+        nameInput.focus();
+        return;
+      }
+      nameInput.style.display = 'none';
+      nameInput.value = sel.value;
+      syncDatasetNames();
+      await loadSavedTasks(sel.value);
+      loadDatasetStats();
+    }
+
+    function onNewDatasetNameInput() {
+      const name = document.getElementById('dataset_name').value.trim();
+      const hint = document.getElementById('dataset_mode_hint');
+      syncDatasetNames();
+      if (name && isExistingDataset(name)) {
+        hint.innerHTML = `<span style="color:#d97706; font-weight:700;">"${_escapeHtml(name)}" already exists</span> — pick it from the dropdown to continue it.`;
+      } else {
+        hint.innerText = 'New dataset folder will be created on first recording.';
+      }
+    }
+
+    async function loadSavedTasks(datasetName) {
+      const hint = document.getElementById('dataset_mode_hint');
+      hint.innerText = 'Loading saved tasks...';
+      let data;
+      try {
+        const res = await fetch(`/api/dataset/tasks?dataset_name=${encodeURIComponent(datasetName)}`);
+        data = await res.json();
+      } catch (e) {
+        data = { ok: false, error: String(e) };
+      }
+      if (!data.ok) {
+        hint.innerText = 'Could not read saved tasks: ' + (data.error || 'unknown');
+        savedTaskPairs = [];
+        setPickersVisible(false);
+        return;
+      }
+      savedTaskPairs = data.tasks || [];
+      hint.innerText = `Continuing dataset — ${data.episode_count} episode(s) saved. New episodes are appended.`;
+
+      const slots = data.task_slots || [];
+      const taskOpts = [...new Set(savedTaskPairs.map(p => p.task))];
+      const promptOpts = [...new Set(savedTaskPairs.map(p => p.prompt).filter(Boolean))];
+      [1, 2].forEach(i => {
+        const slot = slots[i - 1] || {};
+        fillPicker('task' + i, taskOpts, slot.task || '');
+        fillPicker('prompt' + i, promptOpts, slot.prompt || promptForTask(slot.task));
+      });
+      setPickersVisible(true);
+      updateTaskLabels();
+    }
+
+    function promptForTask(task) {
+      const pair = savedTaskPairs.find(p => p.task === task && p.prompt);
+      return pair ? pair.prompt : '';
+    }
+
+    // Saved values go in the dropdown; "Enter new…" reveals the text box.
+    function fillPicker(key, options, value) {
+      const sel = document.getElementById(key + '_pick');
+      const input = document.getElementById(PICK_FIELDS[key].input);
+      sel.innerHTML = '';
+      options.forEach(o => sel.add(new Option(o, o)));
+      sel.add(new Option('✎ Enter new ' + PICK_FIELDS[key].kind + '...', CUSTOM_VALUE));
+      if (value && options.includes(value)) {
+        sel.value = value;
+        input.value = value;
+        input.style.display = 'none';
+      } else if (value) {
+        sel.value = CUSTOM_VALUE;
+        input.value = value;
+        input.style.display = '';
+      } else if (options.length) {
+        sel.value = options[0];
+        input.value = options[0];
+        input.style.display = 'none';
+      } else {
+        sel.value = CUSTOM_VALUE;
+        input.value = '';
+        input.style.display = '';
+      }
+    }
+
+    function onSavedPick(key) {
+      const sel = document.getElementById(key + '_pick');
+      const input = document.getElementById(PICK_FIELDS[key].input);
+      if (sel.value === CUSTOM_VALUE) {
+        input.value = '';
+        input.style.display = '';
+        input.focus();
+      } else {
+        input.value = sel.value;
+        input.style.display = 'none';
+        // Picking a saved task also selects the prompt it was recorded with.
+        if (PICK_FIELDS[key].kind === 'task') {
+          const promptKey = key.replace('task', 'prompt');
+          const prompt = promptForTask(sel.value);
+          const pSel = document.getElementById(promptKey + '_pick');
+          if (prompt && [...pSel.options].some(o => o.value === prompt)) {
+            pSel.value = prompt;
+            onSavedPick(promptKey);
+          }
+        }
+      }
+      updateTaskLabels();
+    }
+
+    function setPickersVisible(visible) {
+      Object.keys(PICK_FIELDS).forEach(key => {
+        document.getElementById(key + '_pick').style.display = visible ? '' : 'none';
+        if (!visible) document.getElementById(PICK_FIELDS[key].input).style.display = '';
+      });
+    }
+
     function updateTaskLabels() {
         const t1 = document.getElementById('task1_name').value || 'Task 1';
         const t2 = document.getElementById('task2_name').value || 'Task 2';
@@ -1037,32 +1231,62 @@ async function ihubEmergencyStop(){
 
         if (listEl) {
           if (!motors.length) {
-            listEl.innerHTML = '<div style="font-size:0.75rem; color:#64748b; grid-column: 1/-1;">Waiting for motor topics…</div>';
+            listEl.innerHTML = '<div style="font-size:0.75rem; color:#64748b;">Waiting for /LeftArmSystem/motor_status and /RightArmSystem/motor_status…</div>';
           } else {
-            listEl.innerHTML = motors.map(m => {
-              const temp = m.temperature !== undefined ? parseFloat(m.temperature) : 38.0;
-              const name = m.name || 'Motor';
-              
-              if (temp > 80) {
-                hasWarning = true;
-                warningText = `🚨 CRITICAL: Motor [${name}] at ${temp.toFixed(1)}°C (>80°C) — hardware damage risk!`;
-              } else if (temp >= 65) {
-                hasWarning = true;
-                warningText = `🚨 HIGH THERMAL ALERT: Motor [${name}] at ${temp.toFixed(1)}°C (65°C - 80°C)`;
-              } else if (temp >= 60 && !hasWarning) {
-                hasWarning = true;
-                warningText = `⚠️ MOTOR OVERHEAT WARNING: Motor [${name}] elevated at ${temp.toFixed(1)}°C (60°C - 65°C)`;
+            const fmt = (v, d) => (v === null || v === undefined || !isFinite(v)) ? '—' : Number(v).toFixed(d);
+            const tempCell = (t) => {
+              if (t === null || t === undefined || t < 0) return '<td>—</td>';
+              const cls = t >= 65 ? 't-hot' : (t >= 60 ? 't-warn' : '');
+              return `<td class="${cls}">${t.toFixed(0)}</td>`;
+            };
+            const arms = data.arms || {};
+            let html = '';
+            for (const side of ['left', 'right']) {
+              const rows = motors.filter(m => m.arm === side);
+              if (!rows.length) continue;
+              const online = arms[side] ? arms[side].online : true;
+              html += `<div class="motor-arm-head">
+                  <span><span class="dot" style="background:${online ? '#22c55e' : '#94a3b8'}"></span>${side.toUpperCase()} ARM</span>
+                  <span style="font-weight:600; color:var(--text-muted);">${online ? 'live' : 'no data'}</span>
+                </div>
+                <table class="motor-table"><thead><tr>
+                  <th>#</th><th>State</th><th title="MOS temperature °C">MOS°</th><th title="Rotor temperature °C">Rot°</th>
+                  <th title="Position (rad)">Pos</th><th title="Velocity (rad/s)">Vel</th><th title="Effort / torque">Eff</th>
+                </tr></thead><tbody>`;
+              for (const m of rows) {
+                const state = m.error_name || 'Unknown';
+                const cls = m.error === 1 ? 'ok' : (m.error === 0 ? 'off' : 'err');
+                const tip = `${m.joint || m.name} · motor ID ${m.id} · error code ${m.error}`;
+                html += `<tr class="${m.stale ? 'stale' : ''}" title="${_escapeHtml(tip)}">
+                  <td>${_escapeHtml(m.name)}</td>
+                  <td><span class="mstate ${cls}">${_escapeHtml(state)}</span></td>
+                  ${tempCell(m.mos_temp)}${tempCell(m.rotor_temp)}
+                  <td>${fmt(m.pos, 2)}</td><td>${fmt(m.vel, 2)}</td><td>${fmt(m.eff, 2)}</td>
+                </tr>`;
+
+                const name = `${side} motor ${m.name.slice(1)} (ID ${m.id})`;
+                const temp = Math.max(m.mos_temp ?? -1, m.rotor_temp ?? -1);
+                if (!m.stale && cls === 'err') {
+                  hasWarning = true;
+                  warningText = `🚨 MOTOR FAULT: ${name} — ${state}`;
+                } else if (temp > 80) {
+                  hasWarning = true;
+                  warningText = `🚨 CRITICAL: ${name} at ${temp.toFixed(1)}°C (>80°C) — hardware damage risk!`;
+                } else if (temp >= 65 && !warningText.startsWith('🚨')) {
+                  hasWarning = true;
+                  warningText = `🚨 HIGH THERMAL ALERT: ${name} at ${temp.toFixed(1)}°C (65°C - 80°C)`;
+                } else if (temp >= 60 && !hasWarning) {
+                  hasWarning = true;
+                  warningText = `⚠️ MOTOR OVERHEAT WARNING: ${name} at ${temp.toFixed(1)}°C (60°C - 65°C)`;
+                }
               }
-
-              let badgeStyle = 'background: rgba(34, 197, 94, 0.1); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3);';
-              if (temp >= 65) badgeStyle = 'background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.5); font-weight: bold; animation: estopPulse 1.5s infinite;';
-              else if (temp >= 60) badgeStyle = 'background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5); font-weight: bold;';
-
-              return `<div style="padding: 5px 8px; border-radius: 6px; font-size: 0.72rem; display: flex; justify-content: space-between; align-items: center; ${badgeStyle}">
-                <span style="font-weight: 600; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">${name}</span>
-                <span style="font-family: monospace;">${temp.toFixed(1)}°C</span>
-              </div>`;
-            }).join('');
+              html += '</tbody></table>';
+              if (!online) {
+                hasWarning = true;
+                if (!warningText) warningText = `⚠️ ${side.toUpperCase()} arm motor status not received for over 2 s`;
+              }
+            }
+            listEl.innerHTML = html;
           }
         }
 
@@ -1385,25 +1609,37 @@ async function ihubEmergencyStop(){
     // Each browser manages its own cameras — the server never pushes cameras
     // from one user's session into another user's browser.
 
+    // Steps advance in whole seconds of recording: 30 Hz -> 0, 30, 60, 90 ...;
+    // 10 Hz -> 0, 10, 20 ... The final value is always the episode length.
+    function quantizeStep(step, hz, maxSteps) {
+        step = Math.max(0, parseInt(step) || 0);
+        if (maxSteps > 0 && step >= maxSteps) return maxSteps;
+        const perSec = Math.max(1, Math.round(hz || 0));
+        return Math.floor(step / perSec) * perSec;
+    }
+    let lastShownSteps = null;
+    function showSteps(text) {
+        if (text === lastShownSteps) return;
+        lastShownSteps = text;
+        document.getElementById('live_steps_display').innerText = text;
+    }
+
     let liveStepTimer = null;
     function startLiveSteps(hz, maxSteps) {
         clearInterval(liveStepTimer);
-        let currentStep = 0;
-        const display = document.getElementById('live_steps_display');
-        display.innerText = `Steps: 0 / ${maxSteps}`;
+        const t0 = performance.now();
+        showSteps(`Steps: 0 / ${maxSteps}`);
         if (hz <= 0) return;
-        const intervalMs = 1000 / hz;
         liveStepTimer = setInterval(() => {
-            currentStep++;
-            display.innerText = `Steps: ${currentStep} / ${maxSteps}`;
-            if (currentStep >= maxSteps) {
-                clearInterval(liveStepTimer);
-            }
-        }, intervalMs);
+            const secs = Math.floor((performance.now() - t0) / 1000);
+            const step = Math.min(maxSteps, Math.round(secs * hz));
+            showSteps(`Steps: ${step} / ${maxSteps}`);
+            if (step >= maxSteps) clearInterval(liveStepTimer);
+        }, 100);
     }
-    function stopLiveSteps() {
+    function stopLiveSteps(finalText) {
         clearInterval(liveStepTimer);
-        document.getElementById('live_steps_display').innerText = `Steps: Stopped`;
+        showSteps(finalText || 'Steps: Stopped');
     }
 
     async function startRecord() {
@@ -1415,6 +1651,14 @@ async function ihubEmergencyStop(){
       if (!datasetName || !taskName || !promptUsed) {
         showToast('Enter a dataset name, selected task name, and selected task prompt before recording.', true);
         return;
+      }
+      const creatingNew = document.getElementById('dataset_select').value === NEW_DATASET;
+      if (creatingNew && isExistingDataset(datasetName)) {
+        const ok = await showConfirmModal(
+          'Dataset Already Exists',
+          `"${datasetName}" already exists. New episodes will be appended to it. Continue?`,
+          '', 'Continue');
+        if (!ok) return;
       }
 
       const getVal = (id) => { const el = document.getElementById(id); return el ? el.value : ''; };
@@ -1463,6 +1707,10 @@ async function ihubEmergencyStop(){
         domain_id: parseInt(document.getElementById('domain_id').value || "0"),
         interdelay: parseFloat(document.getElementById('interdelay').value),
         fps: parseInt(document.getElementById('fps').value || "10"),
+        task_slots: [1, 2].map(i => ({
+          task: document.getElementById('task' + i + '_name').value.trim(),
+          prompt: document.getElementById('prompt' + i + '_used').value.trim(),
+        })),
         topics: topics
       };
       showToast('Starting recording...');
@@ -1472,6 +1720,13 @@ async function ihubEmergencyStop(){
         if(data.ok) {
             showToast('Recording request sent — waiting for topics...');
             _statusPollerActive = true;
+            showSteps(`Steps: 0 / ${payload.episode_length}`);
+            if (creatingNew) {
+              // Folder now exists: switch the dropdown to "continue" mode for it.
+              await refreshDatasetList(datasetName);
+              document.getElementById('dataset_name').style.display = 'none';
+              document.getElementById('dataset_mode_hint').innerText = 'Recording into this dataset — new episodes are appended.';
+            }
         } else {
             showToast('Start failed: ' + (data.error || 'Unknown'), true);
         }
@@ -1489,6 +1744,7 @@ async function ihubEmergencyStop(){
             stopLiveSteps();
             hideRecStatusPanel();
             loadDatasetStats();
+            refreshDatasetList();
         } else {
             showToast('Error: ' + data.error, true);
         }
@@ -1586,8 +1842,9 @@ async function ihubEmergencyStop(){
         });
         const data = await res.json();
         if(data.ok) {
-          showToast(`Episode ${episodeDisplay} deleted successfully`);
+          showToast(`Episode ${episodeDisplay} deleted — ${data.total_episodes} episode(s), ${data.total_frames} frames left`);
           loadDatasetStats();
+          refreshDatasetList();
         } else {
           showToast('Delete failed: ' + (data.error || 'Unknown'), true);
         }
@@ -1707,6 +1964,11 @@ async function ihubEmergencyStop(){
           overlays.forEach(overlay => overlay.style.display = 'none');
         }
 
+        const hz = data.record_hz || parseFloat(document.getElementById('record_hz').value) || 30;
+        const epInfo = data.max_episodes > 1
+          ? ` (ep ${Math.min(data.episodes_recorded + (data.recording ? 1 : 0), data.max_episodes)}/${data.max_episodes})`
+          : '';
+
         if (data.recording) {
           if (!_statusRecordingStarted) {
             _statusRecordingStarted = true;
@@ -1722,25 +1984,33 @@ async function ihubEmergencyStop(){
                 el.value = data.dataset_name;
               }
             });
+            const sel = document.getElementById('dataset_select');
+            if (sel.value !== data.dataset_name && isExistingDataset(data.dataset_name)) {
+              sel.value = data.dataset_name;
+              document.getElementById('dataset_name').style.display = 'none';
+            }
           }
-          
-          const display = document.getElementById('live_steps_display');
-          if (display) {
-            display.innerText = `Steps: ${data.step_count} / ${data.max_steps}`;
-          }
+
+          const step = quantizeStep(data.step_count, hz, data.max_steps);
+          showSteps(`Steps: ${step} / ${data.max_steps}${epInfo}`);
         } else if (data.validation_blocked) {
           // Paused between episodes waiting on the validation banner's
           // Acknowledge button -- not a real stop, so don't run the
           // stopped-and-saved cleanup below (it would contradict the
           // failed-validation banner shown above).
+        } else if (_statusRecordingStarted && data.session_active) {
+          // Episode saved, waiting out the inter-episode delay before the
+          // recorder auto-starts the next one -- not a stop.
+          showSteps(`Saved — next episode starting...${epInfo}`);
         } else {
           if (_statusRecordingStarted) {
             _statusRecordingStarted = false;
             _statusPollerActive = false;
-            stopLiveSteps();
+            stopLiveSteps(`Steps: Stopped — saved${data.episodes_recorded ? ' ' + data.episodes_recorded + ' episode(s)' : ''}`);
             hideRecStatusPanel();
             showToast('Recording stopped and saved successfully');
             loadDatasetStats();
+            refreshDatasetList();
           } else {
             if (_statusPollerActive) {
               showRecStatusPanel(data.missing || []);
@@ -1870,6 +2140,7 @@ async function ihubEmergencyStop(){
     }
 
     loadConfig();
+    refreshDatasetList();
     // Auto-load topics for domain 55 on startup so cameras connect immediately
     loadTopics(true).then(() => initFixedCameraLayout());
     // Also init camera grid immediately (before topics finish loading) for UI display
@@ -1990,6 +2261,7 @@ class DataManagementUINode(Node):
         
         # Motor status from real ROS topics
         self._motor_data = {}   # {'left': [...], 'right': [...]}
+        self._motor_stamp = {}  # side -> monotonic time of last motor_status
         self._motor_lock = threading.Lock()
         self.create_subscription(
             MotorStatusArray,
@@ -2003,7 +2275,14 @@ class DataManagementUINode(Node):
             lambda msg: self._motor_cb(msg, 'right'),
             10
         )
-        self.get_logger().info('Subscribed to /LeftArmSystem/motor_status and /RightArmSystem/motor_status')
+        # Position / velocity / effort per motor, published by the same arm
+        # hardware interface right after motor_status.
+        self._joint_data = {}   # side -> {name: (pos, vel, eff)}
+        for side, arm in (('left', 'LeftArmSystem'), ('right', 'RightArmSystem')):
+            self.create_subscription(
+                JointState, f'/{arm}_ordered_joint_states',
+                lambda msg, side=side: self._joint_cb(msg, side), 10)
+        self.get_logger().info('Subscribed to /{Left,Right}ArmSystem/motor_status and _ordered_joint_states')
 
         # Current mode_toggler status ("teach" / "normal" / "transitioning" / ...)
         self._mode_status = "unknown"
@@ -2074,17 +2353,30 @@ class DataManagementUINode(Node):
             self.get_logger().error(f"Error in replay status callback: {e}")
 
     def _motor_cb(self, msg: MotorStatusArray, side: str):
-        """Cache latest per-motor status (id/error/error_name/mos_temp/rotor_temp)."""
+        """Cache latest per-motor status from the arm hardware interface
+        (id / error code / error_name / MOS temp / rotor temp)."""
         motors = []
         for m in msg.motors:
             motors.append({
-                'name': f'motor_{m.id}',
+                'arm': side,
+                'id': int(m.id),
+                'error': int(m.error),
                 'error_name': m.error_name,
                 'mos_temp': float(m.mos_temp),
                 'rotor_temp': float(m.rotor_temp),
             })
         with self._motor_lock:
             self._motor_data[side] = motors
+            self._motor_stamp[side] = time.monotonic()
+
+    def _joint_cb(self, msg: JointState, side: str):
+        with self._motor_lock:
+            self._joint_data[side] = {
+                'names': list(msg.name),
+                'pos': list(msg.position),
+                'vel': list(msg.velocity),
+                'eff': list(msg.effort),
+            }
 
     def _mode_status_cb(self, msg):
         with self._mode_status_lock:
@@ -2095,12 +2387,28 @@ class DataManagementUINode(Node):
             return self._mode_status
 
     def get_motor_status(self):
-        """Return combined left + right motor data as list, plus live battery telemetry."""
+        """Return per-motor status for both arms (merged with joint
+        position/velocity/effort, in the hardware interface's motor order),
+        plus live battery telemetry."""
+        now = time.monotonic()
+        all_motors = []
+        arms = {}
         with self._motor_lock:
-            all_motors = (
-                self._motor_data.get('left', []) +
-                self._motor_data.get('right', [])
-            )
+            for side in ('left', 'right'):
+                age = now - self._motor_stamp[side] if side in self._motor_stamp else None
+                stale = age is None or age > 2.0
+                arms[side] = {'online': not stale, 'age': age}
+                joints = self._joint_data.get(side, {})
+                for i, m in enumerate(self._motor_data.get(side, [])):
+                    row = dict(m)
+                    row['stale'] = stale
+                    # motor_status and ordered_joint_states share one index order
+                    for key, src in (('joint', 'names'), ('pos', 'pos'), ('vel', 'vel'), ('eff', 'eff')):
+                        vals = joints.get(src, [])
+                        row[key] = vals[i] if i < len(vals) else None
+                    row['name'] = f"{side[0].upper()}{i + 1}"
+                    row['temperature'] = max(row['mos_temp'], row['rotor_temp'])
+                    all_motors.append(row)
         
         battery = 87.0
         try:
@@ -2115,10 +2423,16 @@ class DataManagementUINode(Node):
                     left_m = tel.get("motors_left", [])
                     right_m = tel.get("motors_right", [])
                     formatted = []
-                    for m in left_m:
-                        formatted.append({"name": f"Left Joint {m.get('id','?')}", "temperature": m.get('rotor_temp', 38.0), "status": m.get('error_name', 'Enabled')})
-                    for m in right_m:
-                        formatted.append({"name": f"Right Joint {m.get('id','?')}", "temperature": m.get('rotor_temp', 38.0), "status": m.get('error_name', 'Enabled')})
+                    for side, lst in (('left', left_m), ('right', right_m)):
+                        for i, m in enumerate(lst):
+                            mos = float(m.get('mos_temp', -1))
+                            rotor = float(m.get('rotor_temp', -1))
+                            formatted.append({
+                                "arm": side, "id": m.get('id', i + 1), "name": f"{side[0].upper()}{i + 1}",
+                                "error": m.get('error', -1), "error_name": m.get('error_name', 'Unknown'),
+                                "mos_temp": mos, "rotor_temp": rotor, "temperature": max(mos, rotor),
+                                "pos": None, "vel": None, "eff": None, "joint": None, "stale": False,
+                            })
                     all_motors = formatted
         except Exception:
             pass
@@ -2126,6 +2440,7 @@ class DataManagementUINode(Node):
         return {
             'ok': True,
             'motors': all_motors,
+            'arms': arms,
             'battery': battery,
             'mode': self.get_mode_status(),
         }
@@ -2155,8 +2470,11 @@ class DataManagementUINode(Node):
         dataset_name = ""
         validation_blocked = False
         last_episode_validation = None
+        extra = {'session_active': False, 'record_hz': 0, 'episodes_recorded': 0, 'max_episodes': 0}
 
         if recorder_alive and self._last_recorder_status:
+            for k in extra:
+                extra[k] = self._last_recorder_status.get(k, extra[k])
             recording = self._last_recorder_status.get('recording', False)
             step_count = self._last_recorder_status.get('step_count', 0)
             max_steps = self._last_recorder_status.get('max_steps', 500)
@@ -2175,7 +2493,8 @@ class DataManagementUINode(Node):
                 'missing': [],
                 'server_domain': server_domain,
                 'validation_blocked': validation_blocked,
-                'last_episode_validation': last_episode_validation
+                'last_episode_validation': last_episode_validation,
+                **extra,
             }
 
         missing = []
@@ -2201,7 +2520,8 @@ class DataManagementUINode(Node):
             'missing': missing,
             'server_domain': server_domain,
             'validation_blocked': validation_blocked,
-            'last_episode_validation': last_episode_validation
+            'last_episode_validation': last_episode_validation,
+            **extra,
         }
 
     def get_config(self):
@@ -2354,6 +2674,124 @@ class DataManagementUINode(Node):
             self._replay_video_thread_running = False
             self.get_logger().info("Replay video thread terminated.")
 
+    def list_datasets(self):
+        """Dataset folders under root_dir, newest first."""
+        base = Path(self.get_dataset_base_dir())
+        if not base.is_dir():
+            return {"ok": True, "root_dir": str(base), "datasets": []}
+        entries = []
+        for d in base.iterdir():
+            if not d.is_dir() or d.name.startswith('.'):
+                continue
+            episodes = 0
+            ep_file = d / "meta" / "episodes" / "chunk-000" / "episodes.parquet"
+            if ep_file.exists():
+                try:
+                    import pyarrow.parquet as pq
+                    episodes = int(pq.ParquetFile(ep_file).metadata.num_rows)
+                except Exception:
+                    pass
+            entries.append((d.stat().st_mtime, {"name": d.name, "episodes": episodes}))
+        entries.sort(key=lambda e: e[0], reverse=True)
+        return {"ok": True, "root_dir": str(base), "datasets": [e[1] for e in entries]}
+
+    def get_dataset_tasks(self, dataset_name):
+        """Task/prompt pairs already saved in a dataset, plus the Task 1 /
+        Task 2 slots the operator used last time (from ros2_topics.json)."""
+        base = Path(self.get_dataset_base_dir()) / dataset_name
+        if not dataset_name or not base.is_dir():
+            return {"ok": False, "error": f"Dataset '{dataset_name}' not found"}
+
+        pairs = []
+        def add(task, prompt):
+            task = str(task or '').strip()
+            prompt = str(prompt or '').strip()
+            if task and (task, prompt) not in pairs:
+                pairs.append((task, prompt))
+
+        saved = {}
+        topics_file = base / "ros2_topics.json"
+        if topics_file.exists():
+            try:
+                with open(topics_file, 'r') as f:
+                    saved = json.load(f) or {}
+            except Exception:
+                pass
+        slots = [{'task': str(sl.get('task', '')), 'prompt': str(sl.get('prompt', ''))}
+                 for sl in saved.get('task_slots') or []]
+
+        episode_count = 0
+        try:
+            import pandas as pd
+            tasks_file = base / "meta" / "tasks.parquet"
+            if tasks_file.exists():
+                tdf = pd.read_parquet(tasks_file)
+                if 'task_index' in tdf.columns:
+                    tdf = tdf.sort_values('task_index')
+                for _, row in tdf.iterrows():
+                    add(row.get('task'), row.get('prompt', ''))
+            ep_file = base / "meta" / "episodes" / "chunk-000" / "episodes.parquet"
+            if ep_file.exists():
+                edf = pd.read_parquet(ep_file)
+                episode_count = int(len(edf))
+                if 'task' in edf.columns:
+                    cols = ['task', 'prompt'] if 'prompt' in edf.columns else ['task']
+                    for _, row in edf[cols].drop_duplicates().iterrows():
+                        add(row.get('task'), row.get('prompt', ''))
+        except Exception as e:
+            self.get_logger().warn(f"Reading tasks of '{dataset_name}' failed: {e}")
+        for sl in slots:
+            add(sl['task'], sl['prompt'])
+        add(saved.get('task'), saved.get('prompt'))
+
+        # No saved slots (older datasets): fill Task 1/2 from tasks.parquet order.
+        if not slots:
+            seen = []
+            for task, prompt in pairs:
+                if task not in seen:
+                    seen.append(task)
+                    slots.append({'task': task, 'prompt': prompt})
+                if len(slots) == 2:
+                    break
+
+        return {
+            "ok": True,
+            "dataset_name": dataset_name,
+            "episode_count": episode_count,
+            "task_slots": slots[:2],
+            "tasks": [{'task': t, 'prompt': p} for t, p in pairs],
+        }
+
+    def delete_episode(self, dataset_name, position):
+        """Delete the episode shown as number position+1 in the UI.
+
+        Runs the same delete_episode() as the CLI (files, episodes.parquet,
+        renumbering, embedded indices, info/stats rebuild). Refused while a
+        recording session is active: the recorder appends to this dataset
+        and must not race with the renumbering."""
+        status = self._last_recorder_status or {}
+        if status.get('recording') or status.get('session_active'):
+            return {"ok": False, "error": "Stop recording before deleting episodes."}
+        if not dataset_name:
+            return {"ok": False, "error": "Missing dataset_name"}
+        try:
+            import pandas as pd
+            from daksha_data_collection.delete_episode import delete_episode
+            base = Path(self.get_dataset_base_dir()) / dataset_name
+            ep_file = base / "meta" / "episodes" / "chunk-000" / "episodes.parquet"
+            indices = sorted(pd.read_parquet(ep_file, columns=['episode_index'])['episode_index'].astype(int))
+            position = int(position)
+            if position < 0 or position >= len(indices):
+                return {"ok": False, "error": f"Episode {position + 1} does not exist (1 to {len(indices)})"}
+            new_info = delete_episode(base, indices[position])
+            self.get_logger().info(f"Deleted episode {position + 1} from {dataset_name}")
+            return {"ok": True,
+                    "total_episodes": new_info.get("total_episodes"),
+                    "total_frames": new_info.get("total_frames")}
+        except Exception as e:
+            self.get_logger().error(f"Delete failed for {dataset_name}: {e}")
+            return {"ok": False, "error": str(e)}
+
     def get_topics_for_domain(self, domain_id, calling_session=None):
         """List ROS topics for the requested domain_id.
 
@@ -2492,6 +2930,7 @@ class DataManagementUINode(Node):
             saved = {
                 'task': task,
                 'prompt': prompt,
+                'task_slots': params.get('task_slots') or [],
                 'params': params,
                 'topics': topics_map,
             }
@@ -2807,6 +3246,11 @@ class UIRequestHandler(BaseHTTPRequestHandler):
         elif parsed.path == '/api/config':
             result = self.server.ros_node.get_config()
             self._send_json(result)
+        elif parsed.path == '/api/datasets/list':
+            self._send_json(self.server.ros_node.list_datasets())
+        elif parsed.path == '/api/dataset/tasks':
+            name = parse_qs(parsed.query).get('dataset_name', [''])[0]
+            self._send_json(self.server.ros_node.get_dataset_tasks(name))
         elif parsed.path == '/api/dataset/info':
             query_params = parse_qs(parsed.query)
             dataset_name = query_params.get('dataset_name', [''])[0]
@@ -2848,7 +3292,7 @@ class UIRequestHandler(BaseHTTPRequestHandler):
                             self.server.ros_node.get_logger().error(f"Failed to read episodes parquet: {e}")
                 
                 tasks_df = pd.DataFrame()
-                tasks_file = base / "meta" / "tasks" / "chunk-000" / "tasks.parquet"
+                tasks_file = base / "meta" / "tasks.parquet"
                 if tasks_file.exists():
                     try:
                         tasks_df = pd.read_parquet(tasks_file)
@@ -2943,14 +3387,7 @@ class UIRequestHandler(BaseHTTPRequestHandler):
             elif parsed.path == '/api/dataset/delete-episode':
                 dataset_name = payload.get('dataset_name')
                 episode = payload.get('episode')
-                try:
-                    from daksha_data_collection.delete_episode import delete_episode
-                    from pathlib import Path
-                    base = Path(self.server.ros_node.get_dataset_base_dir()) / dataset_name
-                    delete_episode(base, episode)
-                    result = {"ok": True}
-                except Exception as e:
-                    result = {"ok": False, "error": str(e)}
+                result = self.server.ros_node.delete_episode(dataset_name, episode)
             elif parsed.path == '/api/cameras/register':
                 name = payload.get('name')
                 topic = payload.get('topic')

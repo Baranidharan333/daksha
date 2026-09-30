@@ -33,3 +33,5 @@ env/
 *.tmp
 *.swp
 *~
+src.zip
+*.zip
